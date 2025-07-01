@@ -4,7 +4,7 @@ import { SiFiverr } from "react-icons/si";
 
 export default function Footer() {
   return (
-    <footer className="w-full pt-16 bg-gradient-to-r from-blue-50 via-green-50 to-purple-50 dark:from-[#17223b] dark:via-[#172a39] dark:to-[#1a1e2d] border-t dark:border-gray-800 shadow-inner">
+    <footer className="w-full pt-16 bg-gradient-to-r from-blue-50 via-green-50 to-purple-50 dark:from-[#17223b] dark:via-[#172a39] dark:to-[#1a1e2d] shadow-inner">
       <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row md:justify-between items-center gap-6">
         {/* Brand / Name */}
         <div className="flex flex-col items-center md:items-start">
@@ -15,14 +15,6 @@ export default function Footer() {
             © {new Date().getFullYear()} All rights reserved.
           </span>
         </div>
-        {/* Navigation Links */}
-        <nav className="flex flex-wrap gap-x-8 gap-y-2 items-center text-gray-700 dark:text-gray-300 text-sm font-medium">
-          <a href="/" className="hover:text-blue-500 transition">Home</a>
-          <a href="/about" className="hover:text-blue-500 transition">About</a>
-          <a href="/projects" className="hover:text-blue-500 transition">Projects</a>
-          <a href="/blog" className="hover:text-blue-500 transition">Blog</a>
-          <a href="/contact" className="hover:text-blue-500 transition">Contact</a>
-        </nav>
         {/* Social Icons and Platforms */}
         <div className="flex gap-4 items-center">
           <a
