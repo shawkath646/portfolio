@@ -13,6 +13,7 @@ import {
     FaChevronDown,
     FaUserGraduate,
     FaMapMarkerAlt,
+    FaCloudDownloadAlt
 } from "react-icons/fa";
 import { IoIosArrowForward } from "react-icons/io";
 import techBg from "@/assets/v627-aew-09-technologybackground.jpg";
@@ -76,7 +77,7 @@ export default function LandingComponent() {
 
                 <div className="mt-4 flex flex-col md:flex-row items-center gap-6">
                     <Image
-                        src="/a.png"
+                        src="/profile.png"
                         width={512}
                         height={512}
                         alt="Shawkath Hossain Maruf - Software Developer"
@@ -134,7 +135,7 @@ export default function LandingComponent() {
                         href="/contact"
                         className="inline-flex items-center gap-2 px-4 py-1.5 text-base sm:px-6 sm:py-2 sm:text-lg rounded-lg font-bold shadow-xl bg-blue-600 dark:bg-cyan-400 text-white dark:text-[#0a192f] hover:bg-blue-700 dark:hover:bg-cyan-300 transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
                     >
-                        <FaEnvelope className="text-lg sm:text-xl" /> Contact me
+                        <FaCloudDownloadAlt className="text-lg sm:text-xl" /> Download CV
                     </Link>
                     <Link
                         href="/projects"
