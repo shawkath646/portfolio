@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Shawkat Hossain Maruf - Full-stack Developer & CSE Student",
+    default: "Shawkat Hossain Maruf - Full-stack Developer & Tech Blogger",
     template: "%s | Shawkat Hossain Maruf",
   },
   description:

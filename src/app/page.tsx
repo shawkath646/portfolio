@@ -4,8 +4,8 @@ import OrderNowComponent from "@/components/HomePage/OrderNowComponent";
 import CompanyIntro from "@/components/HomePage/CompanyIntro";
 import TasksBoard from "@/components/HomePage/TaskBoard";
 import YoutubeGrid from "@/components/HomePage/YoutubeGrid";
+import Pagination from "@/components/navigation/Pagination";
 import { fetchYouTubeVideos } from "@/actions/youtubeFunc";
-
 
 
 export default async function Home() {
@@ -23,6 +23,10 @@ export default async function Home() {
           <TasksBoard />
         </div>
         <YoutubeGrid channel={youtubeData.channel} videos={youtubeData.videos} />
+        <Pagination
+          nextPage="/about"
+          nextPageLabel="About Me"
+        />
       </div>
     </main>
   );

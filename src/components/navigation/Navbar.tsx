@@ -1,6 +1,7 @@
 "use client";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { AnimatePresence, easeOut, motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
 import { FaBars } from "react-icons/fa";
 import { RxCross2 } from "react-icons/rx";
@@ -15,9 +16,12 @@ const navigation = [
 ];
 
 export default function Navbar() {
+
+    const currentPath = usePathname();
+
     return (
         <header>
-            <Disclosure as="nav" className="sticky top-0 z-50 bg-white/70 dark:bg-[#0a192f]/80 backdrop-blur shadow">
+            <Disclosure as="nav" className="fixed left-0 top-0 w-full z-50 bg-white/70 dark:bg-[#0a192f]/80 backdrop-blur shadow">
                 {({ open }) => (
                     <>
                         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -32,18 +36,26 @@ export default function Navbar() {
                                         <li key={item.name}>
                                             <Link
                                                 href={item.href}
-                                                className="group relative rounded-md px-3 py-2 text-sm font-semibold text-gray-800 dark:text-gray-100 transition-all duration-200
-        hover:text-blue-700 dark:hover:text-cyan-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400
-        "
+                                                className={`group relative rounded-md px-3 py-2 text-sm font-semibold transition-all duration-200
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400
+        ${currentPath === item.href 
+            ? 'text-blue-700 dark:text-cyan-300' 
+            : 'text-gray-800 dark:text-gray-100 hover:text-blue-700 dark:hover:text-cyan-300'
+        }
+        `}
                                             >
                                                 <span className="relative z-10">{item.name}</span>
                                                 {/* Animated underline */}
                                                 <span
-                                                    className="
-          absolute left-1/2 bottom-1 w-0 h-[2px] bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-700 rounded-full 
-          transition-all duration-300 group-hover:w-4/5 group-hover:left-1/10 group-focus-visible:w-4/5 group-focus-visible:left-1/10
-        "
-                                                    style={{ transform: "translateX(-5%)" }}
+                                                    className={`
+          absolute left-1/2 bottom-1 h-[2px] bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-700 rounded-full 
+          transition-all duration-300 
+          ${currentPath === item.href 
+            ? 'w-3/5 group-hover:w-4/5' 
+            : 'w-0 group-hover:w-3/5'
+          }
+        `}
+                                                    style={{ transform: "translateX(-50%)" }}
                                                 />
                                             </Link>
                                         </li>
@@ -97,12 +109,15 @@ export default function Navbar() {
                                             <li key={item.name}>
                                                 <Link
                                                     href={item.href}
-                                                    className="block rounded-md px-3 py-2 text-base font-semibold text-gray-800 dark:text-gray-100 transition-all duration-200
+                                                    className={`block rounded-md px-3 py-2 text-base font-semibold transition-all duration-200
         hover:bg-gradient-to-r hover:from-blue-100 hover:to-cyan-100 dark:hover:from-[#112240] dark:hover:to-[#1e293b]
-        hover:text-blue-700 dark:hover:text-cyan-300
         hover:pl-5
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400
-        "
+        ${currentPath.startsWith(item.href)
+            ? 'text-blue-700 dark:text-cyan-300' 
+            : 'text-gray-800 dark:text-gray-100 hover:text-blue-700 dark:hover:text-cyan-300'
+        }
+        `}
                                                     style={{
                                                         transitionProperty: "background, color, padding-left",
                                                     }}
