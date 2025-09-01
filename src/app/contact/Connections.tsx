@@ -114,10 +114,15 @@ const contactSections = [
     },
 ];
 
+// Component for connections and contact methods
 export default function Connections() {
     return (
-        <section className="flex flex-col items-center">
+        <section 
+            className="flex flex-col items-center" 
+            aria-labelledby="connections-heading"
+        >
             <motion.h1
+                id="connections-heading"
                 className="text-3xl sm:text-4xl font-bold text-center mb-4 text-blue-900 dark:text-cyan-200"
                 initial={{ y: -40, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -133,7 +138,11 @@ export default function Connections() {
             >
                 Whether you want to discuss a project, collaborate professionally, or just connect on social — pick your favorite way to reach out!
             </motion.p>
-            <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div 
+                className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                role="region"
+                aria-label="Contact methods by category"
+            >
                 {contactSections.map((section, idx) => (
                     <motion.div
                         key={section.title}
@@ -149,9 +158,11 @@ export default function Connections() {
                                         ? "#06b6d4" // cyan-400
                                         : "#ec4899", // pink-500
                         }}
+                        aria-labelledby={`section-heading-${idx}`}
                     >
-                        <div className="mb-2">{section.icon}</div>
+                        <div className="mb-2" aria-hidden="true">{section.icon}</div>
                         <h2
+                            id={`section-heading-${idx}`}
                             className={`text-xl font-semibold mb-1 ${idx === 0
                                     ? "text-blue-700"
                                     : idx === 1
@@ -162,7 +173,10 @@ export default function Connections() {
                             {section.title}
                         </h2>
                         <p className="text-gray-700 dark:text-gray-200 text-center text-sm mb-5">{section.description}</p>
-                        <ul className="w-full flex flex-col gap-4">
+                        <ul 
+                            className="w-full flex flex-col gap-4"
+                            aria-label={`${section.title} contact methods`}
+                        >
                             {section.items.map((item) => (
                                 <motion.li
                                     key={item.name}
@@ -175,8 +189,9 @@ export default function Connections() {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex items-center gap-3 w-full"
+                                        aria-label={`${item.name}: ${item.text}`}
                                     >
-                                        <span className="text-2xl">{item.icon}</span>
+                                        <span className="text-2xl" aria-hidden="true">{item.icon}</span>
                                         <span className="flex-1">
                                             <span className="font-semibold text-gray-900 dark:text-gray-100">{item.name}</span>
                                             <span className="block text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-900 group-hover:dark:text-cyan-200 transition">{item.text}</span>
@@ -194,7 +209,7 @@ export default function Connections() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.5 }}
             >
-                Always happy to connect & collaborate — drop a hi anytime!
+                Always happy to connect &amp; collaborate — drop a hi anytime!
             </motion.div>
         </section>
     );

@@ -31,15 +31,19 @@ const donationOptions = [
 
 export default function BuyMeACoffee() {
   return (
-    <section className="flex flex-col items-center mt-32">
-      <motion.h1
+    <section 
+      className="flex flex-col items-center mt-32" 
+      aria-labelledby="support-heading"
+    >
+      <motion.h2
+        id="support-heading"
         className="text-3xl sm:text-4xl font-bold text-center mb-3 bg-clip-text text-transparent bg-gradient-to-r from-amber-700 via-pink-600 to-red-500 dark:from-amber-200 dark:via-pink-300 dark:to-red-300"
         initial={{ y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 100, delay: 0.1 }}
       >
         Fancy a Coffee or a Gift?
-      </motion.h1>
+      </motion.h2>
       <motion.p
         className="text-gray-600 dark:text-gray-200 max-w-2xl text-center mb-10"
         initial={{ opacity: 0, y: 10 }}
@@ -48,7 +52,11 @@ export default function BuyMeACoffee() {
       >
         If you enjoyed my work or found my projects helpful, you can support me with a virtual coffee, a small gift, or simply by sending some love! Every gesture, big or small, inspires me to keep building and sharing. Thank you for your kindness!
       </motion.p>
-      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div 
+        className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-8"
+        role="region"
+        aria-label="Support options"
+      >
         {donationOptions.map((option, idx) => (
           <motion.div
             key={option.title}
@@ -57,29 +65,36 @@ export default function BuyMeACoffee() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 + idx * 0.1, type: "spring" }}
             whileHover={{ scale: 1.04, y: -5 }}
+            aria-labelledby={`donation-heading-${idx}`}
           >
-            <div className="mb-2">{option.icon}</div>
-            <h2 className="text-lg font-semibold mb-2 text-center">{option.title}</h2>
+            <div className="mb-2" aria-hidden="true">{option.icon}</div>
+            <h3 
+              id={`donation-heading-${idx}`}
+              className="text-lg font-semibold mb-2 text-center"
+            >
+              {option.title}
+            </h3>
             <p className="text-gray-700 dark:text-gray-200 text-center text-sm mb-6">{option.description}</p>
             <a
               href={option.href}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block bg-gradient-to-r from-amber-400 via-pink-400 to-red-400 hover:from-amber-500 hover:via-pink-500 hover:to-red-500 text-white font-semibold px-6 py-2 rounded-full shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-300"
+              aria-label={`${option.btnLabel} - ${option.description}`}
             >
               {option.btnLabel}
             </a>
           </motion.div>
         ))}
       </div>
-      <motion.div
+      <motion.p
         className="mt-12 text-sm text-gray-500 dark:text-gray-300 text-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2 }}
       >
         Your support keeps me energized and motivated. Thank you so much!
-      </motion.div>
+      </motion.p>
     </section>
   );
 }

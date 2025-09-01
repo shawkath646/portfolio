@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../styles/homepage-animations.css";
 
 :root {
   --background: #ffffff;
@@ -22,9 +23,54 @@
       transform: rotate(360deg);
     }
   }
+  
+  @keyframes bounce-gentle {
+    0%, 100% {
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      transform: translateY(-10px) scale(1.05);
+    }
+  }
+  
+  @keyframes pulse-fade {
+    0%, 100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+  
+  @keyframes morph {
+    0%, 100% {
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+    25% {
+      border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    }
+    50% {
+      border-radius: 50% 60% 30% 40% / 40% 30% 60% 50%;
+    }
+    75% {
+      border-radius: 40% 30% 70% 60% / 30% 40% 70% 60%;
+    }
+  }
 
   .animate-spin-slow {
     animation: spin-slow 8s linear infinite;
+  }
+  
+  .animate-bounce-gentle {
+    animation: bounce-gentle 6s ease-in-out infinite;
+  }
+  
+  .animate-pulse-fade {
+    animation: pulse-fade 4s ease-in-out infinite;
+  }
+  
+  .animate-morph {
+    animation: morph 8s ease-in-out infinite;
   }
 
   .gradient-border {
@@ -34,6 +80,20 @@
   .gradient-border-animated {
     background: conic-gradient(from var(--angle, 0deg) at 50% 50%, #3b82f6, #06b6d4, #8b5cf6, #3b82f6);
     animation: rotate-gradient 8s linear infinite;
+  }
+  
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(to right, rgba(107, 114, 128, 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(107, 114, 128, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  .text-gradient-personal {
+    background-image: linear-gradient(to bottom right, #ec4899, #a855f7, #3b82f6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
   
   @keyframes rotate-gradient {

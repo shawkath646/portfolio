@@ -1,81 +1,176 @@
+"use client";
+
 import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+import { FaGlobeAmericas, FaLaptopCode, FaFeatherAlt } from 'react-icons/fa';
 
 export default function DreamCards() {
+    const { ref, inView } = useInView({
+        triggerOnce: true,
+        threshold: 0.1,
+    });
 
     const goals = [
         {
-            title: "🌍 Exploring every corner of the earth",
+            icon: <FaGlobeAmericas className="text-2xl" />,
+            title: "Exploring every corner of the earth",
             description:
                 "I want to reach every corner of the world and witness the beauty Allah has created for us. I admire nature—from the top of mountains to the bed of the sea.",
+            id: "dream-explore",
+            color: "from-emerald-400 to-teal-500"
         },
         {
-            title: "💻 Be a software engineer",
+            icon: <FaLaptopCode className="text-2xl" />,
+            title: "Be a software engineer",
             description:
                 "Coding and developing applications is an addiction to me. I aim to build my career in the software engineering field. I'm already working hard to master web development, but I know the race is long, especially with the rise of AI.",
+            id: "dream-engineer",
+            color: "from-blue-400 to-indigo-500"
         },
         {
-            title: "🕊️ Keeping a scratch before I die",
+            icon: <FaFeatherAlt className="text-2xl" />,
+            title: "Keeping a scratch before I die",
             description:
-                "I want to leave a footprint before I leave this earth. People may forget quickly, but I still believe I’ll live on through my online presence, my portfolio, my soft behavior, and the people I've helped.",
+                "I want to leave a footprint before I leave this earth. People may forget quickly, but I still believe I'll live on through my online presence, my portfolio, my soft behavior, and the people I've helped.",
+            id: "dream-legacy",
+            color: "from-purple-400 to-pink-500"
         },
     ];
 
+    const headerVariants = {
+        hidden: { opacity: 0, y: -30 },
+        visible: {
+            opacity: 1, 
+            y: 0,
+            transition: { 
+                duration: 0.7, 
+                type: "spring" as const 
+            }
+        }
+    };
+
+    const containerVariants = {
+        hidden: {},
+        visible: {
+            transition: {
+                staggerChildren: 0.2
+            }
+        }
+    };
+
+    const cardVariants = {
+        hidden: { 
+            opacity: 0, 
+            y: 30 
+        },
+        visible: { 
+            opacity: 1, 
+            y: 0,
+            transition: { 
+                duration: 0.6, 
+                type: "spring" as const,
+                bounce: 0.3
+            }
+        }
+    };
+
+    const iconVariants = {
+        hidden: { scale: 0, rotate: -30 },
+        visible: {
+            scale: 1,
+            rotate: 0,
+            transition: {
+                type: "spring" as const,
+                stiffness: 260,
+                damping: 20
+            }
+        }
+    };
 
     return (
-        <section className="container mx-auto py-16 px-4">
-            <div className="mb-14 text-center">
-                <div className="mb-5 bg-gradient-to-r from-pink-500 to-indigo-500 px-2 shadow-lg max-w-xl mx-auto transform -skew-x-6">
-                    <motion.h2
-                        initial={{ opacity: 0, y: -30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.7 }}
-                        className="text-xl sm:text-2xl font-bold text-black dark:text-white py-2.5 px-4 bg-white dark:bg-gray-800 tracking-wide transform skew-x-6"
-                    >
-                        My Dreams & Aspirations
-                    </motion.h2>
-                </div>
+        <section 
+            ref={ref} 
+            className="container mx-auto py-16 px-4 relative z-10"
+            aria-labelledby="dreams-heading"
+        >
+            <div className="mb-10 text-center">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.5 }}
+                    className="inline-block mb-4"
+                >
+                    <div className="relative inline-flex items-center justify-center">
+                        <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 rounded-lg blur opacity-30 animate-pulse"></div>
+                        <div className="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-6 py-2 shadow-xl">
+                            <motion.h2
+                                id="dreams-heading"
+                                variants={headerVariants}
+                                initial="hidden"
+                                animate={inView ? "visible" : "hidden"}
+                                className="text-lg sm:text-xl font-bold tracking-wide bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent"
+                            >
+                                My Dreams & Aspirations
+                            </motion.h2>
+                        </div>
+                    </div>
+                </motion.div>
 
-                <p className="text-lg font-medium text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                <motion.p 
+                    className="text-base font-medium text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
+                    initial={{ opacity: 0 }}
+                    animate={inView ? { opacity: 1 } : { opacity: 0 }}
+                    transition={{ delay: 0.3 }}
+                >
                     These are the goals that fuel my passion and guide my journey—if Allah wills.
-                </p>
+                </motion.p>
             </div>
 
-            <div className="space-y-8 max-w-5xl mx-auto">
+            <motion.div 
+                className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto"
+                variants={containerVariants}
+                initial="hidden"
+                animate={inView ? "visible" : "hidden"}
+            >
                 {goals.map((goal, i) => (
-                    <motion.div
+                    <motion.article
                         key={i}
-                        initial={{ opacity: 0, x: i % 2 === 0 ? -60 : 60 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true, amount: 0.3 }}
-                        transition={{ delay: i * 0.2, duration: 0.8 }}
-                        className={`flex flex-col lg:flex-row items-center gap-8 ${i % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}
+                        variants={cardVariants}
+                        className="relative overflow-hidden"
+                        aria-labelledby={goal.id}
                     >
-                        <div className="flex-1">
-                            <div className="relative p-8 rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <span className="px-3 py-1 text-sm font-medium bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 text-blue-700 dark:text-blue-300 rounded-full border border-blue-200 dark:border-blue-700">
-                                        Personal Growth
-                                    </span>
+                        <div className="h-full relative p-5 rounded-2xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                            <div className={`absolute top-0 left-0 w-2 h-full bg-gradient-to-b ${goal.color}`}></div>
+                            
+                            <motion.div 
+                                className="mb-4 flex justify-center"
+                                variants={iconVariants}
+                            >
+                                <div className={`w-14 h-14 rounded-lg bg-gradient-to-br ${goal.color} flex items-center justify-center text-white shadow-lg transform group-hover:rotate-6 group-hover:scale-110 transition-all duration-300`}>
+                                    {goal.icon}
                                 </div>
+                            </motion.div>
 
-                                <h3 className="text-2xl sm:text-3xl font-bold mb-4 text-gray-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                    {goal.title}
-                                </h3>
-
-                                <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-                                    {goal.description}
-                                </p>
+                            <div className="flex items-center justify-center gap-2 mb-3">
+                                <span className="px-2 py-1 text-xs font-medium bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-600 dark:text-blue-300 rounded-full border border-blue-100 dark:border-blue-800">
+                                    Personal Goal
+                                </span>
                             </div>
-                        </div>
 
-                        <div className="flex-shrink-0">
-                            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-3xl shadow-lg hover:scale-110 transition-transform duration-300">
-                                {goal.title.split(' ')[0]}
-                            </div>
+                            <h3 
+                                id={goal.id}
+                                className="text-lg font-bold mb-3 text-center text-gray-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+                            >
+                                {goal.title}
+                            </h3>
+
+                            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                                {goal.description}
+                            </p>
                         </div>
-                    </motion.div>
+                    </motion.article>
                 ))}
-            </div>
+            </motion.div>
         </section>
     );
 };

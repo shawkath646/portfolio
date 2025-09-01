@@ -1,99 +1,122 @@
 "use client";
-import { motion, Variants } from "framer-motion";
+import { memo } from "react";
+import { motion } from "framer-motion";
 import GradientLink from "../GradientLink";
 
-
-const containerVariants: Variants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: {
-            duration: 0.6,
-            ease: [0.25, 0.1, 0.25, 1], // custom cubic-bezier easing
-            staggerChildren: 0.15,
-        },
-    },
-};
-
-const childVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: {
-            duration: 0.4,
-            ease: [0.25, 0.1, 0.25, 1],
-        },
-    },
-};
-
-
-export default function CompanyIntro() {
+const CompanyIntro = memo(function CompanyIntro() {
     return (
-        <section className="text-gray-800 dark:text-gray-200 space-y-6 w-full lg:w-1/2">
-            <motion.div
-                className="relative p-[2px] rounded-xl overflow-hidden max-w-3xl mx-auto"
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.4 }}
-                variants={containerVariants}
+        <section 
+            aria-labelledby="company-intro-heading"
+            className="container mx-auto text-gray-800 dark:text-gray-200 py-20 lg:py-28"
+        >
+            <motion.div 
+                className="relative p-[2px] rounded-2xl overflow-hidden max-w-4xl mx-auto shadow-xl"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
             >
-                {/* Animated Border */}
-                <motion.div
-                    className="absolute inset-0 rounded-xl bg-[conic-gradient(at_top_left,_#3b82f6,_#06b6d4,_#3b82f6)] blur-sm animate-spin-slow mask-border-fade"
-                    aria-hidden
-                />
+                {/* Animated Gradient Border */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500 via-cyan-400 to-purple-500">
+                    <motion.div
+                        className="absolute inset-0 rounded-2xl bg-[conic-gradient(at_top_left,_#3b82f6,_#06b6d4,_#8b5cf6)] blur-md"
+                        animate={{ 
+                            rotate: [0, 360],
+                            scale: [1, 1.05, 1]
+                        }}
+                        transition={{ 
+                            duration: 15, 
+                            ease: "linear", 
+                            repeat: Infinity,
+                            repeatType: "loop"
+                        }}
+                        aria-hidden="true"
+                    />
+                </div>
 
                 {/* Content Box */}
-                <motion.div
-                    className="relative z-10 bg-gradient-to-tr from-cyan-100 to-blue-100 dark:from-cyan-900 dark:to-blue-900 rounded-xl p-8 space-y-6"
-                    variants={childVariants}
-                >
-                    {/* Icon Placeholder */}
-                    <motion.div
-                        className="w-20 h-20 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center"
-                        variants={childVariants}
-                    >
-                        <span className="text-xl font-semibold text-gray-600 dark:text-gray-300">
-                            Icon
-                        </span>
-                    </motion.div>
+                <div className="relative z-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-2xl p-8 md:p-10 lg:p-12">
+                    <div className="space-y-8">
+                        {/* Header with Logo and Title in same line */}
+                        <header className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+                            {/* Logo Section */}
+                            <motion.div 
+                                className="flex-shrink-0"
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                whileInView={{ scale: 1, opacity: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.3, duration: 0.5 }}
+                            >
+                                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+                                    <span className="text-white font-bold text-xl">CL</span>
+                                    {/* Replace with real logo when available */}
+                                    {/* <Image 
+                                        src="/path-to-logo.png"
+                                        alt="Cloudburst Lab Logo"
+                                        width={80}
+                                        height={80}
+                                        className="object-cover"
+                                    /> */}
+                                </div>
+                            </motion.div>
+                            
+                            {/* Heading */}
+                            <motion.h2 
+                                id="company-intro-heading"
+                                className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400 sm:self-center"
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.4, duration: 0.6 }}
+                            >
+                                Meet my brand "Cloudburst Lab"
+                            </motion.h2>
+                        </header>
+                        
+                        {/* Content Container */}
+                        <div className="text-left space-y-6">
 
-                    {/* Title */}
-                    <motion.h1
-                        className="text-2xl font-semibold tracking-tight"
-                        variants={childVariants}
-                    >
-                        Meet with my brand <span className="text-blue-600 dark:text-blue-400">Cloudburst Lab</span>
-                    </motion.h1>
+                            <motion.p 
+                                className="text-lg leading-relaxed max-w-3xl"
+                                initial={{ opacity: 0 }}
+                                whileInView={{ opacity: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.5, duration: 0.7 }}
+                            >
+                                Cloudburst Lab is the identity of my dream to build a software startup.
+                                I envision branding my developed software products under this name as a mark of innovation and trust.
+                                In the near future, this dream will grow into a team-driven company focusing on developing cutting-edge,
+                                AI-powered software solutions that shape tomorrow's digital experience.
+                            </motion.p>
 
-                    {/* Description */}
-                    <motion.p className="text-sm leading-relaxed tracking-wide" variants={childVariants}>
-                        Cloudburst Lab is the identity of my dream to build a software startup.
-                        I envision branding my developed software products under this name as a mark of innovation and trust.
-                        In the near future, this dream will grow into a team-driven company focusing on developing cutting-edge,
-                        AI-powered software solutions that shape tomorrow’s digital experience.
-                    </motion.p>
-
-                    {/* Buttons */}
-                    <motion.div
-                        className="flex justify-center md:justify-start gap-4"
-                        variants={childVariants}
-                    >
-                        <GradientLink href="https://cloudburstlab.vercel.app" target="_blank">
-                            Visit Cloudburst Lab
-                        </GradientLink>
-                        <GradientLink
-                            href="https://cloudburstlab.vercel.app"
-                            target="_blank"
-                            variant="purple"
-                        >
-                            Know all my goals
-                        </GradientLink>
-                    </motion.div>
-                </motion.div>
+                            {/* Buttons */}
+                            <motion.div 
+                                className="flex flex-col sm:flex-row gap-4 pt-2"
+                                initial={{ opacity: 0, y: 10 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.6, duration: 0.5 }}
+                            >
+                                <GradientLink 
+                                    href="https://cloudburstlab.vercel.app" 
+                                    target="_blank"
+                                >
+                                    Visit Cloudburst Lab
+                                </GradientLink>
+                                <GradientLink
+                                    href="https://cloudburstlab.vercel.app/goals"
+                                    target="_blank"
+                                    variant="purple"
+                                >
+                                    Explore My Vision
+                                </GradientLink>
+                            </motion.div>
+                        </div>
+                    </div>
+                </div>
             </motion.div>
         </section>
     );
-}
+});
+
+export default CompanyIntro;

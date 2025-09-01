@@ -1,43 +1,51 @@
-"use client";
-import { motion } from "framer-motion";
+import type { Metadata } from 'next';
+import AboutHero from "./AboutHero";
 import DreamCards from "./DreamCards";
 import EducationFlowChart from "./EducationFlowChart";
+import PersonalLifeSection from "./PersonalLifeSection";
 
+// Enhanced metadata for better SEO
+export const metadata: Metadata = {
+  title: "About Me | Shawkat Hossain Maruf",
+  description: "Learn about Shawkat Hossain Maruf, a 20-year-old Computer Science student at Sejong University with a passion for software engineering, traveling, and making a difference in the world.",
+  keywords: [
+    "Shawkat Hossain Maruf",
+    "software engineer",
+    "web developer",
+    "Sejong University",
+    "Computer Science",
+    "portfolio about page",
+    "student developer",
+    "personal journey"
+  ],
+  alternates: {
+    canonical: "https://shawkath646.pro/about"
+  },
+  openGraph: {
+    title: "About Shawkat Hossain Maruf | Personal Journey",
+    description: "Discover my academic journey, dreams, and aspirations as a Computer Science student and aspiring software engineer.",
+    url: "https://shawkath646.pro/about",
+    siteName: "Shawkat Hossain Maruf Portfolio",
+    locale: "en_US",
+    type: "website",
+  }
+};
 
 export default function About() {
-    return (
-        <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
-            {/* Hero Section */}
-            <section className="py-20 px-4 bg-gradient-to-r from-blue-600/10 to-purple-600/10 dark:from-blue-400/5 dark:to-purple-400/5">
-
-                <div className="container mx-auto relative z-10">
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
-                        className="text-center max-w-4xl mx-auto"
-                    >
-                        <h1 className="pt-10 text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                            Welcome to SH World
-                        </h1>
-
-                        <motion.p
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3, duration: 0.6 }}
-                            className="lg:text-lg text-gray-600 dark:text-gray-300 mb-8 font-semibold"
-                        >
-                            I am very happy that you want to know about me. ☺️
-                        </motion.p>
-
-                        <motion.p>
-                            I'm a <span className="font-semibold text-blue-600 dark:text-blue-400">20-year-old</span> soft-minded, introverted soul who always seeks calmness and enjoys life until the last breath. I embrace struggles and find meaning in every challenge. Every obstacle is an opportunity to grow, and every struggle tells a story worth sharing. Keep scrolling to discover my life, journey and dreams...
-                        </motion.p>
-                    </motion.div>
-                </div>
-            </section>
-            <DreamCards />
-            <EducationFlowChart />
-        </main>
-    );
+  return (
+    <main 
+      className="min-h-screen relative bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 overflow-hidden"
+      aria-labelledby="about-page-title"
+    >
+      {/* Background decorative elements */}
+      <div className="absolute top-0 left-0 w-1/3 h-1/3 bg-gradient-to-br from-pink-200/20 to-purple-300/20 dark:from-pink-900/10 dark:to-purple-800/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 z-0"></div>
+      <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-gradient-to-tl from-blue-200/20 to-indigo-300/20 dark:from-blue-900/10 dark:to-indigo-800/10 rounded-full blur-3xl translate-x-1/4 translate-y-1/4 z-0"></div>
+      
+      {/* Content with updated order */}
+      <AboutHero />
+      <DreamCards />
+      <EducationFlowChart />
+      <PersonalLifeSection />
+    </main>
+  );
 }

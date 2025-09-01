@@ -1,12 +1,16 @@
 const youtubeApiUrl = "https://www.googleapis.com/youtube/v3";
-const youtubeApiKey = process.env.YOUTUBE_API_KEY;
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
 const channelId = "UCdnO4SySjkJZ_K7YsnLnj6w";
+
+if (!GOOGLE_API_KEY) {
+    throw new Error("GOOGLE_API_KEY is not defined in environment variables");
+}
 
 const fetchYouTubeVideos = async () => {
     try {
         const channelRes = await fetch(
-            `${youtubeApiUrl}/channels?part=contentDetails,snippet&id=${channelId}&key=${youtubeApiKey}`
+            `${youtubeApiUrl}/channels?part=contentDetails,snippet&id=${channelId}&key=${GOOGLE_API_KEY}`
         );
         const channelData = await channelRes.json();
 
@@ -24,7 +28,7 @@ const fetchYouTubeVideos = async () => {
         }
 
         const videosRes = await fetch(
-            `${youtubeApiUrl}/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=10&key=${youtubeApiKey}`
+            `${youtubeApiUrl}/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=10&key=${GOOGLE_API_KEY}`
         );
         const videosData = await videosRes.json();
 
@@ -50,4 +54,4 @@ const fetchYouTubeVideos = async () => {
     }
 };
 
-export { fetchYouTubeVideos };
+export default fetchYouTubeVideos;
