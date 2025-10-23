@@ -21,22 +21,10 @@ export const metadata: Metadata = {
     },
 };
 
-export default async function AdminLayout({
+export default function AdminLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const headersList = await headers();
-    const cookieStore = await cookies();
-    
-    const adminAuth = cookieStore.get('admin_logged_in');
-
-    const currentPath = headersList.get('x-next-pathname') || '';
-    const isAllowedPath = adminAllowedPaths.some(path => currentPath.startsWith(path));
-
-    if (!isAllowedPath && (!adminAuth || adminAuth.value !== 'true')) {
-        //redirect('/admin/login');
-    }
-
     return <>{children}</>;
 }

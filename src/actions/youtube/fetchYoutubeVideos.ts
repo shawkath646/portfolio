@@ -1,3 +1,4 @@
+"use server";
 const youtubeApiUrl = "https://www.googleapis.com/youtube/v3";
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 

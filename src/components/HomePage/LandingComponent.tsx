@@ -145,12 +145,12 @@ const LandingComponent = memo(function LandingComponent() {
     }, [controls, inView, prefersReducedMotion]);
     
     return (
-        <main className="relative min-h-screen flex justify-center pt-18 md:pt-0">
+        <section aria-labelledby="hero-title" className="relative min-h-screen flex justify-center pt-18 md:pt-0">
             
             <BackgroundImage />
 
             {/* Main content */}
-            <motion.section
+            <motion.div
                 ref={ref}
                 className="relative z-20 px-4 md:px-16 md:py-20 w-full items-start max-w-7xl mt-10 md:mt-20 h-fit"
                 initial="hidden"
@@ -235,11 +235,11 @@ const LandingComponent = memo(function LandingComponent() {
                         <IoIosArrowForward className="text-lg sm:text-xl" aria-hidden="true" />
                     </Link>
                 </motion.nav>
-            </motion.section>
+            </motion.div>
 
             {/* Scroll down hint */}
             <motion.div
-                className="animate-bounce flex items-center gap-5 w-fit px-4 justify-center absolute left-1/2 -translate-x-1/2 bottom-32 z-30"
+                className="animate-bounce flex items-center gap-5 w-fit px-4 justify-center absolute left-1/2 -translate-x-1/2 bottom-15 z-30"
                 variants={delayedFade}
                 initial="hidden"
                 animate={controls}
@@ -250,7 +250,7 @@ const LandingComponent = memo(function LandingComponent() {
                 </span>
                 <FaChevronDown className="text-blue-500 dark:text-cyan-300 text-xl" />
             </motion.div>
-        </main>
+        </section>
     );
 });
 

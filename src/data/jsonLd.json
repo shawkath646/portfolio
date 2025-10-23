@@ -1,0 +1,122 @@
+{
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Shawkat Hossain Maruf",
+    "alternateName": [
+        "shawkath646",
+        "SH Maruf"
+    ],
+    "url": "https://shawkath646.pro",
+    "email": "shawkath646@gmail.com",
+    "image": {
+        "@type": "ImageObject",
+        "url": "https://shawkath646.pro/profile.jpg",
+        "width": 400,
+        "height": 400
+    },
+    "sameAs": [
+        "https://github.com/shawkath646",
+        "https://www.youtube.com/@shawkath646",
+        "https://linkedin.com/in/shawkath645",
+        "https://www.facebook.com/shawkath646",
+        "https://www.instagram.com/shawkath646"
+    ],
+    "jobTitle": [
+        "Full-stack Web Developer",
+        "Android App Developer",
+        "Freelancer/Remote Worker",
+        "Computer Science Student"
+    ],
+    "worksFor": [
+        {
+            "@type": "Organization",
+            "name": "Freelance",
+            "url": "https://shawkath646.pro",
+            "description": "Independent software development services"
+        },
+        {
+            "@type": "OrganizationRole",
+            "roleName": "Founder & CEO",
+            "startDate": "2024-01",
+            "worksFor": {
+                "@type": "Organization",
+                "name": "Cloudburst Lab",
+                "url": "https://cloudburstlab.vercel.app",
+                "description": "Software development and digital solutions company"
+            }
+        }
+    ],
+    "alumniOf": [
+        {
+            "@type": "CollegeOrUniversity",
+            "name": "Sejong University",
+            "sameAs": "https://www.sejong.ac.kr",
+            "department": "Computer Science and Engineering"
+        },
+        {
+            "@type": "HighSchool",
+            "name": "Narsingdi Model College",
+            "sameAs": "https://narsingdimodelcollege.codetreebd.com"
+        },
+        {
+            "@type": "HighSchool",
+            "name": "Monohard Government Pilot Model High School",
+            "sameAs": "http://www.monohardimphs.edu.bd"
+        }
+    ],
+    "hasSkill": [
+        "JavaScript",
+        "TypeScript",
+        "Python",
+        "C Programming",
+        "React.js",
+        "Next.js",
+        "Node.js",
+        "React Native",
+        "Tailwind CSS",
+        "Firebase",
+        "MongoDB",
+        "Data Analysis",
+        "Machine Learning",
+        "UI/UX Design"
+    ],
+    "knowsLanguage": [
+        {
+            "@type": "Language",
+            "name": "Bengali",
+            "alternateName": "bn"
+        },
+        {
+            "@type": "Language",
+            "name": "English",
+            "alternateName": "en"
+        },
+        {
+            "@type": "Language",
+            "name": "Korean",
+            "alternateName": "ko"
+        },
+        {
+            "@type": "Language",
+            "name": "Hindi",
+            "alternateName": "hi"
+        }
+    ],
+    "description": "Shawkat Hossain Maruf (@shawkath646) is a Computer Science and Engineering student at Sejong University and a passionate full-stack developer. He specializes in building fast, modern web applications using React, Next.js, and Tailwind CSS, and also develops high-performance Android apps with React Native. Currently expanding his expertise in Artificial Intelligence, Data Science, and Analytics.",
+    "gender": "Male",
+    "birthDate": "2005-12-30",
+    "nationality": {
+        "@type": "Country",
+        "name": "Bangladesh"
+    },
+    "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "South Korea",
+        "addressLocality": "Seoul",
+        "addressRegion": "Seoul"
+    },
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://shawkath646.pro"
+    }
+}

@@ -14,7 +14,10 @@ export default function Pagination({
     nextPageLabel,
 }: PaginationProps) {
     return (
-        <nav className="mt-12 container mx-auto flex justify-between items-center text-sm sm:text-base">
+        <nav
+            aria-label="Page navigation"
+            className="mt-12 container mx-auto flex justify-between items-center text-sm sm:text-base pt-8 border-t border-gray-200/30 dark:border-gray-700/30"
+        >
             {prevPage ? (
                 <Link
                     href={prevPage}

@@ -1,19 +1,37 @@
 "use client";
-import { memo } from "react";
-import { motion } from "framer-motion";
+import { memo, useEffect, useRef } from "react";
+import { motion, useAnimation } from "framer-motion";
 import GradientLink from "../GradientLink";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useInView } from "framer-motion";
 
 const CompanyIntro = memo(function CompanyIntro() {
+    // Animation controls
+    const controls = useAnimation();
+    const prefersReducedMotion = useReducedMotion(controls);
+    const ref = useRef(null);
+    const isInView = useInView(ref, { 
+        once: true, 
+        margin: "-100px" 
+    });
+
+    // Trigger animations when element comes into view using useEffect
+    useEffect(() => {
+        if (isInView && !prefersReducedMotion) {
+            controls.start({ opacity: 1, y: 0 });
+        }
+    }, [isInView, prefersReducedMotion, controls]);
+    
     return (
-        <section 
+        <article 
             aria-labelledby="company-intro-heading"
-            className="container mx-auto text-gray-800 dark:text-gray-200 py-20 lg:py-28"
+            className="text-gray-800 dark:text-gray-200 py-10 lg:py-16"
+            ref={ref}
         >
             <motion.div 
                 className="relative p-[2px] rounded-2xl overflow-hidden max-w-4xl mx-auto shadow-xl"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
+                initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                animate={controls}
                 transition={{ duration: 0.7, ease: "easeOut" }}
             >
                 {/* Animated Gradient Border */}
@@ -37,18 +55,18 @@ const CompanyIntro = memo(function CompanyIntro() {
                 {/* Content Box */}
                 <div className="relative z-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-2xl p-8 md:p-10 lg:p-12">
                     <div className="space-y-8">
-                        {/* Header with Logo and Title in same line */}
+                        {/* Header with Logo and Title */}
                         <header className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
                             {/* Logo Section */}
-                            <motion.div 
+                            <motion.figure 
                                 className="flex-shrink-0"
-                                initial={{ scale: 0.8, opacity: 0 }}
-                                whileInView={{ scale: 1, opacity: 1 }}
-                                viewport={{ once: true }}
+                                initial={prefersReducedMotion ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0 }}
+                                animate={controls}
                                 transition={{ delay: 0.3, duration: 0.5 }}
+                                aria-label="Cloudburst Lab logo"
                             >
                                 <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
-                                    <span className="text-white font-bold text-xl">CL</span>
+                                    <span className="text-white font-bold text-xl" aria-hidden="true">CL</span>
                                     {/* Replace with real logo when available */}
                                     {/* <Image 
                                         src="/path-to-logo.png"
@@ -58,15 +76,14 @@ const CompanyIntro = memo(function CompanyIntro() {
                                         className="object-cover"
                                     /> */}
                                 </div>
-                            </motion.div>
+                            </motion.figure>
                             
                             {/* Heading */}
                             <motion.h2 
                                 id="company-intro-heading"
                                 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400 sm:self-center"
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
+                                initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                                animate={controls}
                                 transition={{ delay: 0.4, duration: 0.6 }}
                             >
                                 Meet my brand "Cloudburst Lab"
@@ -78,9 +95,8 @@ const CompanyIntro = memo(function CompanyIntro() {
 
                             <motion.p 
                                 className="text-lg leading-relaxed max-w-3xl"
-                                initial={{ opacity: 0 }}
-                                whileInView={{ opacity: 1 }}
-                                viewport={{ once: true }}
+                                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
+                                animate={controls}
                                 transition={{ delay: 0.5, duration: 0.7 }}
                             >
                                 Cloudburst Lab is the identity of my dream to build a software startup.
@@ -90,12 +106,12 @@ const CompanyIntro = memo(function CompanyIntro() {
                             </motion.p>
 
                             {/* Buttons */}
-                            <motion.div 
+                            <motion.nav 
                                 className="flex flex-col sm:flex-row gap-4 pt-2"
-                                initial={{ opacity: 0, y: 10 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
+                                initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+                                animate={controls}
                                 transition={{ delay: 0.6, duration: 0.5 }}
+                                aria-label="Cloudburst Lab links"
                             >
                                 <GradientLink 
                                     href="https://cloudburstlab.vercel.app" 
@@ -110,12 +126,12 @@ const CompanyIntro = memo(function CompanyIntro() {
                                 >
                                     Explore My Vision
                                 </GradientLink>
-                            </motion.div>
+                            </motion.nav>
                         </div>
                     </div>
                 </div>
             </motion.div>
-        </section>
+        </article>
     );
 });
 

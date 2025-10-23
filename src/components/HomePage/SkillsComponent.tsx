@@ -5,8 +5,7 @@ import { useInView } from "react-intersection-observer";
 import { FaCode, FaAndroid, FaChartBar, FaVuejs, FaJava, FaChartLine } from "react-icons/fa";
 import { SiReact, SiNextdotjs, SiBootstrap, SiTailwindcss, SiNodedotjs, SiExpress, SiFirebase, SiMongodb, SiPython, SiPandas, SiNumpy, SiJupyter, SiScikitlearn } from "react-icons/si";
 import { TbBrandReactNative } from "react-icons/tb";
-import PerformanceMonitor from "../PerformanceMonitor";
-import useReducedMotion from "../../hooks/useReducedMotion";
+import useReducedMotion from "@/hooks/useReducedMotion";
 
 // Type definitions for improved type safety
 type SkillLeaf = {
@@ -39,38 +38,6 @@ const SkillItem = memo(({ leaf, index }: { leaf: SkillLeaf; index: number }) => 
   );
 });
 
-// Skills loading skeleton component
-const SkillsLoadingSkeleton = () => {
-  return (
-    <div className="w-full">
-      <div className="flex flex-col items-center mb-10">
-        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-64 mb-4"></div>
-        <div className="w-20 h-1 rounded-full bg-gray-200 dark:bg-gray-700 mt-2 mb-4"></div>
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 max-w-xl mt-2"></div>
-      </div>
-      
-      <div className="grid gap-6 w-full max-w-6xl mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-white/70 dark:bg-[#16213e]/70 rounded-2xl shadow-xl px-6 py-5 flex flex-col">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
-              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
-            </div>
-            <div className="pl-4 space-y-3">
-              {[...Array(4)].map((_, j) => (
-                <div key={j} className="flex items-center gap-3">
-                  <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 // Memoized skill branch component for better performance
 const SkillBranchComponent = memo(({ branch }: { branch: SkillBranch }) => {
   return (
@@ -80,7 +47,7 @@ const SkillBranchComponent = memo(({ branch }: { branch: SkillBranch }) => {
       role="listitem"
       tabIndex={0}
     >
-      <h3 
+      <h3
         className="flex items-center text-lg sm:text-xl font-bold gap-3 mb-2"
         aria-label={branch.ariaLabel || branch.label}
       >
@@ -113,46 +80,46 @@ const SkillBranchComponent = memo(({ branch }: { branch: SkillBranch }) => {
 
 // Skills data structure
 const skillsTree: SkillBranch[] = [
-    {
-        label: "Full Stack Web Development",
-        icon: <FaCode className="text-blue-600" aria-hidden="true" />,
-        ariaLabel: "Skills in Full Stack Web Development",
-        children: [
-            { label: "React.js", icon: <SiReact className="text-cyan-500" aria-hidden="true" />, ariaLabel: "React.js framework" },
-            { label: "Vue.js", icon: <FaVuejs className="text-green-500" aria-hidden="true" />, ariaLabel: "Vue.js framework" },
-            { label: "Next.js", icon: <SiNextdotjs className="text-black dark:text-white" aria-hidden="true" />, ariaLabel: "Next.js framework" },
-            { label: "Bootstrap", icon: <SiBootstrap className="text-purple-600" aria-hidden="true" />, ariaLabel: "Bootstrap CSS framework" },
-            { label: "TailwindCSS", icon: <SiTailwindcss className="text-cyan-400" aria-hidden="true" />, ariaLabel: "TailwindCSS framework" },
-            { label: "Node.js", icon: <SiNodedotjs className="text-green-600" aria-hidden="true" />, ariaLabel: "Node.js runtime" },
-            { label: "Express.js", icon: <SiExpress className="text-gray-800 dark:text-gray-200" aria-hidden="true" />, ariaLabel: "Express.js framework" },
-            { label: "Firebase", icon: <SiFirebase className="text-yellow-500" aria-hidden="true" />, ariaLabel: "Firebase platform" },
-            { label: "MongoDB", icon: <SiMongodb className="text-green-700" aria-hidden="true" />, ariaLabel: "MongoDB database" },
-        ],
-    },
-    {
-        label: "Android App Development",
-        icon: <FaAndroid className="text-green-500" aria-hidden="true" />,
-        ariaLabel: "Skills in Android App Development",
-        children: [
-            { label: "React Native", icon: <TbBrandReactNative className="text-cyan-500" aria-hidden="true" />, ariaLabel: "React Native framework" },
-            { label: "Java", icon: <FaJava className="text-red-500" aria-hidden="true" />, ariaLabel: "Java programming language" },
-            { label: "Expo", icon: <TbBrandReactNative className="text-purple-500" aria-hidden="true" />, ariaLabel: "Expo framework" },
-            { label: "Firebase", icon: <SiFirebase className="text-yellow-500" aria-hidden="true" />, ariaLabel: "Firebase platform" },
-        ],
-    },
-    {
-        label: "Data Analysis",
-        icon: <FaChartBar className="text-yellow-500" aria-hidden="true" />,
-        ariaLabel: "Skills in Data Analysis",
-        children: [
-            { label: "Python", icon: <SiPython className="text-yellow-400" aria-hidden="true" />, ariaLabel: "Python programming language" },
-            { label: "Pandas", icon: <SiPandas className="text-blue-600" aria-hidden="true" />, ariaLabel: "Pandas library" },
-            { label: "NumPy", icon: <SiNumpy className="text-orange-600" aria-hidden="true" />, ariaLabel: "NumPy library" },
-            { label: "Jupyter Notebook", icon: <SiJupyter className="text-orange-400" aria-hidden="true" />, ariaLabel: "Jupyter Notebook" },
-            { label: "scikit-learn", icon: <SiScikitlearn className="text-yellow-900" aria-hidden="true" />, ariaLabel: "scikit-learn library" },
-            { label: "Matplotlib", icon: <FaChartLine className="text-blue-400" aria-hidden="true" />, ariaLabel: "Matplotlib library" },
-        ],
-    },
+  {
+    label: "Full Stack Web Development",
+    icon: <FaCode className="text-blue-600" aria-hidden="true" />,
+    ariaLabel: "Skills in Full Stack Web Development",
+    children: [
+      { label: "React.js", icon: <SiReact className="text-cyan-500" aria-hidden="true" />, ariaLabel: "React.js framework" },
+      { label: "Vue.js", icon: <FaVuejs className="text-green-500" aria-hidden="true" />, ariaLabel: "Vue.js framework" },
+      { label: "Next.js", icon: <SiNextdotjs className="text-black dark:text-white" aria-hidden="true" />, ariaLabel: "Next.js framework" },
+      { label: "Bootstrap", icon: <SiBootstrap className="text-purple-600" aria-hidden="true" />, ariaLabel: "Bootstrap CSS framework" },
+      { label: "TailwindCSS", icon: <SiTailwindcss className="text-cyan-400" aria-hidden="true" />, ariaLabel: "TailwindCSS framework" },
+      { label: "Node.js", icon: <SiNodedotjs className="text-green-600" aria-hidden="true" />, ariaLabel: "Node.js runtime" },
+      { label: "Express.js", icon: <SiExpress className="text-gray-800 dark:text-gray-200" aria-hidden="true" />, ariaLabel: "Express.js framework" },
+      { label: "Firebase", icon: <SiFirebase className="text-yellow-500" aria-hidden="true" />, ariaLabel: "Firebase platform" },
+      { label: "MongoDB", icon: <SiMongodb className="text-green-700" aria-hidden="true" />, ariaLabel: "MongoDB database" },
+    ],
+  },
+  {
+    label: "Android App Development",
+    icon: <FaAndroid className="text-green-500" aria-hidden="true" />,
+    ariaLabel: "Skills in Android App Development",
+    children: [
+      { label: "React Native", icon: <TbBrandReactNative className="text-cyan-500" aria-hidden="true" />, ariaLabel: "React Native framework" },
+      { label: "Java", icon: <FaJava className="text-red-500" aria-hidden="true" />, ariaLabel: "Java programming language" },
+      { label: "Expo", icon: <TbBrandReactNative className="text-purple-500" aria-hidden="true" />, ariaLabel: "Expo framework" },
+      { label: "Firebase", icon: <SiFirebase className="text-yellow-500" aria-hidden="true" />, ariaLabel: "Firebase platform" },
+    ],
+  },
+  {
+    label: "Data Analysis",
+    icon: <FaChartBar className="text-yellow-500" aria-hidden="true" />,
+    ariaLabel: "Skills in Data Analysis",
+    children: [
+      { label: "Python", icon: <SiPython className="text-yellow-400" aria-hidden="true" />, ariaLabel: "Python programming language" },
+      { label: "Pandas", icon: <SiPandas className="text-blue-600" aria-hidden="true" />, ariaLabel: "Pandas library" },
+      { label: "NumPy", icon: <SiNumpy className="text-orange-600" aria-hidden="true" />, ariaLabel: "NumPy library" },
+      { label: "Jupyter Notebook", icon: <SiJupyter className="text-orange-400" aria-hidden="true" />, ariaLabel: "Jupyter Notebook" },
+      { label: "scikit-learn", icon: <SiScikitlearn className="text-yellow-900" aria-hidden="true" />, ariaLabel: "scikit-learn library" },
+      { label: "Matplotlib", icon: <FaChartLine className="text-blue-400" aria-hidden="true" />, ariaLabel: "Matplotlib library" },
+    ],
+  },
 ];
 
 
@@ -170,10 +137,10 @@ const containerVariants: Variants = {
 };
 
 const fadeInUp: Variants = {
-  hidden: { 
-    opacity: 0, 
+  hidden: {
+    opacity: 0,
     y: 20,
-    transition: { duration: 0.3 } 
+    transition: { duration: 0.3 }
   },
   visible: {
     opacity: 1,
@@ -189,25 +156,25 @@ const scaleLine: Variants = {
   hidden: { scaleX: 0, originX: 0 },
   visible: {
     scaleX: 1,
-    transition: { 
-      duration: 0.5, 
+    transition: {
+      duration: 0.5,
       delay: 0.2,
-      ease: "easeOut" 
+      ease: "easeOut"
     },
   },
 };
 
 const itemVariants: Variants = {
-  hidden: { 
-    opacity: 0, 
+  hidden: {
+    opacity: 0,
     x: -15,
     transition: { duration: 0.2 }
   },
   visible: (i: number) => ({
     opacity: 1,
     x: 0,
-    transition: { 
-      duration: 0.3, 
+    transition: {
+      duration: 0.3,
       delay: 0.05 * i,
       ease: "easeOut"
     },
@@ -222,98 +189,77 @@ const SkillsComponent = memo(function SkillsComponent() {
     threshold: 0.2,
     rootMargin: "50px 0px"
   });
-  
-  // State for loading
-  const [isLoading, setIsLoading] = useState(true);
-  
+
+  // State for loading  
   // Use our custom hook for reduced motion preference
   const prefersReducedMotion = useReducedMotion(controls);
-  
-  // Simulate content loading with a slight delay for demonstration
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 600);
-    
-    return () => clearTimeout(timer);
-  }, []);
+
 
   // Start animations when component comes into view
   useEffect(() => {
-    if (inView && !prefersReducedMotion && !isLoading) {
+    if (inView && !prefersReducedMotion) {
       // Add a small delay for smoother appearance after page load
       const timer = setTimeout(() => {
         controls.start("visible");
       }, 100);
-      
+
       return () => clearTimeout(timer);
     }
-  }, [controls, inView, prefersReducedMotion, isLoading]);
+  }, [controls, inView, prefersReducedMotion]);
 
   return (
-    <section className="flex flex-col items-center justify-center">
-      {isLoading ? (
-        <SkillsLoadingSkeleton />
-      ) : (
-        <motion.div
-          ref={ref}
-          className="w-full"
-          initial="hidden"
-          animate={controls}
-          variants={containerVariants}
-        >
-          <div className="mb-10 flex flex-col items-center">
-            <motion.h2
-              className="text-2xl sm:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-cyan-500 to-purple-600 dark:from-cyan-200 dark:via-blue-400 dark:to-purple-500 text-center"
-              variants={fadeInUp}
-            >
-              Skills That Power My Work
-            </motion.h2>
-
-            <motion.div
-              className="w-20 h-1 rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-purple-500 mt-2 mb-4"
-              variants={scaleLine}
-              style={{ originX: 0 }}
-            />
-
-            <motion.p
-              className="max-w-xl text-base sm:text-lg text-gray-700 dark:text-gray-200 text-center mt-2"
-              variants={fadeInUp}
-            >
-              Learned deeply from scratch to make your project robust, scalable, and innovative — blending strong fundamentals with hands-on expertise.
-            </motion.p>
-          </div>
-
-          <div 
-            className="grid gap-6 w-full max-w-6xl mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-            role="list"
-            aria-label="Skills categories"
-          >
-            {skillsTree.map((branch) => (
-              <SkillBranchComponent key={branch.label} branch={branch} />
-            ))}
-          </div>
-
-          <motion.p
-            className="mt-10 text-sm text-gray-500 dark:text-gray-300 text-center"
+    <section
+      aria-labelledby="skills-title"
+      className="flex flex-col items-center justify-center my-20"
+    >
+      <motion.div
+        ref={ref}
+        className="w-full"
+        initial="hidden"
+        animate={controls}
+        variants={containerVariants}
+      >
+        <div className="mb-10 flex flex-col items-center">
+          <motion.h2
+            className="text-2xl sm:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-cyan-500 to-purple-600 dark:from-cyan-200 dark:via-blue-400 dark:to-purple-500 text-center"
             variants={fadeInUp}
           >
-            Explore my tech stack!
+            Skills That Power My Work
+          </motion.h2>
+
+          <motion.div
+            className="w-20 h-1 rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-purple-500 mt-2 mb-4"
+            variants={scaleLine}
+            style={{ originX: 0 }}
+          />
+
+          <motion.p
+            className="max-w-xl text-base sm:text-lg text-gray-700 dark:text-gray-200 text-center mt-2"
+            variants={fadeInUp}
+          >
+            Learned deeply from scratch to make your project robust, scalable, and innovative — blending strong fundamentals with hands-on expertise.
           </motion.p>
-        </motion.div>
-      )}
+        </div>
+
+        <div
+          className="grid gap-6 w-full max-w-6xl mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+          role="list"
+          aria-label="Skills categories"
+        >
+          {skillsTree.map((branch) => (
+            <SkillBranchComponent key={branch.label} branch={branch} />
+          ))}
+        </div>
+
+        <motion.p
+          className="mt-10 text-sm text-gray-500 dark:text-gray-300 text-center"
+          variants={fadeInUp}
+        >
+          Explore my tech stack!
+        </motion.p>
+      </motion.div>
     </section>
   );
 });
 
-// Export with PerformanceMonitor for development mode
-const SkillsComponentWithMonitoring = () => {
-  return (
-    <>
-      <PerformanceMonitor />
-      <SkillsComponent />
-    </>
-  );
-};
-
-export default process.env.NODE_ENV === 'development' ? SkillsComponentWithMonitoring : SkillsComponent;
+export default SkillsComponent;

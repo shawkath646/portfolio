@@ -41,7 +41,8 @@ interface YoutubeGridProps {
 export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
     return (
         <motion.section
-            className="container mx-auto py-8 mt-20"
+            className="container mx-auto py-8 my-20"
+            aria-labelledby="youtube-title"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.3 }}
@@ -79,14 +80,14 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                         @shawkath646
                     </p>
-                    <a
+                    <Link
                         href="https://www.youtube.com/@shawkath646?sub_confirmation=1"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block bg-red-600 text-white px-5 py-2 rounded-full hover:bg-red-700 transition"
                     >
                         🔔 Subscribe
-                    </a>
+                    </Link>
                 </motion.div>
 
                 {/* Horizontal Scrollable Video List */}

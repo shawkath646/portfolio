@@ -2,10 +2,10 @@
 import { Fragment, useState, useTransition, useCallback, useMemo, memo } from 'react';
 import { Dialog, DialogTitle, Transition, Radio, RadioGroup } from '@headlessui/react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
-import { FiPlus, FiRefreshCw, FiCheck, FiX, FiKey, FiCopy } from 'react-icons/fi';
 import { generatePasswordAction } from '@/actions/secure/generatePassword';
+import { FiPlus, FiRefreshCw, FiCheck, FiX, FiKey, FiCopy } from 'react-icons/fi';
+import { SiteNameType } from '@/types';
 
-type SiteName = 'Admin panel' | 'Personal Life' | 'Friends Corner' | 'Love Corner';
 
 interface GeneratePasswordModalProps {
     open: boolean;
@@ -14,14 +14,14 @@ interface GeneratePasswordModalProps {
 }
 
 
-const siteOptions: SiteName[] = [
+const siteOptions = [
     'Admin panel',
     'Personal Life',
     'Friends Corner',
     'Love Corner',
 ];
 
-const expireOptions = [1, 2, 3, 5, 7, 15]; // days
+const expireOptions = [1, 2, 3, 5, 7, 15];
 const usableTimeOptions: (number | 'unlimited')[] = [1, 2, 3, 4, 5, 'unlimited'];
 
 // Optimized animation variants
@@ -80,7 +80,6 @@ const createStepVariants = (shouldReduceMotion: boolean) => ({
     }
 });
 
-// Memoized Slider Component for better performance
 const PasswordSlider = memo(({
     label,
     value,
@@ -170,7 +169,7 @@ export const GeneratePasswordButton = memo(({ isOpen, onOpen }: { isOpen: boolea
             disabled={isOpen}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="relative overflow-hidden bg-white/20 backdrop-blur-sm border border-white/30 text-white font-semibold px-6 py-3 rounded-2xl hover:bg-white/30 disabled:opacity-50 transition-all duration-300 flex items-center gap-3 shadow-lg"
+            className="relative overflow-hidden bg-purple-100/50 dark:bg-white/20 backdrop-blur-sm border border-purple-200 dark:border-white/30 text-purple-700 dark:text-white font-semibold px-6 py-3 rounded-2xl hover:bg-purple-200/60 dark:hover:bg-white/30 disabled:opacity-50 transition-all duration-300 flex items-center gap-3 shadow-lg"
         >
             <div className="relative z-10 flex items-center gap-2">
                 <FiPlus className="text-lg" />
@@ -178,7 +177,7 @@ export const GeneratePasswordButton = memo(({ isOpen, onOpen }: { isOpen: boolea
             </div>
 
             {/* Animated background */}
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-pink-400/20 opacity-0 hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 to-pink-400/10 dark:from-purple-400/20 dark:to-pink-400/20 opacity-0 hover:opacity-100 transition-opacity duration-300" />
         </motion.button>
     );
 });
@@ -190,9 +189,9 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
     const shouldReduceMotion = useReducedMotion();
     const [step, setStep] = useState<'config' | 'result'>('config');
     const [length, setLength] = useState(12);
-    const [site, setSite] = useState<SiteName>('Admin panel');
-    const [expireIndex, setExpireIndex] = useState(4); // Default to 7 days
-    const [usableIndex, setUsableIndex] = useState(5); // Default to unlimited
+    const [siteName, setSiteName] = useState('Admin panel');
+    const [expireIndex, setExpireIndex] = useState(4);
+    const [usableIndex, setUsableIndex] = useState(5);
     const [includeUppercase, setIncludeUppercase] = useState(false);
     const [includeLowercase, setIncludeLowercase] = useState(false);
     const [includeSpecial, setIncludeSpecial] = useState(false);
@@ -215,17 +214,16 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
         setError('');
 
         startTransition(async () => {
-            const formData = new FormData();
-            formData.append('site', site);
-            formData.append('length', length.toString());
-            formData.append('expireDays', expireDays.toString());
-            formData.append('usableTimes', usableTimes.toString());
-            formData.append('includeUppercase', includeUppercase.toString());
-            formData.append('includeLowercase', includeLowercase.toString());
-            formData.append('includeSpecial', includeSpecial.toString());
-            formData.append('includeNumbers', 'true');
-
-            const result = await generatePasswordAction(formData);
+            const result = await generatePasswordAction({
+                siteCode: siteName.toLowerCase().replace(" ", "-") as SiteNameType,
+                length,
+                expireDays,
+                includeLowercase,
+                includeSpecial,
+                includeUppercase,
+                includeNumbers: true,
+                usableTimes
+            });
 
             if (result.success && result.data) {
                 setGeneratedPassword(result.data.password);
@@ -234,7 +232,7 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
                 setError(result.message || 'Failed to generate password');
             }
         });
-    }, [site, length, expireDays, usableTimes, includeUppercase, includeLowercase, includeSpecial]);
+    }, [siteName, length, expireDays, usableTimes, includeUppercase, includeLowercase, includeSpecial]);
 
     const handleCopyPassword = useCallback(async () => {
         if (generatedPassword) {
@@ -253,7 +251,7 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
         setStep('config');
         setGeneratedPassword('');
         setLength(12);
-        setSite('Admin panel');
+        setSiteName('Admin panel');
         setExpireIndex(4);
         setUsableIndex(5);
         setIncludeUppercase(false);
@@ -261,7 +259,7 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
         setIncludeSpecial(false);
         setError('');
         onClose();
-    }, [onSuccess, generatedPassword, site, length, expireDays, usableTimes, onClose]);
+    }, [onSuccess, generatedPassword, siteName, length, expireDays, usableTimes, onClose]);
 
     return (
         <AnimatePresence>
@@ -348,7 +346,7 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
                                     initial="hidden"
                                     animate="visible"
                                     exit="exit"
-                                    className="w-full max-w-lg lg:max-w-6xl rounded-3xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl ring-1 ring-white/20 dark:ring-gray-700/50 overflow-hidden"
+                                    className="w-full max-w-lg lg:max-w-6xl rounded-3xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl ring-1 ring-gray-200/70 dark:ring-gray-700/50 overflow-hidden"
                                 >
                                     {/* Modal Header */}
                                     <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 p-5">
@@ -470,7 +468,7 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
                                                         {/* Site Name */}
                                                         <div className="space-y-4">
                                                             <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">Site Selection</div>
-                                                            <RadioGroup value={site} onChange={setSite} disabled={isPending}>
+                                                            <RadioGroup value={siteName} onChange={setSiteName} disabled={isPending}>
                                                                 <div className="grid grid-cols-1 gap-3">
                                                                     {siteOptions.map(opt => (
                                                                         <Radio
@@ -596,7 +594,7 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
                                                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 text-sm lg:text-base text-gray-600 dark:text-gray-400">
                                                         <div className="p-4 lg:p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
                                                             <span className="font-medium block mb-2">Site:</span>
-                                                            <div className="font-mono text-purple-600 dark:text-purple-400 text-xs lg:text-sm break-words">{site}</div>
+                                                            <div className="font-mono text-purple-600 dark:text-purple-400 text-xs lg:text-sm break-words">{siteName}</div>
                                                         </div>
                                                         <div className="p-4 lg:p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
                                                             <span className="font-medium block mb-2">Length:</span>

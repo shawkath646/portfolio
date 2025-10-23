@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import AdminPage from "./AdminPage";
+import getLoginSession from '@/actions/secure/getLoginSession';
 
 export const metadata: Metadata = {
     title: 'Admin Dashboard',
@@ -21,5 +22,8 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-    return <AdminPage />
+
+    const { isAdministrator } = await getLoginSession("admin-panel");
+
+    return <AdminPage isAdministrator={isAdministrator} />
 };

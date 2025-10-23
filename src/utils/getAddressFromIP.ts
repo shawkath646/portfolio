@@ -1,5 +1,7 @@
 "use server";
 
+import { cache } from "react";
+
 export interface AddressType {
     ip: string;
     continent?: string;
@@ -14,12 +16,7 @@ export interface AddressType {
     isp?: string;
 }
 
-/**
- * Look up an IP address and return a normalized address object.
- * Uses the free HTTPS ipwho.is API (no API key required).
- * Note: Requires a runtime with global fetch (Node 18+ or a browser).
- */
-export async function getAddressFromIP(ip: string): Promise<AddressType> {
+const getAddressFromIP = cache(async(ip: string): Promise<AddressType> => {
 
     const url = `https://ipwho.is/${encodeURIComponent(ip)}`;
     const res = await fetch(url, { headers: { accept: "application/json" } });
@@ -44,6 +41,6 @@ export async function getAddressFromIP(ip: string): Promise<AddressType> {
     };
 
     return address;
-}
+});
 
 export default getAddressFromIP;
