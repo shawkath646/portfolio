@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import AboutHero from "./AboutHero";
 import DreamCards from "./DreamCards";
 import EducationFlowChart from "./EducationFlowChart";
+import WorkExperience from "./WorkExperience";
 import PersonalLifeSection from "./PersonalLifeSection";
 
 // Enhanced metadata for better SEO
@@ -45,6 +46,7 @@ export default function About() {
       <AboutHero />
       <DreamCards />
       <EducationFlowChart />
+      <WorkExperience />
       <PersonalLifeSection />
     </main>
   );

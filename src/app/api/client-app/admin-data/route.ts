@@ -1,14 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
-import { withClientAppAuth } from "@/lib/withClientAppAuth";
+import { NextResponse } from "next/server";
+import withClientAppAuth from "@/utils/withClientAppAuth";
 import getAdminData from "@/actions/admin/getAdminData";
 
-// Protected route handler
-async function handler(req: NextRequest) {
+async function handler() {
     try {
-        // Get admin data
         const adminData = await getAdminData();
         
-        // Return admin data
         return NextResponse.json({
             success: true,
             data: adminData
@@ -23,5 +20,4 @@ async function handler(req: NextRequest) {
     }
 }
 
-// Export the handler with authentication middleware
 export const GET = withClientAppAuth(handler);

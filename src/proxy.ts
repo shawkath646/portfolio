@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import verifyTokens from './utils/verifyTokens';
+import { verifyTokens } from './utils/tokens';
 
 const CLIENT_APP_API_KEY = process.env.CLIENT_APP_API_KEY;
 if (!CLIENT_APP_API_KEY) throw Error("Error: CLIENT_APP_API_KEY not found!");
@@ -22,7 +22,7 @@ export default async function proxy(request: NextRequest) {
         const adminToken = request.cookies.get('admin-panel_access_token');
         if (!adminToken?.value) return NextResponse.redirect(loginUrl);
 
-        const tokenValid =  verifyTokens(adminToken.value, "admin-panel");
+        const tokenValid = await verifyTokens(adminToken.value, "admin-panel");
 
         if (!tokenValid) {
             const response = NextResponse.redirect(loginUrl);

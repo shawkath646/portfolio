@@ -57,13 +57,13 @@ export const CleanupPasswordButton = memo(({ isOpen, onOpen, expiredCount = 0 }:
         <motion.button
             onClick={onOpen}
             disabled={isOpen}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="relative overflow-hidden bg-white/20 dark:bg-white/20 backdrop-blur-sm border border-gray-300 dark:border-white/30 text-gray-800 dark:text-white font-semibold px-6 py-3 rounded-2xl hover:bg-white/30 dark:hover:bg-white/30 disabled:opacity-50 transition-all duration-300 flex items-center gap-3 shadow-lg"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="relative overflow-hidden bg-white/20 dark:bg-white/20 backdrop-blur-sm border border-gray-300 dark:border-white/30 text-gray-800 dark:text-white font-semibold px-3 py-2 sm:px-6 sm:py-3 rounded-md sm:rounded-2xl hover:bg-white/30 dark:hover:bg-white/30 disabled:opacity-50 transition-all duration-300 flex items-center gap-2 sm:gap-3 shadow-md"
             aria-label="Clean up expired passwords"
         >
             <div className="relative z-10 flex items-center gap-2">
-                <FiTrash2 className="text-lg" />
+                <FiTrash2 className="text-sm sm:text-lg" />
                 <span>Cleanup</span>
                 {expiredCount > 0 && (
                     <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
@@ -189,7 +189,7 @@ export const CleanupPasswordModal = memo(({ open, onClose, onSuccess, expiredCou
                                                         whileTap={{ scale: shouldReduceMotion ? 1 : 0.98 }}
                                                         onClick={handleCleanup}
                                                         disabled={isPending || expiredCount === 0}
-                                                        className="px-6 py-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
+                                                        className="px-4 sm:px-6 py-2 rounded-md sm:rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2 text-sm"
                                                     >
                                                         {isPending ? (
                                                             <>
@@ -242,7 +242,7 @@ export const CleanupPasswordModal = memo(({ open, onClose, onSuccess, expiredCou
                                                     whileHover={{ scale: shouldReduceMotion ? 1 : 1.05 }}
                                                     whileTap={{ scale: shouldReduceMotion ? 1 : 0.95 }}
                                                     onClick={handleClose}
-                                                    className="px-8 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:shadow-xl transition-all"
+                                                    className="px-4 sm:px-8 py-2 sm:py-3 rounded-md sm:rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:shadow-xl transition-all text-sm sm:text-base"
                                                 >
                                                     Close
                                                 </motion.button>

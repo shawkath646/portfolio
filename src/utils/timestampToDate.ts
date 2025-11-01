@@ -1,12 +1,8 @@
-// src/utils/timestampToDate.ts
 
 export type FirebaseTimestamp =
   | { toDate: () => Date }
   | { seconds: number; nanoseconds?: number };
 
-/**
- * Converts a Firebase Timestamp to a native Date.
- */
 export function timestampToDate(ts: FirebaseTimestamp | Date): Date {
   if (ts instanceof Date) {
     return ts;
@@ -16,7 +12,6 @@ export function timestampToDate(ts: FirebaseTimestamp | Date): Date {
     return ts.toDate();
   }
 
-  // At this point, ts must be the { seconds; nanoseconds } type
   const { seconds, nanoseconds = 0 } = ts as { seconds: number; nanoseconds?: number };
   const ms = seconds * 1000 + Math.floor(nanoseconds / 1e6);
 

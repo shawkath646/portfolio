@@ -73,22 +73,22 @@ export default function AdminPassword() {
             className="mb-12"
             aria-labelledby="admin-password-title"
         >
-            <div className="bg-white/80 dark:bg-gray-800/40 backdrop-blur-lg rounded-3xl p-6 border border-purple-100/30 dark:border-purple-800/30 shadow-xl">
+            <div className="bg-white/80 dark:bg-gray-800/40 backdrop-blur-lg rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-purple-100/30 dark:border-purple-800/30 shadow-lg sm:shadow-xl">
                 <header className="flex items-center gap-4 mb-6">
                     <div 
-                        className="p-3 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl backdrop-blur-sm shadow-lg"
+                        className="p-2 sm:p-3 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl sm:rounded-2xl backdrop-blur-sm shadow-md sm:shadow-lg"
                         aria-hidden="true"
                     >
-                        <FiShield className="text-2xl text-white" />
+                        <FiShield className="text-lg sm:text-2xl text-white" />
                     </div>
                     <div>
                         <h2 
                             id="admin-password-title"
-                            className="text-2xl font-bold bg-gradient-to-r from-gray-800 via-purple-800 to-pink-800 dark:from-white dark:via-purple-200 dark:to-pink-200 bg-clip-text text-transparent mb-1"
+                            className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-800 via-purple-800 to-pink-800 dark:from-white dark:via-purple-200 dark:to-pink-200 bg-clip-text text-transparent mb-1"
                         >
                             Admin Password
                         </h2>
-                        <p className="text-gray-600 dark:text-gray-300">
+                        <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">
                             Change the main administrator password
                         </p>
                     </div>
@@ -134,7 +134,7 @@ export default function AdminPassword() {
                                 id="new-password"
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
-                                className="w-full pr-10 py-2 px-4 bg-white/90 dark:bg-gray-900/90 border border-purple-100 dark:border-purple-900/50 rounded-lg focus:ring-2 focus:ring-purple-500 dark:focus:ring-pink-400 focus:border-transparent transition-all"
+                                className="w-full pr-10 py-2 px-3 sm:px-4 bg-white/90 dark:bg-gray-900/90 border border-purple-100 dark:border-purple-900/50 rounded-lg focus:ring-2 focus:ring-purple-500 dark:focus:ring-pink-400 focus:border-transparent transition-all"
                                 placeholder="Enter new admin password"
                                 required
                                 minLength={8}
@@ -161,7 +161,7 @@ export default function AdminPassword() {
                                 id="confirm-password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                className={`w-full pr-10 py-2 px-4 bg-white/90 dark:bg-gray-900/90 border rounded-lg focus:ring-2 focus:ring-purple-500 dark:focus:ring-pink-400 focus:border-transparent transition-all ${
+                                className={`w-full pr-10 py-2 px-3 sm:px-4 bg-white/90 dark:bg-gray-900/90 border rounded-lg focus:ring-2 focus:ring-purple-500 dark:focus:ring-pink-400 focus:border-transparent transition-all ${
                                     passwordErrors.match && confirmPassword
                                         ? "border-red-300 dark:border-red-700" 
                                         : "border-purple-100 dark:border-purple-900/50"
@@ -187,7 +187,7 @@ export default function AdminPassword() {
                     </div>
 
                     {/* Password Requirements */}
-                    <div className="bg-gradient-to-br from-gray-50/80 to-purple-50/80 dark:from-gray-900/30 dark:to-purple-900/20 backdrop-blur-sm rounded-xl p-4 border border-purple-100/20 dark:border-purple-800/20">
+                    <div className="bg-gradient-to-br from-gray-50/80 to-purple-50/80 dark:from-gray-900/30 dark:to-purple-900/20 backdrop-blur-sm rounded-md sm:rounded-xl p-3 sm:p-4 border border-purple-100/20 dark:border-purple-800/20">
                         <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                             Password Requirements
                         </h3>
@@ -262,7 +262,7 @@ export default function AdminPassword() {
                             disabled={!isValid || isPending}
                             whileHover={{ scale: isValid && !isPending ? 1.02 : 1 }}
                             whileTap={{ scale: isValid && !isPending ? 0.98 : 1 }}
-                            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-purple-400 disabled:to-pink-400 dark:disabled:opacity-50 text-white font-medium py-2 px-6 rounded-lg shadow-lg disabled:cursor-not-allowed transition-all duration-300 flex items-center gap-2"
+                            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-purple-400 disabled:to-pink-400 dark:disabled:opacity-50 text-white font-medium py-2 px-4 sm:px-6 rounded-lg shadow-md sm:shadow-lg disabled:cursor-not-allowed transition-all duration-300 flex items-center gap-2 text-sm sm:text-base"
                         >
                             {isPending ? (
                                 <>

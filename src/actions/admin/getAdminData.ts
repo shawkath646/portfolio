@@ -2,29 +2,16 @@
 import { cache } from "react";
 import { db } from "@/lib/firebase";
 import { timestampToDate } from "@/utils/timestampToDate";
-
-
-interface IAddress {
-  street: string;
-  city: string;
-  province: string;
-  country: string;
-  postalCode: string;
-}
-
-interface IPhoneNumber {
-  countryCode: string;
-  number: string;
-}
+import { AddressType, PhoneNumberType } from "@/types";
 
 export interface AdminDataType {
   firstName: string;
   lastName: string;
   dateOfBirth: Date;
-  presentAddress: IAddress;
-  permanentAddress: IAddress;
+  presentAddress: AddressType;
+  permanentAddress: AddressType;
   emails: string[];
-  phoneNumbers: IPhoneNumber[];
+  phoneNumbers: PhoneNumberType[];
   profilePictureUrl: string;
 }
 

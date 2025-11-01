@@ -3,11 +3,10 @@ import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/components/navigation/Navbar";
 import Footer from "@/components/navigation/Footer";
-import jsonLd from "@/data/jsonLd.json";
+import getJsonLd from "@/utils/getJsonLd";
 import "./globals.css";
 
 
-// Optimized font loading with preload and fallback
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -97,11 +96,14 @@ export const metadata: Metadata = {
 };
 
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const jsonLd = await getJsonLd();
+
   return (
     <html
       lang="en"

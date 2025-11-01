@@ -1,40 +1,19 @@
 "use server";
 import { cookies, headers } from "next/headers";
 import { cache } from "react";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/firebase";
-import { PasswordObjectType } from "@/app/admin/security/PasswordManagement";
+import { ClientAppTokensType, generateClientAppToken, generateSessionToken, SessionTokensType } from "@/utils/tokens";
 import { timestampToDate } from "@/utils/timestampToDate";
-import getAddressFromIP, { AddressType } from "@/utils/getAddressFromIP";
-import { PartialBy, SiteCodeType } from "@/types";
+import getAddressFromIP from "@/utils/getAddressFromIP";
+import { PasswordObjectType } from "./passwordFunc";
+import { AddressType, PartialBy, SiteCodeType } from "@/types";
 
-const ADMIN_AUTH_SECRET = process.env.ADMIN_AUTH_SECRET;
-if (!ADMIN_AUTH_SECRET) throw Error("Error: ADMIN_AUTH_SECRET not found!");
-const SITE_AUTH_SECRET = process.env.SITE_AUTH_SECRET;
-if (!SITE_AUTH_SECRET) throw Error("Error: SITE_AUTH_SECRET not found!");
 
-const ADMIN_TOKEN_EXPIRY = "7d";
-
-export interface AdminPassType {
+interface AdminPassType {
     password: string;
     lastChangedOn: Date;
     blockedIPs: string[];
-}
-
-export const getAdminPassData = cache(async (): Promise<AdminPassType> => {
-    const adminPassDoc = await db.collection("site-config").doc("admin-pass").get();
-    if (!adminPassDoc.exists) {
-        throw new Error("Admin password configuration not found");
-    }
-    const adminPassData = adminPassDoc.data() as AdminPassType;
-    return adminPassData;
-});
-
-export interface TokensType {
-    accessToken: string;
-    refreshToken?: string;
-    expireAt?: Date;
 }
 
 export interface LoginAttemptObjectType {
@@ -42,33 +21,38 @@ export interface LoginAttemptObjectType {
     ip: string;
     userAgent: string;
     success: boolean;
+    invoked: boolean;
     siteCode: string;
     timestamp: Date;
     isAdministrator: boolean;
     failedReason?: string;
-    address: string | AddressType;
-    tokens?: TokensType;
+    address: AddressType | null;
+    sessionTokens?: SessionTokensType;
+    clientAppTokens?: ClientAppTokensType;
 }
 
-export const saveLoginAttempt = async (
-    props: PartialBy<LoginAttemptObjectType, "id">
-): Promise<{ docId: string; update: (object: Partial<LoginAttemptObjectType>) => Promise<void> }> => {
-    
-    const docRef = await db.collection("login-attempts").add(props);
-    const update = async (object: Partial<LoginAttemptObjectType>): Promise<void> => {
-        await docRef.update(object);
-    };
 
-    return { docId: docRef.id, update };
+const getAdminPassData = cache(async (): Promise<AdminPassType> => {
+    const adminPassDoc = await db.collection("site-config").doc("admin-pass").get();
+    if (!adminPassDoc.exists) {
+        throw new Error("Admin password configuration not found");
+    }
+    return adminPassDoc.data() as AdminPassType;
+});
+
+const saveLoginAttempt = async (
+    props: PartialBy<LoginAttemptObjectType, "id">
+): Promise<string> => {
+    const docRef = await db.collection("login-attempts").add(props);
+    return docRef.id;
 };
 
-export const checkLoginAbility = cache(async (ip: string, siteCode: SiteCodeType): Promise<{
+const checkLoginAbility = async (ip: string, siteCode: SiteCodeType): Promise<{
     allowed: boolean;
     attemptsLeft: number;
     lockoutEndTime?: Date;
 }> => {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-
     const strictMaxAttempts = 5;
     const strictFailedReason = "Invalid admin credentials";
     const strictLockoutHours = 1;
@@ -86,7 +70,6 @@ export const checkLoginAbility = cache(async (ip: string, siteCode: SiteCodeType
 
     if (strictFailedCount >= strictMaxAttempts) {
         const lockoutEnd = new Date(Date.now() + strictLockoutHours * 60 * 60 * 1000);
-
         return {
             allowed: false,
             attemptsLeft: 0,
@@ -95,6 +78,8 @@ export const checkLoginAbility = cache(async (ip: string, siteCode: SiteCodeType
     }
 
     const strictAttemptsLeft = Math.max(0, strictMaxAttempts - strictFailedCount);
+
+    // NOTE: Ensure a composite index exists in Firestore for this query.
     const allFailedQuery = db.collection("login-attempts")
         .where("ip", "==", ip)
         .where("siteCode", "==", siteCode)
@@ -103,11 +88,9 @@ export const checkLoginAbility = cache(async (ip: string, siteCode: SiteCodeType
 
     const allAttemptsSnapshot = await allFailedQuery.get();
     const allFailedCount = allAttemptsSnapshot.size;
-
     const looseFailedCount = allFailedCount - strictFailedCount;
-
     const looseAttemptsLeft = Math.max(0, looseMaxAttempts - looseFailedCount);
-    
+
     if (looseFailedCount >= looseMaxAttempts) {
         return {
             allowed: false,
@@ -115,16 +98,11 @@ export const checkLoginAbility = cache(async (ip: string, siteCode: SiteCodeType
         };
     }
 
-
-    const finalAttemptsLeft = Math.min(strictAttemptsLeft, looseAttemptsLeft);
-    const finalAllowed = true;
-
     return {
-        allowed: finalAllowed,
-        attemptsLeft: finalAttemptsLeft
+        allowed: true,
+        attemptsLeft: Math.min(strictAttemptsLeft, looseAttemptsLeft)
     };
-});
-
+};
 
 export const generateAttemptMessage = cache(async (loginStatus: { attemptsLeft: number; lockoutEndTime?: Date }): Promise<string> => {
     if (loginStatus.attemptsLeft > 0) {
@@ -146,20 +124,17 @@ export const generateAttemptMessage = cache(async (loginStatus: { attemptsLeft: 
     }
 });
 
-
+// --- Main Handler ---
 const getSiteAccess = async (siteCode: SiteCodeType, password: string) => {
-
     const headersList = await headers();
     const cookieStore = await cookies();
 
     const rawIP = headersList.get("x-forwarded-for") || headersList.get("x-real-ip");
     const clientIP = rawIP ? rawIP.split(',')[0].trim() : null;
+    const userAgent = headersList.get("user-agent") || "unknown";
 
     if (!clientIP) {
-        return {
-            success: false,
-            message: "Unable to determine client IP address."
-        };
+        return { success: false, message: "Unable to determine client IP address." };
     }
 
     const address = await getAddressFromIP(clientIP);
@@ -167,97 +142,84 @@ const getSiteAccess = async (siteCode: SiteCodeType, password: string) => {
     try {
         const loginStatus = await checkLoginAbility(clientIP, siteCode);
         if (!loginStatus.allowed) {
-            return {
-                success: false,
-                message: await generateAttemptMessage(loginStatus)
-            };
+            return { success: false, message: await generateAttemptMessage(loginStatus) };
         }
 
-        if (siteCode === "admin-panel") {
+        if (["admin-panel", "client-app"].includes(siteCode)) {
             const adminPassData = await getAdminPassData();
 
             if (adminPassData.blockedIPs.includes(clientIP)) {
-                return {
-                    success: false,
-                    message: "Access from your IP has been blocked."
-                };
+                return { success: false, message: "Access from your IP has been blocked." };
             }
 
             const passwordMatch = await bcrypt.compare(password, adminPassData.password);
+
             if (passwordMatch) {
-                const { docId: loginAttemptId, update } = await saveLoginAttempt({
+                const loginAttemptId = await saveLoginAttempt({
                     ip: clientIP,
-                    userAgent: headersList.get("user-agent") || "unknown",
+                    userAgent,
                     success: true,
                     siteCode,
                     isAdministrator: true,
                     timestamp: new Date(),
                     address,
+                    invoked: false,
                 });
 
-                const token = jwt.sign({ loginAttemptId }, ADMIN_AUTH_SECRET, {
-                    expiresIn: ADMIN_TOKEN_EXPIRY
-                });
+                if (siteCode == "admin-panel") {
+                    const tokenObject = await generateSessionToken(loginAttemptId, siteCode, true);
+                    const expiresInSeconds = Math.max(
+                        1,
+                        Math.floor((tokenObject.expireAt.getTime() - Date.now()) / 1000)
+                    );
 
-                await update({ tokens: { accessToken: token }});
+                    cookieStore.set("admin-panel_access_token", tokenObject.token, {
+                        httpOnly: true,
+                        secure: true,
+                        sameSite: "strict",
+                        path: "/",
+                        maxAge: expiresInSeconds,
+                    });
 
-                cookieStore.set("admin-panel_access_token", token, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    sameSite: "lax",
-                });
-                
-
-                return {
-                    success: true,
-                    message: "Authentication successful",
-                };
+                    return { success: true, message: "Authentication successful" };
+                } else if (siteCode == "client-app") {
+                    const tokenObject = await generateClientAppToken(loginAttemptId, clientIP);
+                    return { success: true, message: "Authentication successful", data: tokenObject };
+                }
             } else {
                 await saveLoginAttempt({
                     ip: clientIP,
-                    userAgent: headersList.get("user-agent") || "unknown",
+                    userAgent,
                     success: false,
                     siteCode,
                     isAdministrator: true,
                     timestamp: new Date(),
                     failedReason: "Invalid admin credentials",
                     address,
+                    invoked: false
                 });
 
                 const updatedStatus = await checkLoginAbility(clientIP, siteCode);
-                const attemptMessage = await generateAttemptMessage(updatedStatus);
-
-                return {
-                    success: false,
-                    message: `Invalid admin credentials. ${attemptMessage}`
-                };
+                return { success: false, message: `Invalid admin credentials. ${await generateAttemptMessage(updatedStatus)}` };
             }
         }
 
-        // TEMPORARY PASSWORD CHECK (SECURE HASH CHECK)
-        const passwordQuery = await db.collection("passwords")
-            .where("siteCode", "==", siteCode)
-            .get();
+        const passwordQuery = await db.collection("passwords").where("siteCode", "==", siteCode).get();
 
         if (passwordQuery.empty) {
             await saveLoginAttempt({
                 ip: clientIP,
-                userAgent: headersList.get("user-agent") || "unknown",
+                userAgent,
                 success: false,
                 siteCode,
                 isAdministrator: false,
                 timestamp: new Date(),
                 failedReason: "No matching site code for password",
                 address,
+                invoked: false
             });
-
             const updatedStatus = await checkLoginAbility(clientIP, siteCode);
-            const attemptMessage = await generateAttemptMessage(updatedStatus);
-
-            return {
-                success: false,
-                message: `Invalid credentials. ${attemptMessage}`
-            };
+            return { success: false, message: `Invalid credentials. ${await generateAttemptMessage(updatedStatus)}` };
         }
 
         const passwordDoc = passwordQuery.docs[0];
@@ -265,143 +227,107 @@ const getSiteAccess = async (siteCode: SiteCodeType, password: string) => {
         const passwordData = {
             ...rawPasswordData,
             expiresAt: timestampToDate(rawPasswordData.expiresAt)
-        } as PasswordObjectType & { expiresAt: Date };
-        
-        const passwordId = passwordDoc.id;
-        
-        const passwordMatch = await bcrypt.compare(password, passwordData.password);
+        };
 
+        const passwordMatch = await bcrypt.compare(password, passwordData.password);
         if (!passwordMatch) {
             await saveLoginAttempt({
                 ip: clientIP,
-                userAgent: headersList.get("user-agent") || "unknown",
+                userAgent,
                 success: false,
                 siteCode,
                 isAdministrator: false,
                 timestamp: new Date(),
                 failedReason: "Invalid temporary password hash",
                 address,
+                invoked: false
             });
-
             const updatedStatus = await checkLoginAbility(clientIP, siteCode);
-            const attemptMessage = await generateAttemptMessage(updatedStatus);
-
-            return {
-                success: false,
-                message: `Invalid credentials. ${attemptMessage}`
-            };
+            return { success: false, message: `Invalid credentials. ${await generateAttemptMessage(updatedStatus)}` };
         }
 
-        const now = Date.now();
-        const expiryDate = passwordData.expiresAt.getTime();
-
-        if (expiryDate < now) {
+        if (passwordData.expiresAt.getTime() < Date.now()) {
             await saveLoginAttempt({
                 ip: clientIP,
-                userAgent: headersList.get("user-agent") || "unknown",
+                userAgent,
                 success: false,
                 siteCode,
                 isAdministrator: false,
                 timestamp: new Date(),
                 failedReason: "Password expired",
                 address,
+                invoked: false
             });
-
             const updatedStatus = await checkLoginAbility(clientIP, siteCode);
-            const attemptMessage = await generateAttemptMessage(updatedStatus);
-
-            return {
-                success: false,
-                message: `This password has expired. ${attemptMessage}`
-            };
+            return { success: false, message: `This password has expired. ${await generateAttemptMessage(updatedStatus)}` };
         }
 
-        if (passwordData.usableTimes !== "unlimited" &&
-            passwordData.usedTimes >= passwordData.usableTimes) {
+        if (passwordData.usableTimes !== "unlimited" && passwordData.usedTimes >= passwordData.usableTimes) {
             await saveLoginAttempt({
                 ip: clientIP,
-                userAgent: headersList.get("user-agent") || "unknown",
+                userAgent,
                 success: false,
                 siteCode,
                 isAdministrator: false,
                 timestamp: new Date(),
                 failedReason: "Password usage limit has been reached",
                 address,
+                invoked: false
             });
-
             const updatedStatus = await checkLoginAbility(clientIP, siteCode);
-            const attemptMessage = await generateAttemptMessage(updatedStatus);
-
-            return {
-                success: false,
-                message: `Password usage limit has been reached. ${attemptMessage}`
-            };
+            return { success: false, message: `Password usage limit has been reached. ${await generateAttemptMessage(updatedStatus)}` };
         }
-
-
-        const { docId: loginAttemptId, update: updateLoginAttempt } = await saveLoginAttempt({
+        const loginAttemptId = await saveLoginAttempt({
             ip: clientIP,
-            userAgent: headersList.get("user-agent") || "unknown",
+            userAgent,
             success: true,
             siteCode,
             isAdministrator: false,
             timestamp: new Date(),
             address,
+            invoked: false
         });
-        
-        const tokenExpirationSeconds = Math.floor(expiryDate / 1000);
 
-        const token = jwt.sign(
-            { loginAttemptId, passwordId, exp: tokenExpirationSeconds },
-            SITE_AUTH_SECRET
+        const tokenObject = await generateSessionToken(
+            loginAttemptId,
+            siteCode,
+            false,
+            passwordData.expiresAt,
+            passwordData.id
         );
 
-        await updateLoginAttempt({
-            tokens: {
-                accessToken: token,
-                expireAt: passwordData.expiresAt,
-            }
-        });
+        const expiresInSeconds = Math.max(
+            1,
+            Math.floor((tokenObject.expireAt.getTime() - Date.now()) / 1000)
+        );
 
-        await db.collection("passwords").doc(passwordId).update({
-            usedTimes: passwordData.usedTimes + 1,
-            loginAttemptId
-        } as Partial<PasswordObjectType>);
-
-        cookieStore.set(`${siteCode}_access_token`, token, {
+        cookieStore.set(`${siteCode}_access_token`, tokenObject.token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            secure: true,
+            sameSite: "strict",
             path: "/",
-            maxAge: Math.max(1, tokenExpirationSeconds - Math.floor(Date.now() / 1000)),
+            maxAge: expiresInSeconds,
         });
 
-        return {
-            success: true,
-            message: "Authentication successful",
-        };
+        return { success: true, message: "Authentication successful" };
     } catch (error) {
         const failedReason = error instanceof Error ? error.message : "Internal server error";
-        
         const finalIp = clientIP || "unknown";
-        const finalAddress = address || "unknown";
         const isAdministrator = siteCode === "admin-panel";
 
         await saveLoginAttempt({
             ip: finalIp,
-            userAgent: headersList.get("user-agent") || "unknown",
+            userAgent,
             success: false,
             siteCode,
             isAdministrator,
             timestamp: new Date(),
             failedReason: finalIp === "unknown" ? "IP determination failed: " + failedReason : failedReason,
-            address: finalAddress,
+            address,
+            invoked: false
         });
 
-        return {
-            success: false,
-            message: failedReason
-        };
+        return { success: false, message: failedReason };
     }
 };
 

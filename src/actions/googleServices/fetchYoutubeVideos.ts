@@ -1,24 +1,24 @@
 "use server";
+import { cache } from "react";
+
 const youtubeApiUrl = "https://www.googleapis.com/youtube/v3";
+const YT_CHANNEL_ID = process.env.YT_CHANNEL_ID;
+if (!YT_CHANNEL_ID) throw Error("Error: YT_CHANNEL_ID not found!");
+
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+if (!GOOGLE_API_KEY) throw Error("Error: GOOGLE_API_KEY not found!");
 
-const channelId = "UCdnO4SySjkJZ_K7YsnLnj6w";
-
-if (!GOOGLE_API_KEY) {
-    throw new Error("GOOGLE_API_KEY is not defined in environment variables");
-}
-
-const fetchYouTubeVideos = async () => {
+const fetchYouTubeVideos = cache(async () => {
     try {
         const channelRes = await fetch(
-            `${youtubeApiUrl}/channels?part=contentDetails,snippet&id=${channelId}&key=${GOOGLE_API_KEY}`
+            `${youtubeApiUrl}/channels?part=contentDetails,snippet&id=${YT_CHANNEL_ID}&key=${GOOGLE_API_KEY}`
         );
         const channelData = await channelRes.json();
 
         const channel = {
             title: channelData.items[0]?.snippet?.title || "Unknown Channel",
             icon: channelData.items[0]?.snippet?.thumbnails?.default?.url || "",
-            url: `https://www.youtube.com/channel/${channelId}`,
+            url: `https://www.youtube.com/channel/${YT_CHANNEL_ID}`,
         };
 
         const uploadsPlaylistId =
@@ -53,6 +53,6 @@ const fetchYouTubeVideos = async () => {
             videos: [],
         };
     }
-};
+});
 
 export default fetchYouTubeVideos;

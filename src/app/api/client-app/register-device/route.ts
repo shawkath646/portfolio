@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
 import { FieldValue } from "firebase-admin/firestore";
-import { withClientAppAuth } from "@/lib/withClientAppAuth";
+import withClientAppAuth from "@/utils/withClientAppAuth";
 
 export const POST = withClientAppAuth(async (req: NextRequest) => {
   try {

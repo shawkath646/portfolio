@@ -3,7 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { DeviceWithReachabilityType } from '@/actions/secure/passwordlessLogin.bak/reachableDeviceList';
+// Type definition inline (passwordless login feature is currently disabled)
+export interface DeviceWithReachabilityType {
+    id: string;
+    deviceName: string;
+    deviceOs: string;
+    isReachable: boolean;
+    lastActive?: Date | { toDate: () => Date } | any;
+}
 import { FaAndroid, FaApple, FaGlobe } from 'react-icons/fa';
 import { HiX } from 'react-icons/hi';
 import { FiSmartphone, FiLogIn, FiCheckCircle, FiAlertTriangle, FiLock, FiUnlock } from 'react-icons/fi';

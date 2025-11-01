@@ -1,7 +1,7 @@
 "use server";
 
-import { admin } from "@/lib/firebase";
 import { messaging } from "firebase-admin";
+import { admin } from "@/lib/firebase";
 
 interface SendMessageProps {
   fcmToken: string;
@@ -13,13 +13,6 @@ interface SendMessageProps {
   iosBadgeCount?: number;
 }
 
-/**
- * Constructs and sends a push notification to a specific device.
- *
- * @param props - The simplified notification properties.
- * @returns The message ID on successful sending.
- * @throws Will throw an error if the message fails to send.
- */
 export const sendNotificationToDevice = async (props: SendMessageProps) => {
   const {
     fcmToken,
@@ -41,7 +34,6 @@ export const sendNotificationToDevice = async (props: SendMessageProps) => {
       title,
       body,
     },
-    // Fix: Use the `data` prop directly. Provide an empty object if it's undefined.
     data: data ?? {},
     android: {
       priority,

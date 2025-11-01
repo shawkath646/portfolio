@@ -40,14 +40,13 @@ export default function AnimatedHeading() {
 
   return (
     <motion.h1
-      className="text-4xl sm:text-6xl font-extrabold text-cyan-400 drop-shadow-md text-left"
+      className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-cyan-400 drop-shadow-md text-left min-h-[5rem] sm:min-h-[8rem] md:min-h-[5rem] flex items-start"
       initial={{ y: 60, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 100, delay: 0.2 }}
     >
-      <span>
-        Hi, I'm {displayText}
-        <span className="animate-blink">{barChar}</span>
+      <span className="inline-block">
+        Hi, I'm <span className="inline-block whitespace-nowrap">{displayText}<span className="animate-blink">{barChar}</span></span>
       </span>
       <style>
         {`

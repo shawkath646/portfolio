@@ -17,9 +17,8 @@ import {
     FaCloudDownloadAlt
 } from "react-icons/fa";
 import { IoIosArrowForward } from "react-icons/io";
-import techBg from "@/assets/v627-aew-09-technologybackground.jpg";
 import AnimatedHeading from "./AnimatedHeading";
-import useReducedMotion from "../../hooks/useReducedMotion";
+import useReducedMotion from "@/hooks/useReducedMotion";
 
 // Animation Variants with performance optimizations
 const containerVariants: Variants = {
@@ -83,21 +82,35 @@ const ProfileImage = memo(function ProfileImage() {
     );
 });
 
-// Memoized background component
-const BackgroundImage = memo(function BackgroundImage() {
+// Memoized animated background component with blue theme
+const AnimatedBackground = memo(function AnimatedBackground() {
     return (
-        <div className="absolute inset-0 z-0 pointer-events-none">
-            <Image
-                src={techBg}
-                alt="Technology background visualization"
-                fill
-                className="object-cover brightness-75 dark:brightness-50 transition-all duration-700"
-                priority
-                fetchPriority="high"
-                sizes="100vw"
-                quality={85}
-            />
-            <div className="absolute inset-0 bg-white/10 dark:bg-[#0a192f]/30 backdrop-blur-md" />
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+            {/* Main gradient background - Lighter for light mode, darker for dark mode */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-400 via-cyan-400 to-blue-300 dark:from-slate-900/50 dark:via-blue-900/50 dark:to-slate-800/50" />
+            
+            {/* Overlay gradients for depth */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-300/40 via-transparent to-cyan-300/30 dark:from-blue-800/50 dark:via-transparent dark:to-cyan-800/30" />
+            <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-cyan-300/20 to-blue-400/30 dark:from-transparent dark:via-blue-700/20 dark:to-slate-900/40" />
+            
+            {/* Animated gradient orbs */}
+            <div className="absolute top-0 left-0 w-96 h-96 bg-cyan-300/30 dark:bg-cyan-400/20 rounded-full blur-3xl animate-float" />
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-300/30 dark:bg-blue-500/20 rounded-full blur-3xl animate-float-reverse" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-200/20 dark:bg-blue-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+            
+            {/* Geometric shapes */}
+            <div className="absolute top-20 right-20 w-32 h-32 border-2 border-blue-500/30 dark:border-cyan-300/20 rounded-lg rotate-12 animate-spin-slow" />
+            <div className="absolute bottom-40 left-40 w-24 h-24 border-2 border-cyan-500/30 dark:border-blue-300/20 rounded-full animate-pulse" style={{ animationDuration: '6s' }} />
+            <div className="absolute top-1/3 right-1/4 w-16 h-16 border-2 border-blue-400/40 dark:border-cyan-400/30 rotate-45 animate-bounce-gentle" style={{ animationDuration: '10s' }} />
+            
+            {/* Dot pattern overlay */}
+            <div className="absolute inset-0 opacity-[0.15] dark:opacity-10" style={{
+                backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)',
+                backgroundSize: '30px 30px'
+            }} />
+            
+            {/* Light rays effect */}
+            <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent dark:from-white/5 dark:via-transparent dark:to-transparent" />
         </div>
     );
 });
@@ -135,6 +148,9 @@ const LandingComponent = memo(function LandingComponent() {
         rootMargin: "50px 0px"
     });
     
+    // Track scroll state to hide scroll hint
+    const [isScrolled, setIsScrolled] = React.useState(false);
+    
     // Use reduced motion preference
     const prefersReducedMotion = useReducedMotion(controls);
 
@@ -144,15 +160,27 @@ const LandingComponent = memo(function LandingComponent() {
         }
     }, [controls, inView, prefersReducedMotion]);
     
+    // Hide scroll hint when user scrolls
+    React.useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 50) {
+                setIsScrolled(true);
+            }
+        };
+        
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+    
     return (
-        <section aria-labelledby="hero-title" className="relative min-h-screen flex justify-center pt-18 md:pt-0">
+        <section aria-labelledby="hero-title" className="relative min-h-screen flex justify-center pt-20 sm:pt-18 md:pt-0">
             
-            <BackgroundImage />
+            <AnimatedBackground />
 
             {/* Main content */}
             <motion.div
                 ref={ref}
-                className="relative z-20 px-4 md:px-16 md:py-20 w-full items-start max-w-7xl mt-10 md:mt-20 h-fit"
+                className="relative z-20 px-4 sm:px-6 md:px-16 md:py-20 w-full items-start max-w-7xl mt-6 sm:mt-10 md:mt-20 h-fit"
                 initial="hidden"
                 animate={controls}
                 variants={containerVariants}
@@ -160,10 +188,10 @@ const LandingComponent = memo(function LandingComponent() {
             >
                 <AnimatedHeading />
 
-                <div className="mt-4 flex flex-col md:flex-row items-center gap-6">
+                <div className="mt-6 md:mt-4 flex flex-col md:flex-row items-center gap-4 md:gap-6">
                     <ProfileImage />
                     <motion.p
-                        className="text-white dark:text-gray-300 bg-white/20 py-1 px-2 rounded-full text-sm w-fit"
+                        className="text-white dark:text-gray-300 bg-white/20 py-1 px-2 rounded-full text-xs sm:text-sm w-fit text-center md:text-left"
                         variants={fadeUp}
                     >
                         <span className="font-medium tracking-widest">@shawkath646:</span> Tech-minded, outdoor lover, and wants to explore everything!
@@ -172,7 +200,7 @@ const LandingComponent = memo(function LandingComponent() {
 
 
                 <motion.ul
-                    className="mt-6 flex flex-wrap gap-3 max-w-md"
+                    className="mt-6 flex flex-wrap gap-2 sm:gap-3 max-w-md"
                     variants={fadeUp}
                     role="list"
                     aria-label="Developer skills and expertise"
@@ -194,18 +222,18 @@ const LandingComponent = memo(function LandingComponent() {
                 </motion.ul>
 
                 <motion.div
-                    className="mt-8 flex flex-col items-start gap-2"
+                    className="mt-6 sm:mt-8 flex flex-col items-start gap-2"
                     variants={fadeUp}
                 >
                     <div 
-                        className="inline-flex items-center gap-2 text-white dark:text-gray-200 text-sm font-medium bg-black/20 px-2 py-1 rounded-lg"
+                        className="inline-flex items-center gap-2 text-white dark:text-gray-200 text-xs sm:text-sm font-medium bg-black/20 px-2 py-1 rounded-lg"
                         aria-label="Education information"
                     >
                         <FaUserGraduate className="text-blue-500 dark:text-cyan-400" aria-hidden="true" />
                         <span>Studying CSE in Sejong University</span>
                     </div>
                     <div 
-                        className="inline-flex items-center gap-2 text-white dark:text-gray-200 text-sm font-medium bg-black/20 px-2 py-1 rounded-lg"
+                        className="inline-flex items-center gap-2 text-white dark:text-gray-200 text-xs sm:text-sm font-medium bg-black/20 px-2 py-1 rounded-lg"
                         aria-label="Location information"
                     >
                         <FaMapMarkerAlt className="text-red-500 dark:text-red-400" aria-hidden="true" />
@@ -214,41 +242,41 @@ const LandingComponent = memo(function LandingComponent() {
                 </motion.div>
 
                 <motion.nav
-                    className="mt-10 w-full flex items-center justify-center md:justify-start gap-4"
+                    className="mt-8 sm:mt-10 w-full flex items-center justify-center md:justify-start gap-3 sm:gap-4 flex-wrap"
                     variants={fadeUp}
                     aria-label="Primary call-to-action links"
                 >
                     <Link
                         href="/contact"
-                        className="inline-flex items-center gap-2 px-4 py-1.5 text-base sm:px-6 sm:py-2 sm:text-lg rounded-lg font-bold shadow-xl bg-blue-600 dark:bg-cyan-400 text-white dark:text-[#0a192f] hover:bg-blue-700 dark:hover:bg-cyan-300 transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm sm:px-6 sm:py-2.5 sm:text-base md:text-lg rounded-lg font-bold shadow-xl bg-blue-600 dark:bg-cyan-400 text-white dark:text-[#0a192f] hover:bg-blue-700 dark:hover:bg-cyan-300 transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
                         aria-label="Download CV document"
                     >
-                        <FaCloudDownloadAlt className="text-lg sm:text-xl" aria-hidden="true" /> 
+                        <FaCloudDownloadAlt className="text-base sm:text-lg md:text-xl" aria-hidden="true" /> 
                         <span>Download CV</span>
                     </Link>
                     <Link
                         href="/projects"
-                        className="inline-flex items-center gap-2 px-4 py-1.5 text-base sm:px-6 sm:py-2 sm:text-lg rounded-lg font-bold shadow-xl bg-blue-100 dark:bg-cyan-900 text-blue-700 dark:text-cyan-200 hover:bg-blue-200 dark:hover:bg-cyan-800 transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm sm:px-6 sm:py-2.5 sm:text-base md:text-lg rounded-lg font-bold shadow-xl bg-blue-100 dark:bg-cyan-900 text-blue-700 dark:text-cyan-200 hover:bg-blue-200 dark:hover:bg-cyan-800 transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
                         aria-label="View portfolio projects"
                     >
                         <span>View my works</span> 
-                        <IoIosArrowForward className="text-lg sm:text-xl" aria-hidden="true" />
+                        <IoIosArrowForward className="text-base sm:text-lg md:text-xl" aria-hidden="true" />
                     </Link>
                 </motion.nav>
             </motion.div>
 
             {/* Scroll down hint */}
             <motion.div
-                className="animate-bounce flex items-center gap-5 w-fit px-4 justify-center absolute left-1/2 -translate-x-1/2 bottom-15 z-30"
+                className="animate-bounce flex items-center gap-3 sm:gap-5 w-fit px-4 justify-center absolute left-1/2 -translate-x-1/2 bottom-10 sm:bottom-15 z-30"
                 variants={delayedFade}
                 initial="hidden"
-                animate={controls}
+                animate={isScrolled ? "hidden" : controls}
                 aria-hidden="true"
             >
                 <span className="uppercase tracking-widest font-semibold text-white dark:text-gray-300 text-xs sm:text-sm text-center leading-none">
                     Scroll down
                 </span>
-                <FaChevronDown className="text-blue-500 dark:text-cyan-300 text-xl" />
+                <FaChevronDown className="text-blue-500 dark:text-cyan-300 text-lg sm:text-xl" />
             </motion.div>
         </section>
     );

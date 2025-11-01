@@ -6,11 +6,10 @@ import CompanyIntro from "@/components/HomePage/CompanyIntro";
 import TasksBoard from "@/components/HomePage/TaskBoard";
 import YoutubeGrid from "@/components/HomePage/YoutubeGrid";
 import Pagination from "@/components/navigation/Pagination";
-import fetchYouTubeVideos from "@/actions/youtube/fetchYoutubeVideos";
+import fetchYouTubeVideos from "@/actions/googleServices/fetchYoutubeVideos";
 
-// Homepage-specific metadata that extends the layout metadata
 export const metadata: Metadata = {
-  title: "Home", // Will be "Home | Shawkat Hossain Maruf" due to layout template
+  title: "Home",
   description: "Welcome to Shawkat Hossain Maruf's portfolio - Explore innovative full-stack web applications, Android apps, and data analysis projects. Currently studying Computer Science at Sejong University while building cutting-edge solutions.",
 
   alternates: {

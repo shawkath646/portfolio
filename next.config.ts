@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  reactStrictMode: true,
   experimental: {
     authInterrupts: true,
   },
@@ -18,7 +19,8 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
-    ]
+    ],
+    qualities: [70, 75, 85],
   }
 };
 

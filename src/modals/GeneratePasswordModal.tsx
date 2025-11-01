@@ -2,9 +2,9 @@
 import { Fragment, useState, useTransition, useCallback, useMemo, memo } from 'react';
 import { Dialog, DialogTitle, Transition, Radio, RadioGroup } from '@headlessui/react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
-import { generatePasswordAction } from '@/actions/secure/generatePassword';
+import { generatePassword } from '@/actions/secure/passwordFunc';
 import { FiPlus, FiRefreshCw, FiCheck, FiX, FiKey, FiCopy } from 'react-icons/fi';
-import { SiteNameType } from '@/types';
+import { SiteCodeType } from '@/types';
 
 
 interface GeneratePasswordModalProps {
@@ -167,12 +167,12 @@ export const GeneratePasswordButton = memo(({ isOpen, onOpen }: { isOpen: boolea
         <motion.button
             onClick={onOpen}
             disabled={isOpen}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="relative overflow-hidden bg-purple-100/50 dark:bg-white/20 backdrop-blur-sm border border-purple-200 dark:border-white/30 text-purple-700 dark:text-white font-semibold px-6 py-3 rounded-2xl hover:bg-purple-200/60 dark:hover:bg-white/30 disabled:opacity-50 transition-all duration-300 flex items-center gap-3 shadow-lg"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="relative overflow-hidden bg-purple-100/50 dark:bg-white/20 backdrop-blur-sm border border-purple-200 dark:border-white/30 text-purple-700 dark:text-white font-semibold px-3 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-2xl hover:bg-purple-200/60 dark:hover:bg-white/30 disabled:opacity-50 transition-all duration-300 flex items-center gap-2 sm:gap-3 shadow-md sm:shadow-lg text-sm sm:text-base"
         >
             <div className="relative z-10 flex items-center gap-2">
-                <FiPlus className="text-lg" />
+                <FiPlus className="text-sm sm:text-lg" />
                 <span>Generate New</span>
             </div>
 
@@ -214,8 +214,8 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
         setError('');
 
         startTransition(async () => {
-            const result = await generatePasswordAction({
-                siteCode: siteName.toLowerCase().replace(" ", "-") as SiteNameType,
+            const result = await generatePassword({
+                siteCode: siteName.toLowerCase().replace(" ", "-") as SiteCodeType,
                 length,
                 expireDays,
                 includeLowercase,
@@ -521,7 +521,7 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
                                                         whileTap={{ scale: shouldReduceMotion ? 1 : 0.98 }}
                                                         onClick={handleGeneratePassword}
                                                         disabled={isPending}
-                                                        className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 text-lg font-bold hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 transition-all"
+                                                        className="w-full rounded-lg sm:rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 sm:px-8 py-2 sm:py-3 text-sm sm:text-lg font-bold hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 transition-all"
                                                         type="button"
                                                     >
                                                         {isPending ? (
@@ -625,7 +625,7 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
                                                         whileHover={{ scale: shouldReduceMotion ? 1 : 1.02 }}
                                                         whileTap={{ scale: shouldReduceMotion ? 1 : 0.98 }}
                                                         onClick={handleCopyPassword}
-                                                        className="flex-1 rounded-xl border-2 border-purple-300 dark:border-purple-600 px-8 py-4 text-base font-semibold text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all flex items-center justify-center gap-3"
+                                                        className="flex-1 rounded-lg sm:rounded-xl border-2 border-purple-300 dark:border-purple-600 px-4 sm:px-8 py-2 sm:py-4 text-sm sm:text-base font-semibold text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all flex items-center justify-center gap-3"
                                                         type="button"
                                                     >
                                                         <FiCopy className="text-lg lg:text-xl" />
@@ -635,7 +635,7 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
                                                         whileHover={{ scale: shouldReduceMotion ? 1 : 1.02 }}
                                                         whileTap={{ scale: shouldReduceMotion ? 1 : 0.98 }}
                                                         onClick={handleGotIt}
-                                                        className="flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 text-base font-bold hover:shadow-xl transition-all flex items-center justify-center gap-3"
+                                                        className="flex-1 rounded-lg sm:rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 sm:px-8 py-2 sm:py-4 text-sm sm:text-base font-bold hover:shadow-xl transition-all flex items-center justify-center gap-3"
                                                         type="button"
                                                     >
                                                         <FiCheck className="text-lg lg:text-xl" />

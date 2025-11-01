@@ -1,6 +1,8 @@
 "use server";
+import { unauthorized } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/firebase";
+import getLoginSession from "./getLoginSession";
 
 interface CleanupResult {
     success: boolean;
@@ -10,6 +12,8 @@ interface CleanupResult {
 
 const cleanupExpiredPasswords = async (): Promise<CleanupResult> => {
     try {
+        const loginSession = await getLoginSession("admin-panel");
+        if (!loginSession.isAdministrator) unauthorized();
         // Find all expired passwords (where expiresAt is less than current time)
         const now = new Date();
         const snapshot = await db.collection("passwords")

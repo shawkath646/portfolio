@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import SecurityHeader from './SecurityHeader';
 import AdminPassword from './AdminPassword';
 import PasswordManagement from './PasswordManagement';
-import getPasswordList from '@/actions/secure/getPasswordList';
+import { getPasswordList } from '@/actions/secure/passwordFunc';
 import getLoginSession from '@/actions/secure/getLoginSession';
 
 export const metadata: Metadata = {
