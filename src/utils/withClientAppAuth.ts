@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyTokens } from "./tokens";
+import { verifyTokens } from "@/lib/auth";
 
 type RouteHandler = (
     request: NextRequest,

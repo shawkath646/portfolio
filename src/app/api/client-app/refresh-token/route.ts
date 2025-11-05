@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
-import { refreshClientAppTokens } from "@/utils/tokens";
+import { refreshClientAppTokens } from "@/lib/auth";
 
 
 export async function POST(req: NextRequest) {

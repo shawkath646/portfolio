@@ -1,5 +1,5 @@
 "use client";
-import { Fragment, useState, useTransition, useCallback, useMemo, memo } from 'react';
+import { Fragment, useState, useTransition } from 'react';
 import { Dialog, DialogTitle, Transition, Radio, RadioGroup } from '@headlessui/react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { generatePassword } from '@/actions/secure/passwordFunc';
@@ -80,7 +80,7 @@ const createStepVariants = (shouldReduceMotion: boolean) => ({
     }
 });
 
-const PasswordSlider = memo(({
+const PasswordSlider = ({
     label,
     value,
     onChange,
@@ -126,12 +126,10 @@ const PasswordSlider = memo(({
             </div>
         )}
     </div>
-));
+);
 
-PasswordSlider.displayName = 'PasswordSlider';
-
-// Memoized Checkbox Component for better performance
-const CharacterTypeCheckbox = memo(({
+// Checkbox Component
+const CharacterTypeCheckbox = ({
     label,
     checked,
     onChange,
@@ -157,22 +155,20 @@ const CharacterTypeCheckbox = memo(({
         />
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
     </motion.label>
-));
+);
 
-CharacterTypeCheckbox.displayName = 'CharacterTypeCheckbox';
-
-// Modal Trigger Component - Memoized for performance
-export const GeneratePasswordButton = memo(({ isOpen, onOpen }: { isOpen: boolean; onOpen: () => void }) => {
+// Modal Trigger Component
+export const GeneratePasswordButton = ({ isOpen, onOpen }: { isOpen: boolean; onOpen: () => void }) => {
     return (
         <motion.button
             onClick={onOpen}
             disabled={isOpen}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className="relative overflow-hidden bg-purple-100/50 dark:bg-white/20 backdrop-blur-sm border border-purple-200 dark:border-white/30 text-purple-700 dark:text-white font-semibold px-3 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-2xl hover:bg-purple-200/60 dark:hover:bg-white/30 disabled:opacity-50 transition-all duration-300 flex items-center gap-2 sm:gap-3 shadow-md sm:shadow-lg text-sm sm:text-base"
+            className="relative overflow-hidden bg-purple-100/50 dark:bg-white/20 backdrop-blur-sm border border-purple-200 dark:border-white/30 text-purple-700 dark:text-white font-semibold px-3 py-1.5 rounded-lg hover:bg-purple-200/60 dark:hover:bg-white/30 disabled:opacity-50 transition-all duration-300 flex items-center gap-2 shadow-md text-sm"
         >
             <div className="relative z-10 flex items-center gap-2">
-                <FiPlus className="text-sm sm:text-lg" />
+                <FiPlus className="text-sm" />
                 <span>Generate New</span>
             </div>
 
@@ -180,12 +176,10 @@ export const GeneratePasswordButton = memo(({ isOpen, onOpen }: { isOpen: boolea
             <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 to-pink-400/10 dark:from-purple-400/20 dark:to-pink-400/20 opacity-0 hover:opacity-100 transition-opacity duration-300" />
         </motion.button>
     );
-});
+};
 
-GeneratePasswordButton.displayName = 'GeneratePasswordButton';
-
-// Main Modal Component - Memoized for performance
-export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: GeneratePasswordModalProps) => {
+// Main Modal Component
+export const GeneratePasswordModal = ({ open, onClose, onSuccess }: GeneratePasswordModalProps) => {
     const shouldReduceMotion = useReducedMotion();
     const [step, setStep] = useState<'config' | 'result'>('config');
     const [length, setLength] = useState(12);
@@ -199,18 +193,18 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
     const [error, setError] = useState('');
     const [isPending, startTransition] = useTransition();
 
-    // Memoized values for better performance
-    const expireDays = useMemo(() => expireOptions[expireIndex], [expireIndex]);
-    const usableTimes = useMemo(() => usableTimeOptions[usableIndex], [usableIndex]);
-    const expireLabel = useMemo(() => `${expireDays} day${expireDays > 1 ? 's' : ''}`, [expireDays]);
-    const usableLabel = useMemo(() => usableTimes === 'unlimited' ? 'unlimited' : `${usableTimes} time${usableTimes === 1 ? '' : 's'}`, [usableTimes]);
+    // Computed values
+    const expireDays = expireOptions[expireIndex];
+    const usableTimes = usableTimeOptions[usableIndex];
+    const expireLabel = `${expireDays} day${expireDays > 1 ? 's' : ''}`;
+    const usableLabel = usableTimes === 'unlimited' ? 'unlimited' : `${usableTimes} time${usableTimes === 1 ? '' : 's'}`;
 
-    // Memoized animation variants
-    const backdropVariants = useMemo(() => createBackdropVariants(shouldReduceMotion ?? false), [shouldReduceMotion]);
-    const panelVariants = useMemo(() => createPanelVariants(shouldReduceMotion ?? false), [shouldReduceMotion]);
-    const stepVariants = useMemo(() => createStepVariants(shouldReduceMotion ?? false), [shouldReduceMotion]);
+    // Animation variants
+    const backdropVariants = createBackdropVariants(shouldReduceMotion ?? false);
+    const panelVariants = createPanelVariants(shouldReduceMotion ?? false);
+    const stepVariants = createStepVariants(shouldReduceMotion ?? false);
 
-    const handleGeneratePassword = useCallback(() => {
+    const handleGeneratePassword = () => {
         setError('');
 
         startTransition(async () => {
@@ -232,9 +226,9 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
                 setError(result.message || 'Failed to generate password');
             }
         });
-    }, [siteName, length, expireDays, usableTimes, includeUppercase, includeLowercase, includeSpecial]);
+    };
 
-    const handleCopyPassword = useCallback(async () => {
+    const handleCopyPassword = async () => {
         if (generatedPassword) {
             try {
                 await navigator.clipboard.writeText(generatedPassword);
@@ -243,9 +237,9 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
                 console.error('Failed to copy password:', err);
             }
         }
-    }, [generatedPassword]);
+    };
 
-    const handleGotIt = useCallback(() => {
+    const handleGotIt = () => {
         if (onSuccess && generatedPassword) onSuccess();
 
         setStep('config');
@@ -259,7 +253,7 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
         setIncludeSpecial(false);
         setError('');
         onClose();
-    }, [onSuccess, generatedPassword, siteName, length, expireDays, usableTimes, onClose]);
+    };
 
     return (
         <AnimatePresence>
@@ -653,6 +647,4 @@ export const GeneratePasswordModal = memo(({ open, onClose, onSuccess }: Generat
             )}
         </AnimatePresence>
     );
-});
-
-GeneratePasswordModal.displayName = 'GeneratePasswordModal';
+};

@@ -41,10 +41,9 @@ const SkillItem = memo(({ leaf, index }: { leaf: SkillLeaf; index: number }) => 
 // Memoized skill branch component for better performance
 const SkillBranchComponent = memo(({ branch }: { branch: SkillBranch }) => {
   return (
-    <motion.div
+    <motion.li
       variants={fadeInUp}
       className="bg-white/70 dark:bg-[#16213e]/70 rounded-2xl shadow-xl px-6 py-5 flex flex-col focus-within:ring-2 focus-within:ring-blue-400 focus-within:outline-none transition-all duration-300"
-      role="listitem"
       tabIndex={0}
     >
       <h3
@@ -74,7 +73,7 @@ const SkillBranchComponent = memo(({ branch }: { branch: SkillBranch }) => {
           <SkillItem key={leaf.label} leaf={leaf} index={lidx} />
         ))}
       </motion.ul>
-    </motion.div>
+    </motion.li>
   );
 });
 
@@ -219,8 +218,9 @@ const SkillsComponent = memo(function SkillsComponent() {
         animate={controls}
         variants={containerVariants}
       >
-        <div className="mb-10 flex flex-col items-center">
+        <header className="mb-10 flex flex-col items-center">
           <motion.h2
+            id="skills-title"
             className="text-2xl sm:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-cyan-500 to-purple-600 dark:from-cyan-200 dark:via-blue-400 dark:to-purple-500 text-center"
             variants={fadeInUp}
           >
@@ -231,6 +231,7 @@ const SkillsComponent = memo(function SkillsComponent() {
             className="w-20 h-1 rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-purple-500 mt-2 mb-4"
             variants={scaleLine}
             style={{ originX: 0 }}
+            aria-hidden="true"
           />
 
           <motion.p
@@ -239,9 +240,9 @@ const SkillsComponent = memo(function SkillsComponent() {
           >
             Learned deeply from scratch to make your project robust, scalable, and innovative — blending strong fundamentals with hands-on expertise.
           </motion.p>
-        </div>
+        </header>
 
-        <div
+        <ul
           className="grid gap-6 w-full max-w-6xl mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
           role="list"
           aria-label="Skills categories"
@@ -249,7 +250,7 @@ const SkillsComponent = memo(function SkillsComponent() {
           {skillsTree.map((branch) => (
             <SkillBranchComponent key={branch.label} branch={branch} />
           ))}
-        </div>
+        </ul>
 
         <motion.p
           className="mt-10 text-sm text-gray-500 dark:text-gray-300 text-center"

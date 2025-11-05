@@ -7,29 +7,48 @@ import PersonalLifeSection from "./PersonalLifeSection";
 
 // Enhanced metadata for better SEO
 export const metadata: Metadata = {
-  title: "About Me | Shawkat Hossain Maruf",
-  description: "Learn about Shawkat Hossain Maruf, a 20-year-old Computer Science student at Sejong University with a passion for software engineering, traveling, and making a difference in the world.",
+  title: "About Shawkat Hossain Maruf - Computer Science Student & Developer",
+  description: "Learn about Shawkat Hossain Maruf, a 20-year-old Computer Science student at Sejong University with a passion for software engineering, web development, and creating innovative solutions. Discover my academic journey, technical skills, work experience, and aspirations.",
   keywords: [
     "Shawkat Hossain Maruf",
-    "software engineer",
-    "web developer",
+    "About Shawkat Hossain",
+    "Software Engineer",
+    "Web Developer",
     "Sejong University",
-    "Computer Science",
-    "portfolio about page",
-    "student developer",
-    "personal journey"
+    "Computer Science Student",
+    "Developer Portfolio",
+    "Personal Journey",
+    "Tech Career",
+    "Student Developer",
+    "Software Development",
   ],
   alternates: {
     canonical: "https://shawkath646.pro/about"
   },
   openGraph: {
-    title: "About Shawkat Hossain Maruf | Personal Journey",
-    description: "Discover my academic journey, dreams, and aspirations as a Computer Science student and aspiring software engineer.",
+    title: "About Shawkat Hossain Maruf - Computer Science Student & Developer",
+    description: "Discover my academic journey, technical skills, and aspirations as a Computer Science student at Sejong University and aspiring software engineer.",
     url: "https://shawkath646.pro/about",
     siteName: "Shawkat Hossain Maruf Portfolio",
     locale: "en_US",
-    type: "website",
-  }
+    type: "profile",
+    images: [
+      {
+        url: "https://shawkath646.pro/profile.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Shawkat Hossain Maruf - Computer Science Student",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@shawkath646",
+    creator: "@shawkath646",
+    title: "About Shawkat Hossain Maruf - Computer Science Student & Developer",
+    description: "Discover my academic journey, technical skills, and aspirations as a Computer Science student and aspiring software engineer.",
+    images: ["https://shawkath646.pro/profile.jpg"],
+  },
 };
 
 export default function About() {

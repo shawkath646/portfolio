@@ -1,5 +1,5 @@
 "use client";
-import { Fragment, useState, useTransition, useCallback, memo } from 'react';
+import { Fragment, useState, useTransition } from 'react';
 import { Dialog, DialogTitle, Transition } from '@headlessui/react';
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { FiTrash2, FiX, FiCheck, FiAlertTriangle, FiLoader } from 'react-icons/fi';
@@ -51,22 +51,22 @@ const createPanelVariants = (shouldReduceMotion: boolean) => ({
     },
 });
 
-// Modal Trigger Component - Memoized for performance
-export const CleanupPasswordButton = memo(({ isOpen, onOpen, expiredCount = 0 }: { isOpen: boolean; onOpen: () => void; expiredCount?: number }) => {
+// Modal Trigger Component
+export const CleanupPasswordButton = ({ isOpen, onOpen, expiredCount = 0 }: { isOpen: boolean; onOpen: () => void; expiredCount?: number }) => {
     return (
         <motion.button
             onClick={onOpen}
             disabled={isOpen}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className="relative overflow-hidden bg-white/20 dark:bg-white/20 backdrop-blur-sm border border-gray-300 dark:border-white/30 text-gray-800 dark:text-white font-semibold px-3 py-2 sm:px-6 sm:py-3 rounded-md sm:rounded-2xl hover:bg-white/30 dark:hover:bg-white/30 disabled:opacity-50 transition-all duration-300 flex items-center gap-2 sm:gap-3 shadow-md"
+            className="relative overflow-hidden bg-white/20 dark:bg-white/20 backdrop-blur-sm border border-gray-300 dark:border-white/30 text-gray-800 dark:text-white font-semibold px-3 py-1.5 rounded-lg hover:bg-white/30 dark:hover:bg-white/30 disabled:opacity-50 transition-all duration-300 flex items-center gap-2 shadow-md text-sm"
             aria-label="Clean up expired passwords"
         >
             <div className="relative z-10 flex items-center gap-2">
-                <FiTrash2 className="text-sm sm:text-lg" />
+                <FiTrash2 className="text-sm" />
                 <span>Cleanup</span>
                 {expiredCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                         {expiredCount}
                     </span>
                 )}
@@ -76,21 +76,19 @@ export const CleanupPasswordButton = memo(({ isOpen, onOpen, expiredCount = 0 }:
             <div className="absolute inset-0 bg-gradient-to-r from-orange-400/10 to-red-400/10 dark:from-orange-400/20 dark:to-red-400/20 opacity-0 hover:opacity-100 transition-opacity duration-300" />
         </motion.button>
     );
-});
+};
 
-CleanupPasswordButton.displayName = 'CleanupPasswordButton';
-
-// Main Modal Component - Memoized for performance
-export const CleanupPasswordModal = memo(({ open, onClose, onSuccess, expiredCount = 0 }: CleanupPasswordModalProps) => {
+// Main Modal Component
+export const CleanupPasswordModal = ({ open, onClose, onSuccess, expiredCount = 0 }: CleanupPasswordModalProps) => {
     const shouldReduceMotion = useReducedMotion();
     const [isPending, startTransition] = useTransition();
     const [result, setResult] = useState<{success: boolean; count: number; message?: string} | null>(null);
 
-    // Memoized animation variants
+    // Animation variants
     const backdropVariants = createBackdropVariants(shouldReduceMotion ?? false);
     const panelVariants = createPanelVariants(shouldReduceMotion ?? false);
 
-    const handleCleanup = useCallback(() => {
+    const handleCleanup = () => {
         startTransition(async () => {
             const result = await cleanupExpiredPasswords();
             setResult(result);
@@ -98,12 +96,12 @@ export const CleanupPasswordModal = memo(({ open, onClose, onSuccess, expiredCou
                 onSuccess(result.count);
             }
         });
-    }, [onSuccess]);
+    };
 
-    const handleClose = useCallback(() => {
+    const handleClose = () => {
         setResult(null);
         onClose();
-    }, [onClose]);
+    };
 
     return (
         <AnimatePresence>
@@ -257,6 +255,4 @@ export const CleanupPasswordModal = memo(({ open, onClose, onSuccess, expiredCou
             )}
         </AnimatePresence>
     );
-});
-
-CleanupPasswordModal.displayName = 'CleanupPasswordModal';
+};

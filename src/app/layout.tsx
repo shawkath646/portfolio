@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/components/navigation/Navbar";
 import Footer from "@/components/navigation/Footer";
-import getJsonLd from "@/utils/getJsonLd";
+import getJsonLd from "@/actions/seo/getJsonLd";
 import "./globals.css";
 
 
@@ -26,11 +26,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Shawkat Hossain Maruf - Full-stack Developer & Tech Blogger",
+    default: "Shawkat Hossain Maruf - Full-Stack Developer & Software Engineer",
     template: "%s | Shawkat Hossain Maruf",
   },
   description:
-    "Shawkat Hossain Maruf (@shawkath646) is a Computer Science and Engineering student at Sejong University and a passionate full-stack developer. He specializes in building fast, modern web applications using React, Next.js, and Tailwind CSS, and also develops high-performance Android apps with React Native. Currently expanding his expertise in Artificial Intelligence, Data Science, and Analytics.",
+    "Full-stack developer and Computer Science student at Sejong University specializing in React, Next.js, TypeScript, and Android development. Building modern web applications and mobile solutions with cutting-edge technologies.",
   applicationName: "Shawkat Hossain Maruf Portfolio",
   metadataBase: new URL("https://shawkath646.pro"),
   generator: "Next.js",

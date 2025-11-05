@@ -48,30 +48,34 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
             viewport={{ once: true, amount: 0.3 }}
             variants={fadeUp}
         >
-            <motion.h2
-                className="text-3xl font-bold mb-2 text-center"
-                variants={fadeUp}
-            >
-                🎥 Explore My YouTube Channel
-            </motion.h2>
+            <header className="mb-12">
+                <motion.h2
+                    id="youtube-title"
+                    className="text-3xl font-bold mb-2 text-center"
+                    variants={fadeUp}
+                >
+                    🎥 Explore My YouTube Channel
+                </motion.h2>
 
-            <motion.p
-                className="text-center text-gray-600 dark:text-gray-300 mb-12"
-                variants={fadeUp}
-            >
-                Curious about what I do in my leisure time? I share tutorials, dev logs, and cool experiments.
-                Visit & subscribe to stay updated!
-            </motion.p>
+                <motion.p
+                    className="text-center text-gray-600 dark:text-gray-300"
+                    variants={fadeUp}
+                >
+                    Curious about what I do in my leisure time? I share tutorials, dev logs, and cool experiments.
+                    Visit & subscribe to stay updated!
+                </motion.p>
+            </header>
 
             <div className="flex flex-col md:flex-row gap-6 items-start">
                 {/* Channel Info Card */}
-                <motion.div
+                <motion.aside
                     className="bg-white dark:bg-gray-900 rounded-2xl shadow-md p-6 flex-shrink-0 w-full md:w-80 text-center"
                     variants={fadeUp}
+                    aria-label="YouTube channel information"
                 >
                     <Image
                         src={channel.icon}
-                        alt="Channel Logo"
+                        alt={`${channel.title} channel logo`}
                         width={100}
                         height={100}
                         className="rounded-full mx-auto mb-4"
@@ -85,10 +89,11 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block bg-red-600 text-white px-5 py-2 rounded-full hover:bg-red-700 transition"
+                        aria-label="Subscribe to the YouTube channel"
                     >
                         🔔 Subscribe
                     </Link>
-                </motion.div>
+                </motion.aside>
 
                 {/* Horizontal Scrollable Video List */}
                 <motion.div
@@ -97,6 +102,8 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: true }}
+                    role="list"
+                    aria-label="Recent YouTube videos"
                 >
                     <motion.div className="flex gap-4 min-w-max">
                         {videos.map((video: any) => (
@@ -105,27 +112,32 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
                                 variants={fadeUp}
                                 whileHover={{ scale: 1.05 }}
                                 className="w-[300px]"
+                                role="listitem"
                             >
                                 <Link
                                     href={`https://www.youtube.com/watch?v=${video.videoId}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="bg-white dark:bg-gray-900 rounded-lg shadow hover:shadow-lg transition duration-200 overflow-hidden"
+                                    className="block bg-white dark:bg-gray-900 rounded-lg shadow hover:shadow-lg transition duration-200 overflow-hidden"
+                                    aria-label={`Watch ${video.title}`}
                                 >
                                     <Image
                                         src={video.thumbnail}
-                                        alt={video.title}
+                                        alt={`Thumbnail for ${video.title}`}
                                         width={300}
                                         height={169}
                                         className="w-full h-auto"
                                     />
-                                    <div className="py-3">
+                                    <div className="py-3 px-3">
                                         <h4 className="text-sm font-semibold text-gray-800 dark:text-white line-clamp-2">
                                             {video.title}
                                         </h4>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        <time 
+                                            className="text-xs text-gray-500 dark:text-gray-400 mt-1 block"
+                                            dateTime={video.publishedAt}
+                                        >
                                             {new Date(video.publishedAt).toLocaleDateString()}
-                                        </p>
+                                        </time>
                                     </div>
                                 </Link>
                             </motion.article>

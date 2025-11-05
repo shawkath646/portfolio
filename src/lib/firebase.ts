@@ -23,6 +23,6 @@ const app = admin.apps.length
       });
 
 const db = admin.firestore(app);
-const bucket = admin.storage(app).bucket();
+const bucket = admin.storage(app).bucket(process.env.FIREBASE_STORAGE_BUCKET);
 
 export { admin, db, bucket, FieldValue };

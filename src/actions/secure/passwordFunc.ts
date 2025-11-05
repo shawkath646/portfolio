@@ -6,7 +6,7 @@ import { db } from "@/lib/firebase";
 import { webcrypto as crypto } from "crypto";
 import bcrypt from "bcryptjs";
 import { timestampToDate } from "@/utils/timestampToDate";
-import getAddressFromIP from "@/utils/getAddressFromIP";
+import getAddressFromIP from "@/actions/geo/getAddressFromIP";
 import { AddressType, SiteCodeType } from "@/types";
 
 

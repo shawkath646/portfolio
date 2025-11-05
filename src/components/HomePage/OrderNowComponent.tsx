@@ -1,5 +1,4 @@
 "use client";
-import { useMemo } from "react";
 import Link from "next/link";
 import { motion, Variants, useAnimation } from "framer-motion";
 import { FaTelegramPlane, FaLinkedin } from "react-icons/fa";
@@ -38,22 +37,22 @@ const listItemVariants: Variants = {
   }),
 };
 
+// Reasons array
+const reasons = [
+  "Freelance / Remote working expert",
+  "4+ years of experience in software development",
+  "Pro-level structured code with easy readability",
+  "Worked on 10+ real-life, large-scale projects",
+  "Friendly and understands client needs",
+  "Works until client satisfaction is achieved",
+];
+
 export default function OrderNowComponent() {
   // Initialize animation controls
   const controls = useAnimation();
   
   // Add reduced motion hook with animation controls
   const prefersReducedMotion = useReducedMotion(controls);
-  
-  // Memoize the reasons array to prevent unnecessary re-renders
-  const reasons = useMemo(() => [
-    "Freelance / Remote working expert",
-    "4+ years of experience in software development",
-    "Pro-level structured code with easy readability",
-    "Worked on 10+ real-life, large-scale projects",
-    "Friendly and understands client needs",
-    "Works until client satisfaction is achieved",
-  ], []);
 
   return (
     <motion.section

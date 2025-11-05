@@ -2,7 +2,7 @@
 import { cookies } from "next/headers";
 import { unauthorized } from "next/navigation";
 import { cache } from "react";
-import { verifyTokens } from "@/utils/tokens";
+import { verifyTokens } from "@/lib/auth";
 import { SiteCodeType } from "@/types";
 
 

@@ -3,9 +3,9 @@ import { cookies, headers } from "next/headers";
 import { cache } from "react";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/firebase";
-import { ClientAppTokensType, generateClientAppToken, generateSessionToken, SessionTokensType } from "@/utils/tokens";
+import { ClientAppTokensType, generateClientAppToken, generateSessionToken, SessionTokensType } from "@/lib/auth";
 import { timestampToDate } from "@/utils/timestampToDate";
-import getAddressFromIP from "@/utils/getAddressFromIP";
+import getAddressFromIP from "@/actions/geo/getAddressFromIP";
 import { PasswordObjectType } from "./passwordFunc";
 import { AddressType, PartialBy, SiteCodeType } from "@/types";
 

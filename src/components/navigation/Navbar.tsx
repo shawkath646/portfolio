@@ -1,7 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { memo, useMemo } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
 import { navbarDisallowedPaths } from "@/data/pathsConfig";
@@ -17,13 +16,19 @@ const navigation = [
     { name: "Contact", href: "/contact", description: "Get in touch with me" },
 ];
 
-// Memoized navigation item component for performance
-const NavItem = memo<{
+// Navigation item component
+const NavItem = ({
+    item,
+    currentPath,
+    isMobile = false
+}: {
     item: typeof navigation[0];
     currentPath: string;
     isMobile?: boolean;
-}>(({ item, currentPath, isMobile = false }) => {
-    const isActive = currentPath === item.href;
+}) => {
+    const isActive = item.href === "/" 
+        ? currentPath === "/" 
+        : currentPath.startsWith(item.href);
     
     return (
         <Link
@@ -57,18 +62,13 @@ const NavItem = memo<{
             )}
         </Link>
     );
-});
-
-NavItem.displayName = 'NavItem';
+};
 
 export default function Navbar() {
     const currentPath = usePathname();
     
-    // Memoize path check for performance
-    const shouldShowNavbar = useMemo(
-        () => !navbarDisallowedPaths.some((path) => currentPath.startsWith(path)),
-        [currentPath]
-    );
+    // Check if navbar should be shown
+    const shouldShowNavbar = !navbarDisallowedPaths.some((path) => currentPath.startsWith(path));
     
     if (!shouldShowNavbar) return null;
 

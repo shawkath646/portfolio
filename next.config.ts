@@ -2,8 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  reactCompiler: true,
   experimental: {
     authInterrupts: true,
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
   },
   images: {
     remotePatterns: [
@@ -16,6 +20,12 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "yt3.ggpht.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "storage.googleapis.com",
         port: "",
         pathname: "/**",
       },

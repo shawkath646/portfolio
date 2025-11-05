@@ -5,29 +5,48 @@ import ContactForm from "./ContactForm";
 
 // Enhanced metadata specifically for the contact page
 export const metadata: Metadata = {
-  title: "Contact Me",
-  description: "Get in touch with Shawkat Hossain Maruf for web development projects, collaborations, or just to say hello. Multiple contact options including professional connections, messaging platforms, and social media.",
+  title: "Contact Shawkat Hossain Maruf - Get in Touch for Projects & Collaborations",
+  description: "Get in touch with Shawkat Hossain Maruf for web development projects, software engineering opportunities, collaborations, or networking. Available through LinkedIn, email, GitHub, and various messaging platforms.",
   keywords: [
-    "contact Shawkat Hossain", 
-    "hire web developer", 
-    "freelance developer contact",
-    "full-stack developer contact", 
-    "project collaboration", 
-    "developer for hire",
-    "contact form",
-    "professional networking"
+    "Contact Shawkat Hossain", 
+    "Hire Web Developer", 
+    "Software Engineer Contact",
+    "Freelance Developer Contact",
+    "Full Stack Developer Contact", 
+    "Project Collaboration", 
+    "Developer for Hire",
+    "Contact Form",
+    "Professional Networking",
+    "Web Development Services",
+    "Software Development Inquiry",
   ],
   alternates: {
     canonical: "https://shawkath646.pro/contact"
   },
   openGraph: {
-    title: "Contact Shawkat Hossain Maruf",
-    description: "Connect with me through various platforms or send a direct message. I'm always open to new opportunities and collaborations!",
+    title: "Contact Shawkat Hossain Maruf - Get in Touch for Projects & Collaborations",
+    description: "Connect with me through various platforms or send a direct message. I'm always open to new opportunities, collaborations, and professional networking!",
     url: "https://shawkath646.pro/contact",
     siteName: "Shawkat Hossain Maruf Portfolio",
     locale: "en_US",
     type: "website",
-  }
+    images: [
+      {
+        url: "https://shawkath646.pro/profile.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Contact Shawkat Hossain Maruf",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@shawkath646",
+    creator: "@shawkath646",
+    title: "Contact Shawkat Hossain Maruf - Get in Touch",
+    description: "Connect with me for web development projects, collaborations, or networking. Multiple contact options available.",
+    images: ["https://shawkath646.pro/profile.jpg"],
+  },
 };
 
 export default async function ContactPage() {

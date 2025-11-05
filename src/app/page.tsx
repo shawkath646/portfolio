@@ -5,22 +5,64 @@ import OrderNowComponent from "@/components/HomePage/OrderNowComponent";
 import CompanyIntro from "@/components/HomePage/CompanyIntro";
 import TasksBoard from "@/components/HomePage/TaskBoard";
 import YoutubeGrid from "@/components/HomePage/YoutubeGrid";
+import GallerySnapshot from "@/components/HomePage/GallerySnapshot";
 import Pagination from "@/components/navigation/Pagination";
 import fetchYouTubeVideos from "@/actions/googleServices/fetchYoutubeVideos";
+import { fetchGallerySnapshot } from "@/actions/gallery/fetchGallerySnapshot";
 
 export const metadata: Metadata = {
-  title: "Home",
-  description: "Welcome to Shawkat Hossain Maruf's portfolio - Explore innovative full-stack web applications, Android apps, and data analysis projects. Currently studying Computer Science at Sejong University while building cutting-edge solutions.",
-
+  title: "Shawkat Hossain Maruf - Full-Stack Developer & Software Engineer",
+  description: "Full-stack developer and Computer Science student at Sejong University specializing in React, Next.js, TypeScript, and Android development. Building modern web applications and mobile solutions with cutting-edge technologies.",
+  keywords: [
+    "Shawkat Hossain Maruf",
+    "shawkath646",
+    "Full Stack Developer",
+    "Software Engineer",
+    "Web Developer Portfolio",
+    "React Developer",
+    "Next.js Developer",
+    "Android Developer",
+    "Computer Science Student",
+    "Sejong University",
+    "Web Development",
+    "Software Development",
+    "Portfolio Website",
+    "Tech Projects",
+  ],
   alternates: {
     canonical: "https://shawkath646.pro",
+  },
+  openGraph: {
+    title: "Shawkat Hossain Maruf - Full-Stack Developer & Software Engineer",
+    description: "Full-stack developer and Computer Science student at Sejong University specializing in React, Next.js, TypeScript, and Android development.",
+    url: "https://shawkath646.pro",
+    siteName: "Shawkat Hossain Maruf Portfolio",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "https://shawkath646.pro/profile.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Shawkat Hossain Maruf - Full Stack Developer",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@shawkath646",
+    creator: "@shawkath646",
+    title: "Shawkat Hossain Maruf - Full Stack Developer & Software Engineer",
+    description: "Explore innovative web applications, Android apps, and data analysis projects.",
+    images: ["https://shawkath646.pro/profile.jpg"],
   },
 };
 
 
 export default async function Home() {
-  // Fetch YouTube data with error handling
+  // Fetch YouTube data and gallery images with error handling
   const youtubeData = await fetchYouTubeVideos();
+  const galleryImages = await fetchGallerySnapshot(15);
 
   return (
     <main
@@ -160,6 +202,10 @@ export default async function Home() {
               channel={youtubeData.channel}
               videos={youtubeData.videos}
             />
+          )}
+
+          {galleryImages.length > 0 && (
+            <GallerySnapshot images={galleryImages} />
           )}
 
           <Pagination

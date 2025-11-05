@@ -1,6 +1,5 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { useMemo } from "react";
 import { footerDisallowedPaths } from "@/data/pathsConfig";
 import Link from "next/link";
 
@@ -15,11 +14,8 @@ const quickLinks = [
 export default function Footer() {
   const currentPath = usePathname();
   
-  // Memoize path check for performance
-  const shouldShowFooter = useMemo(
-    () => !footerDisallowedPaths.some((path) => currentPath.startsWith(path)),
-    [currentPath]
-  );
+  // Check if footer should be shown
+  const shouldShowFooter = !footerDisallowedPaths.some((path) => currentPath.startsWith(path));
   
   if (!shouldShowFooter) return null;
 

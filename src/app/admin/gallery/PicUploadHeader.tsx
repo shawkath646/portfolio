@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { FaImages, FaCloudUploadAlt, FaPhotoVideo } from "react-icons/fa";
 
-export default function GalleryHeader() {
+export default function PicUploadHeader() {
   const containerVariants = {
     hidden: { opacity: 0, y: -30 },
     visible: {
@@ -53,7 +53,7 @@ export default function GalleryHeader() {
 
   return (
     <motion.div
-      className="max-w-4xl mx-auto"
+      className="w-full"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -62,7 +62,7 @@ export default function GalleryHeader() {
         {/* Background decoration */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <motion.div
-            className="absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-purple-400/20 dark:from-blue-600/10 dark:to-purple-600/10 rounded-full blur-3xl"
+            className="absolute -top-20 -right-20 w-48 h-48 bg-gradient-to-br from-blue-400/20 to-purple-400/20 dark:from-blue-600/10 dark:to-purple-600/10 rounded-full blur-3xl"
             animate={{
               scale: [1, 1.2, 1],
               opacity: [0.3, 0.5, 0.3]
@@ -74,7 +74,7 @@ export default function GalleryHeader() {
             }}
           />
           <motion.div
-            className="absolute -bottom-20 -left-20 w-64 h-64 bg-gradient-to-br from-pink-400/20 to-indigo-400/20 dark:from-pink-600/10 dark:to-indigo-600/10 rounded-full blur-3xl"
+            className="absolute -bottom-20 -left-20 w-48 h-48 bg-gradient-to-br from-pink-400/20 to-indigo-400/20 dark:from-pink-600/10 dark:to-indigo-600/10 rounded-full blur-3xl"
             animate={{
               scale: [1, 1.3, 1],
               opacity: [0.3, 0.6, 0.3]
@@ -89,7 +89,7 @@ export default function GalleryHeader() {
         </div>
 
         {/* Main header content */}
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 p-8 sm:p-10 relative overflow-hidden">
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 p-4 sm:p-6 relative overflow-hidden">
           {/* Top gradient line */}
           <motion.div
             className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
@@ -99,27 +99,27 @@ export default function GalleryHeader() {
           />
 
           {/* Floating icons decoration */}
-          <div className="absolute top-4 right-4 flex gap-3 opacity-20 dark:opacity-10">
+          <div className="absolute top-3 right-3 flex gap-2 opacity-20 dark:opacity-10">
             <motion.div variants={floatingVariants} animate="animate">
-              <FaPhotoVideo className="text-3xl text-blue-500" />
+              <FaPhotoVideo className="text-xl text-blue-500" />
             </motion.div>
             <motion.div
               variants={floatingVariants}
               animate="animate"
               transition={{ delay: 0.5 }}
             >
-              <FaImages className="text-3xl text-purple-500" />
+              <FaImages className="text-xl text-purple-500" />
             </motion.div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-6">
+          <div className="flex flex-col sm:flex-row items-center gap-4">
             {/* Animated icon */}
             <motion.div
               className="relative"
               variants={itemVariants}
             >
               <motion.div
-                className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur-xl opacity-50"
+                className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl blur-lg opacity-50"
                 animate={{
                   scale: [1, 1.2, 1],
                   opacity: [0.5, 0.7, 0.5]
@@ -131,12 +131,12 @@ export default function GalleryHeader() {
                 }}
               />
               <motion.div
-                className="relative bg-gradient-to-br from-blue-500 to-purple-600 p-5 rounded-2xl shadow-lg"
+                className="relative bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-xl shadow-lg"
                 variants={iconVariants}
                 initial="initial"
                 animate="animate"
               >
-                <FaCloudUploadAlt className="text-4xl sm:text-5xl text-white" />
+                <FaCloudUploadAlt className="text-3xl sm:text-4xl text-white" />
               </motion.div>
             </motion.div>
 
@@ -144,7 +144,7 @@ export default function GalleryHeader() {
             <div className="flex-1 text-center sm:text-left">
               <motion.div variants={itemVariants}>
                 <motion.h1
-                  className="text-3xl sm:text-4xl lg:text-5xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-2"
+                  className="text-2xl sm:text-3xl lg:text-4xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-1"
                   animate={{
                     backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
                   }}
@@ -163,7 +163,7 @@ export default function GalleryHeader() {
 
               <motion.p
                 variants={itemVariants}
-                className="text-gray-600 dark:text-gray-300 text-base sm:text-lg max-w-2xl"
+                className="text-gray-600 dark:text-gray-300 text-sm sm:text-base max-w-2xl"
               >
                 Upload and manage your gallery images. Add beautiful photos to your collection.
               </motion.p>
@@ -171,14 +171,14 @@ export default function GalleryHeader() {
               {/* Stats or badges */}
               <motion.div
                 variants={itemVariants}
-                className="flex flex-wrap gap-3 mt-4 justify-center sm:justify-start"
+                className="flex flex-wrap gap-2 mt-3 justify-center sm:justify-start"
               >
-                <div className="px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs sm:text-sm font-semibold flex items-center gap-1.5">
-                  <FaImages />
+                <div className="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-semibold flex items-center gap-1">
+                  <FaImages className="text-xs" />
                   <span>Multiple Formats</span>
                 </div>
-                <div className="px-3 py-1.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-xs sm:text-sm font-semibold flex items-center gap-1.5">
-                  <FaCloudUploadAlt />
+                <div className="px-2.5 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1">
+                  <FaCloudUploadAlt className="text-xs" />
                   <span>Cloud Storage</span>
                 </div>
               </motion.div>

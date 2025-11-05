@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyTokens } from './utils/tokens';
+import { verifyTokens } from './lib/auth';
 
 const CLIENT_APP_API_KEY = process.env.CLIENT_APP_API_KEY;
 if (!CLIENT_APP_API_KEY) throw Error("Error: CLIENT_APP_API_KEY not found!");
