@@ -1,14 +1,23 @@
+export type RepositoryCategory = "main" | "android" | "web-course" | "nextjs-project";
+
 export interface Repository {
   id: string;
   name: string;
   displayName: string;
   description: string;
   githubUrl: string;
-  category: "main" | "android" | "web-course" | "nextjs-project";
+  category: RepositoryCategory;
   technologies: string[];
   featured: boolean;
   order: number;
 }
+
+export const REPOSITORY_CATEGORIES: Record<RepositoryCategory, string> = {
+  main: "Main Portfolio",
+  android: "Android Applications",
+  "web-course": "Web Programming Course Projects",
+  "nextjs-project": "Next.js Projects"
+};
 
 export const repositories: Repository[] = [
   {
