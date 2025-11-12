@@ -57,6 +57,7 @@ This portfolio serves multiple purposes:
 ## ✨ Features
 
 ### 🎨 **User Experience**
+
 - ✅ **Responsive Design** - Mobile-first approach with seamless tablet and desktop experience
 - ✅ **Dark Mode Support** - Eye-friendly theme switching with system preference detection
 - ✅ **Smooth Animations** - Powered by Framer Motion with reduced motion support
@@ -64,6 +65,7 @@ This portfolio serves multiple purposes:
 - ✅ **Accessibility First** - WCAG 2.1 compliant with semantic HTML5
 
 ### 🔐 **Admin Panel**
+
 - ✅ **Secure Authentication** - JWT-based session management with bcrypt password hashing
 - ✅ **Gallery Management** - Upload, organize, and delete images with album support
 - ✅ **Password Management** - Generate temporary access codes with expiration
@@ -71,6 +73,7 @@ This portfolio serves multiple purposes:
 - ✅ **Security Dashboard** - Monitor login attempts and manage access
 
 ### 📸 **Gallery System**
+
 - ✅ **Dynamic Albums** - Create and manage photo albums with metadata
 - ✅ **Image Optimization** - Next.js Image with automatic WebP conversion
 - ✅ **Preview URLs** - Direct links to specific images for sharing
@@ -78,14 +81,17 @@ This portfolio serves multiple purposes:
 - ✅ **Image Sitemap** - SEO-optimized sitemap for image discovery
 
 ### 📝 **Content Features**
+
 - ✅ **About Page** - Professional background, education, and experience
-- ✅ **Projects Showcase** - Highlight featured work and case studies
+- ✅ **Projects Portfolio** - Automated GitHub repository showcase with smart categorization
+- ✅ **Dynamic Project Detection** - Automatically identifies Web, Android, and Library projects
 - ✅ **Blog Platform** - Share knowledge and insights (upcoming)
 - ✅ **Contact Form** - Easy communication with form validation
 - ✅ **YouTube Integration** - Display latest videos from YouTube channel
 - ✅ **Google Drive Integration** - Fetch and display files from Google Drive
 
 ### 🚀 **Performance & SEO**
+
 - ✅ **Server-Side Rendering** - Fast initial page loads with Next.js App Router
 - ✅ **Static Generation** - Pre-rendered pages for optimal performance
 - ✅ **Image Optimization** - Lazy loading, responsive images, and modern formats
@@ -94,6 +100,7 @@ This portfolio serves multiple purposes:
 - ✅ **Canonical URLs** - Proper URL structure for SEO
 
 ### 🔌 **API Endpoints**
+
 - ✅ **Client App Authentication** - Secure token-based API access
 - ✅ **Device Registration** - FCM token management for push notifications
 - ✅ **Token Refresh** - Automatic token renewal for mobile apps
@@ -104,6 +111,7 @@ This portfolio serves multiple purposes:
 ## 🛠️ Technology Stack
 
 ### **Frontend**
+
 <div align="center">
 
 ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)
@@ -124,6 +132,7 @@ This portfolio serves multiple purposes:
 - **React Hook Form** - Performant form validation
 
 ### **Backend & Database**
+
 <div align="center">
 
 ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
@@ -140,6 +149,7 @@ This portfolio serves multiple purposes:
 - **Jose** - JWT token generation and verification
 
 ### **DevOps & Tools**
+
 <div align="center">
 
 ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
@@ -222,7 +232,7 @@ shawkath646-portfolio/
 | `/about/gallery` | Photo gallery | Album listing with preview images |
 | `/about/gallery/[slug]` | Album details | View images in a specific album |
 | `/contact` | Contact page | Contact form, social links, Buy Me a Coffee |
-| `/projects` | Projects showcase | Featured projects and case studies |
+| `/projects` | Projects portfolio | GitHub repositories categorized by type (Web, Android, Libraries) |
 | `/blog` | Blog listing | Articles and tutorials (upcoming) |
 
 ### **Admin Routes** (Protected)
@@ -323,6 +333,10 @@ FIREBASE_CLIENT_EMAIL=your_client_email
 FIREBASE_PRIVATE_KEY=your_private_key
 FIREBASE_STORAGE_BUCKET=your_bucket_name
 
+# GitHub Configuration
+GITHUB_USERNAME=your_github_username
+GITHUB_TOKEN=your_github_personal_access_token
+
 # Authentication Secrets
 ADMIN_AUTH_SECRET=your_admin_secret_key
 SITE_AUTH_SECRET=your_site_secret_key
@@ -339,6 +353,25 @@ GOOGLE_DRIVE_FOLDER_ID=your_drive_folder_id
 # Site Configuration
 NEXT_PUBLIC_SITE_URL=https://yourdomain.com
 ```
+
+### GitHub Token Setup
+
+To fetch your repositories on the projects page:
+
+1. Go to [GitHub Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens)
+2. Click "Generate new token (classic)"
+3. Give it a descriptive name (e.g., "Portfolio API")
+4. Select scopes:
+   - `public_repo` (to read public repositories)
+5. Click "Generate token"
+6. Copy the token and add to `.env.local` as `GITHUB_TOKEN`
+
+**Benefits of using a token:**
+- Increases API rate limit from 60 to 5,000 requests/hour
+- More reliable data fetching
+- Access to additional repository metadata
+
+**Note:** The `GITHUB_USERNAME` defaults to "shawkath646" if not set.
 
 ### Security Notes
 
@@ -363,6 +396,7 @@ NEXT_PUBLIC_SITE_URL=https://yourdomain.com
 ### Deploy to Other Platforms
 
 The project is compatible with any platform supporting Next.js:
+
 - **Netlify** - Full Next.js support
 - **AWS Amplify** - Serverless deployment
 - **Google Cloud Run** - Container-based deployment
@@ -373,6 +407,7 @@ The project is compatible with any platform supporting Next.js:
 ## 📅 Roadmap
 
 ### ✅ Completed
+
 - [x] Portfolio website with modern UI/UX
 - [x] Admin panel with authentication
 - [x] Gallery system with Firebase Storage
@@ -383,14 +418,20 @@ The project is compatible with any platform supporting Next.js:
 - [x] Semantic HTML5 structure
 - [x] Dark mode support
 - [x] Responsive design
+- [x] Projects page with GitHub integration
+- [x] Automated project categorization (Personal, Client Work, Assignments, Voluntary, Public Release)
+- [x] Dynamic project type detection (Web, Android, Libraries)
 
 ### 🚧 In Progress
+
 - [ ] Blog platform with MDX support
-- [ ] Projects page with case studies
 - [ ] Advanced analytics dashboard
 - [ ] Multi-language support (i18n)
 
 ### 📋 Planned
+
+- [ ] Individual project detail pages
+- [ ] Project search and filtering
 - [ ] Real-time visitor tracking
 - [ ] Advanced SEO analytics
 - [ ] Newsletter subscription
@@ -409,7 +450,7 @@ The project is compatible with any platform supporting Next.js:
 
 - 🌐 Website: [shawkath646.pro](https://shawkath646.vercel.app)
 - 💼 LinkedIn: [linkedin.com/in/shawkath645](https://linkedin.com/in/shawkath645)
-- 📧 Email: shawkath646@gmail.com
+- 📧 Email: <shawkath646@gmail.com>
 - 🐙 GitHub: [@shawkath646](https://github.com/shawkath646)
 
 **About Me**: Full-stack developer passionate about creating beautiful, performant, and accessible web applications. Specialized in React, Next.js, TypeScript, and modern web technologies. Always learning and exploring new technologies to build better digital experiences.
@@ -466,7 +507,7 @@ The source code is available for viewing and learning purposes. For commercial u
 
 <div align="center">
 
-### ⭐ Star this repository if you find it helpful!
+### ⭐ Star this repository if you find it helpful
 
 **Built with ❤️ by [Shawkat Hossain Maruf](https://shawkath646.pro)**
 
