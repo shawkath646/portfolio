@@ -1,6 +1,7 @@
 "use server";
-import { db } from "@/lib/firebase";
 import { cache } from "react";
+import getSocialLinks from "./getSocialLinks";
+import { db } from "@/lib/firebase";
 
 interface ImageObject {
   "@type": "ImageObject";
@@ -71,15 +72,23 @@ interface PersonSchema {
   knowsLanguage: Language[];
   description: string;
   gender: string;
-  birthDate: string; // Or Date
+  birthDate: string;
   nationality: Country;
   address: PostalAddress;
   mainEntityOfPage: WebPage;
 }
 
-const getJsonLd = cache(async() => {
-    const docRef = await db.collection("site-config").doc("jsonLd").get();
-    return docRef.data() as PersonSchema;
+const getJsonLd = cache(async () => {
+  const socialLinks = await getSocialLinks();  
+  const socialLinksArray = Object.values(socialLinks)
+    .filter((link): link is string => typeof link === 'string' && link.trim() !== '');
+
+  const docRef = await db.collection("site-config").doc("jsonLd").get();
+  const jsonLd = docRef.data() as PersonSchema;
+  
+  jsonLd.sameAs = [...(jsonLd.sameAs || []), ...socialLinksArray];
+  
+  return jsonLd;
 });
 
 export default getJsonLd;

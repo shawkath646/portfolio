@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import ProjectsClient from './ProjectsClient';
-import { getProjectsData } from '@/actions/github/getProjectsData';
+import { getProjectsData } from '@/actions/dataFetch/getProjectsData';
 
 export const metadata: Metadata = {
   title: "Projects Portfolio - Shawkat Hossain Maruf (shawkath646) | Full-Stack Developer",

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, Variants, useAnimation } from "framer-motion";
@@ -66,8 +66,8 @@ const delayedFade: Variants = {
     },
 };
 
-// Memoized profile image component for better performance
-const ProfileImage = memo(function ProfileImage() {
+// Profile image component
+function ProfileImage() {
     return (
         <Image
             src="/profile.jpg"
@@ -80,10 +80,10 @@ const ProfileImage = memo(function ProfileImage() {
             sizes="(max-width: 768px) 128px, 128px"
         />
     );
-});
+}
 
-// Memoized animated background component with blue theme
-const AnimatedBackground = memo(function AnimatedBackground() {
+// Animated background component with blue theme
+function AnimatedBackground() {
     return (
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
             {/* Main gradient background - Lighter for light mode, darker for dark mode */}
@@ -113,10 +113,10 @@ const AnimatedBackground = memo(function AnimatedBackground() {
             <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent dark:from-white/5 dark:via-transparent dark:to-transparent" />
         </div>
     );
-});
+}
 
-// Memoized skill item for better performance
-const SkillItem = memo(function SkillItem({ icon, text, index }: { icon: React.ReactNode; text: string; index: number }) {
+// Skill item component
+function SkillItem({ icon, text, index }: { icon: React.ReactNode; text: string; index: number }) {
     return (
         <motion.li
             custom={index}
@@ -137,9 +137,9 @@ const SkillItem = memo(function SkillItem({ icon, text, index }: { icon: React.R
             <span>{text}</span>
         </motion.li>
     );
-});
+}
 
-const LandingComponent = memo(function LandingComponent() {
+export default function LandingComponent() {
     // Set up intersection observer for lazy loading
     const controls = useAnimation();
     const [ref, inView] = useInView({
@@ -280,6 +280,4 @@ const LandingComponent = memo(function LandingComponent() {
             </motion.div>
         </section>
     );
-});
-
-export default LandingComponent;
+}

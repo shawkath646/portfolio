@@ -1,36 +1,25 @@
 "use client";
 import { useState, useTransition } from "react";
+import dynamic from "next/dynamic";
 import { motion } from "motion/react";
 import PasswordCard from "./PasswordCard";
-import { GeneratePasswordModal, GeneratePasswordButton } from "@/modals/GeneratePasswordModal";
-import { CleanupPasswordModal, CleanupPasswordButton } from "@/modals/CleanupPasswordModal";
+import { GeneratePasswordButton } from "@/modals/GeneratePasswordModal";
+import { CleanupPasswordButton } from "@/modals/CleanupPasswordModal";
 import { removePassword, PasswordObjectType } from "@/actions/secure/passwordFunc";
 import {
     FiKey,
     FiFilter,
 } from "react-icons/fi";
 
-// Statistics Card Component
-const StatCard = ({
-    title,
-    value,
-    icon: Icon,
-    className = ""
-}: {
-    title: string;
-    value: number;
-    icon: React.ComponentType<{ className?: string }>;
-    className?: string;
-}) => (
-    <div className={`rounded-xl p-3 backdrop-blur-sm ${className}`}>
-        <div className="flex items-center gap-2">
-            <Icon className="text-base" aria-hidden="true" />
-            <div>
-                <p className="text-xs opacity-80">{title}</p>
-                <p className="text-xl font-bold">{value}</p>
-            </div>
-        </div>
-    </div>
+// Lazy load modal components
+const GeneratePasswordModal = dynamic(
+    () => import("@/modals/GeneratePasswordModal").then(mod => ({ default: mod.GeneratePasswordModal })),
+    { ssr: false }
+);
+
+const CleanupPasswordModal = dynamic(
+    () => import("@/modals/CleanupPasswordModal").then(mod => ({ default: mod.CleanupPasswordModal })),
+    { ssr: false }
 );
 
 export default function PasswordManagement({ passwordList }: { passwordList: PasswordObjectType[] }) {

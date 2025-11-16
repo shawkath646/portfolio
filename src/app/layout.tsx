@@ -3,7 +3,8 @@ import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/components/navigation/Navbar";
 import Footer from "@/components/navigation/Footer";
-import getJsonLd from "@/actions/seo/getJsonLd";
+import NoJavaScript from "@/components/NoJavaScript";
+import getJsonLd from "@/actions/dataFetch/getJsonLd";
 import "./globals.css";
 
 
@@ -139,6 +140,9 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300`}
       >
+        {/* No JavaScript warning */}
+        <NoJavaScript />
+
         {/* Skip to main content for accessibility */}
         <Link
           href="#main-content"

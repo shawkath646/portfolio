@@ -3,6 +3,7 @@ import AboutHero from "./AboutHero";
 import DreamCards from "./DreamCards";
 import EducationFlowChart from "./EducationFlowChart";
 import WorkExperience from "./WorkExperience";
+import Achievements from "./Achievements";
 import PersonalLifeSection from "./PersonalLifeSection";
 
 // Enhanced metadata for better SEO
@@ -66,6 +67,7 @@ export default function About() {
       <DreamCards />
       <EducationFlowChart />
       <WorkExperience />
+      <Achievements />
       <PersonalLifeSection />
     </main>
   );

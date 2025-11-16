@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import { db } from "@/lib/firebase";
 import { ClientAppTokensType, generateClientAppToken, generateSessionToken, SessionTokensType } from "@/lib/auth";
 import { timestampToDate } from "@/utils/timestampToDate";
-import getAddressFromIP from "@/actions/geo/getAddressFromIP";
+import getAddressFromIP from "@/actions/admin/getAddressFromIP";
 import { PasswordObjectType } from "./passwordFunc";
 import { AddressType, PartialBy, SiteCodeType } from "@/types";
 
