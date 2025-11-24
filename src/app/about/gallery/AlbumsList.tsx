@@ -72,18 +72,18 @@ export default function AlbumsList({ albumList }: AlbumsListProps) {
                     >
                         <article className="h-full">
                             <Link
-                                href={`/about/gallery/${album.id}`}
+                                href={`/about/gallery/${album.albumSlug}`}
                                 className="group block bg-white/30 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg shadow-md hover:shadow-xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-all duration-300 h-full"
                                 aria-label={`View ${album.name} album with ${album.imageCount ?? 0} photos`}
                             >
-                                {/* Album Preview - Square Aspect */}
+                                {/* Album Preview - Folder-style with latest images */}
                                 <figure className="relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-                                    <AlbumPreview albumId={album.id} />
+                                    <AlbumPreview albumId={album.id} albumSlug={album.albumSlug} />
                                 </figure>
 
                                 {/* Album Info */}
                                 <div className="p-3">
-                                    <h3 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate mb-1">
+                                    <h3 className="text-xs font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate mb-1">
                                         {album.name}
                                     </h3>
                                     <div className="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-500">

@@ -2,10 +2,11 @@
 import { cache } from "react";
 import { db } from "@/lib/firebase";
 import { timestampToDate } from "@/utils/timestampToDate";
-import { GalleryImageType } from "./uploadImage";
+import { GalleryImageType } from "./saveGalleryImage";
 
 export interface AlbumDetailsType {
     id: string;
+    albumSlug: string;
     name: string;
     timestamp: Date;
     imageCount: number;
@@ -17,19 +18,24 @@ export interface PaginatedImagesResponse {
     total: number;
 }
 
-export const getAlbumDetails = cache(async (albumId: string): Promise<AlbumDetailsType | null> => {
+export const getAlbumDetails = cache(async (albumSlug: string): Promise<AlbumDetailsType | null> => {
     try {
-        const albumDoc = await db.collection("gallery").doc(albumId).get();
+        const slugQuery = await db.collection("gallery")
+            .where("albumSlug", "==", albumSlug)
+            .limit(1)
+            .get();
         
-        if (!albumDoc.exists) {
+        if (slugQuery.empty) {
             return null;
         }
 
+        const albumDoc = slugQuery.docs[0];
         const albumData = albumDoc.data();
         const imagesSnapshot = await albumDoc.ref.collection("images").count().get();
         
         return {
             id: albumDoc.id,
+            albumSlug: albumData?.albumSlug || "",
             name: albumData?.name || "Unknown Album",
             timestamp: timestampToDate(albumData?.timestamp),
             imageCount: imagesSnapshot.data().count
@@ -41,11 +47,26 @@ export const getAlbumDetails = cache(async (albumId: string): Promise<AlbumDetai
 });
 
 export const getAlbumImages = async (
-    albumId: string, 
+    albumSlug: string, 
     limit: number = 20, 
     startAfter?: Date
 ): Promise<PaginatedImagesResponse> => {
     try {
+        const slugQuery = await db.collection("gallery")
+            .where("albumSlug", "==", albumSlug)
+            .limit(1)
+            .get();
+        
+        if (slugQuery.empty) {
+            return {
+                images: [],
+                hasMore: false,
+                total: 0
+            };
+        }
+        
+        const albumId = slugQuery.docs[0].id;
+
         let query = db
             .collection("gallery")
             .doc(albumId)
@@ -90,3 +111,46 @@ export const getAlbumImages = async (
         };
     }
 };
+
+// Get single image by slug
+export const getImageBySlug = cache(async (
+    albumSlug: string,
+    imageSlug: string
+): Promise<GalleryImageType | null> => {
+    try {
+        const slugQuery = await db.collection("gallery")
+            .where("albumSlug", "==", albumSlug)
+            .limit(1)
+            .get();
+        
+        if (slugQuery.empty) {
+            return null;
+        }
+        
+        const albumId = slugQuery.docs[0].id;
+
+        const imageSlugQuery = await db
+            .collection("gallery")
+            .doc(albumId)
+            .collection("images")
+            .where("imageSlug", "==", imageSlug)
+            .limit(1)
+            .get();
+
+        if (imageSlugQuery.empty) {
+            return null;
+        }
+        
+        const imageDoc = imageSlugQuery.docs[0];
+
+        const data = imageDoc.data() as GalleryImageType;
+        return {
+            ...data,
+            id: imageDoc.id,
+            timestamp: timestampToDate(data.timestamp)
+        };
+    } catch (error) {
+        console.error("Error fetching image by slug:", error);
+        return null;
+    }
+});

@@ -41,24 +41,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
 
     // Album pages
-    const albumRoutes: MetadataRoute.Sitemap = albums.map<MetadataRoute.Sitemap[number]>(({ id, timestamp }) => ({
-        url: `${baseUrl}/about/gallery/${id}`,
+    const albumRoutes: MetadataRoute.Sitemap = albums.map<MetadataRoute.Sitemap[number]>(({ albumSlug, timestamp }) => ({
+        url: `${baseUrl}/about/gallery/${albumSlug}`,
         lastModified: timestamp,
         changeFrequency: "weekly",
         priority: 0.6,
     }));
 
-    // Image preview URLs with image sitemap data
+    // Individual image pages - with noindex robots meta
     const imageRoutes: MetadataRoute.Sitemap = images.map<MetadataRoute.Sitemap[number]>(({ 
-        albumId, 
-        imageId, 
+        albumSlug,
+        imageSlug,
         src,
         timestamp 
     }) => ({
-        url: `${baseUrl}/about/gallery/${albumId}?preview=${imageId}`,
+        url: `${baseUrl}/about/gallery/${albumSlug}/${imageSlug}`,
         lastModified: timestamp,
         changeFrequency: "monthly",
-        priority: 0.5,
+        priority: 0.4,
         images: [src],
     }));
 

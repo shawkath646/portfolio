@@ -4,9 +4,9 @@ import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { GalleryAlbumType } from "@/actions/gallery/albumManagement";
-import uploadImage, { GalleryImageType } from "@/actions/gallery/uploadImage";
+import { generateGalleryUploadURL } from "@/actions/gallery/generateGalleryUploadURL";
+import { saveGalleryImage, GalleryImageType } from "@/actions/gallery/saveGalleryImage";
 import { getImageMetadata } from "@/utils/imageNameToDate";
-import { PartialBy } from "@/types";
 import { FaCloudUploadAlt, FaImage, FaTimes } from "react-icons/fa";
 import googleDriveLogo from "@/assets/google-drive-icon-512x512.png";
 
@@ -153,34 +153,59 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
 
     const onSubmit = (data: UploadFormData) => startTransition(async () => {
         try {
-            // Get the selected file
             const file = data.image[0];
             if (!file) {
                 alert("Please select an image");
                 return;
             }
 
-            // Convert file to base64
-            const reader = new FileReader();
-            const base64Promise = new Promise<string>((resolve) => {
-                reader.onloadend = () => resolve(reader.result as string);
-                reader.readAsDataURL(file);
+            const imageId = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+            const urlResult = await generateGalleryUploadURL({
+                albumId: data.album,
+                imageId,
+                fileType: file.type,
+                fileSize: file.size,
             });
-            const base64 = await base64Promise;
 
-            // Prepare image data for upload
-            const imageData: PartialBy<GalleryImageType, "id"> = {
-                title: data.title,
-                description: data.description,
-                location: data.location,
-                alt: data.alt,
-                src: base64,
-                width: data.width,
-                height: data.height,
-                timestamp: data.timestamp
-            };
+            if (!urlResult.success || !urlResult.uploadURL || !urlResult.storagePath) {
+                throw new Error(urlResult.error || 'Failed to generate upload URL');
+            }
 
-            await uploadImage(data.album, imageData);
+            const xhr = new XMLHttpRequest();
+            await new Promise<void>((resolve, reject) => {
+                xhr.addEventListener('load', () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve();
+                    } else {
+                        reject(new Error(`Upload failed with status ${xhr.status}`));
+                    }
+                });
+                xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
+                xhr.open('PUT', urlResult.uploadURL!);
+                xhr.send(file);
+            });
+
+            const saveResult = await saveGalleryImage({
+                albumId: data.album,
+                imageId,
+                storagePath: urlResult.storagePath,
+                metadata: {
+                    imageSlug: data.title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-').replace(/^-+|-+$/g, ''),
+                    title: data.title,
+                    description: data.description,
+                    location: data.location,
+                    alt: data.alt,
+                    width: data.width,
+                    height: data.height,
+                    timestamp: data.timestamp,
+                },
+            });
+
+            if (!saveResult.success) {
+                throw new Error(saveResult.error || 'Failed to save image');
+            }
+
             alert("Image uploaded successfully!");
             reset();
             setImagePreview(null);

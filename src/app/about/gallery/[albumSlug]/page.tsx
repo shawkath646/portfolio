@@ -2,17 +2,17 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import GalleryGrid from "./GalleryGrid";
-import DeleteAlbumButton from "./DeleteAlbumButton";
+import DeleteAlbumButton from "@/app/about/gallery/[slug]/DeleteAlbumButton";
 import { getAlbumDetails, getAlbumImages } from "@/actions/gallery/getAlbumImages";
 import { FiArrowLeft, FiFolder } from "react-icons/fi";
 
 interface AlbumPageProps {
-    params: Promise<{ slug: string }>;
+    params: Promise<{ albumSlug: string }>;
 }
 
 export async function generateMetadata({ params }: AlbumPageProps): Promise<Metadata> {
-    const { slug } = await params;
-    const albumDetails = await getAlbumDetails(slug);
+    const { albumSlug } = await params;
+    const albumDetails = await getAlbumDetails(albumSlug);
 
     if (!albumDetails) {
         return {
@@ -39,12 +39,12 @@ export async function generateMetadata({ params }: AlbumPageProps): Promise<Meta
             "Photo Collection",
         ],
         alternates: {
-            canonical: `https://shawkath646.pro/about/gallery/${slug}`,
+            canonical: `https://shawkath646.pro/about/gallery/${albumSlug}`,
         },
         openGraph: {
             title: `${albumDetails.name} - Photo Album`,
             description: `View ${albumDetails.imageCount} ${albumDetails.imageCount === 1 ? "photo" : "photos"} from this album.`,
-            url: `https://shawkath646.pro/about/gallery/${slug}`,
+            url: `https://shawkath646.pro/about/gallery/${albumSlug}`,
             siteName: "Shawkat Hossain Maruf Portfolio",
             locale: "en_US",
             type: "website",
@@ -69,30 +69,20 @@ export async function generateMetadata({ params }: AlbumPageProps): Promise<Meta
 }
 
 export default async function AlbumPage({ params }: AlbumPageProps) {
-    const { slug } = await params;
-    const albumDetails = await getAlbumDetails(slug);
+    const { albumSlug } = await params;
+    const albumDetails = await getAlbumDetails(albumSlug);
 
     if (!albumDetails) {
         notFound();
     }
 
-    const { images, hasMore } = await getAlbumImages(slug, 20);
+    const { images, hasMore } = await getAlbumImages(albumSlug, 20);
 
     return (
         <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 pt-24 pb-16 px-3 sm:px-4 lg:px-6">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <header className="mb-6">
-                    <nav aria-label="Breadcrumb" className="mb-4">
-                        <Link
-                            href="/about/gallery"
-                            className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
-                        >
-                            <FiArrowLeft className="text-lg" aria-hidden="true" />
-                            <span>Back to Gallery</span>
-                        </Link>
-                    </nav>
-
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-5">
                         <div className="flex items-start justify-between gap-4 flex-wrap">
                             <div className="flex items-center gap-3">
@@ -100,7 +90,7 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
                                     <FiFolder className="text-xl sm:text-2xl text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <div>
-                                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                                    <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-1">
                                         {albumDetails.name}
                                     </h1>
                                     <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
@@ -121,7 +111,7 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
                             
                             {/* Delete Album Button */}
                             <div className="flex items-center">
-                                <DeleteAlbumButton albumId={slug} albumName={albumDetails.name} />
+                                <DeleteAlbumButton albumId={albumDetails.id} albumName={albumDetails.name} />
                             </div>
                         </div>
                     </div>
@@ -130,7 +120,7 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
                 {/* Gallery Grid */}
                 {images.length > 0 ? (
                     <section aria-label={`Photos from ${albumDetails.name} album`}>
-                        <GalleryGrid albumId={slug} initialImages={images} hasMore={hasMore} />
+                        <GalleryGrid albumSlug={albumSlug} albumId={albumDetails.id} initialImages={images} hasMore={hasMore} />
                     </section>
                 ) : (
                     <div 

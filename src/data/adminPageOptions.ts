@@ -8,6 +8,7 @@ import {
     FiImage,
     FiSettings,
     FiMail,
+    FiUpload,
 } from "react-icons/fi";
 
 export interface AdminPageOptionType {
@@ -68,6 +69,14 @@ const adminOptions: AdminPageOptionType[] = [
         href: "/admin/gallery",
         color: "text-indigo-600",
         bgGradient: "from-indigo-500/10 to-indigo-600/10"
+    },
+    {
+        title: "Shared Files",
+        description: "Manage public file uploads from users",
+        icon: FiUpload,
+        href: "/admin/shared-files",
+        color: "text-teal-600",
+        bgGradient: "from-teal-500/10 to-teal-600/10"
     },
     {
         title: "Security",

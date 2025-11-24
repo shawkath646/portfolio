@@ -6,6 +6,7 @@ import CompanyIntro from "@/components/HomePage/CompanyIntro";
 import TasksBoard from "@/components/HomePage/TaskBoard";
 import YoutubeGrid from "@/components/HomePage/YoutubeGrid";
 import GallerySnapshot from "@/components/HomePage/GallerySnapshot";
+import ShareFilesSection from "@/components/HomePage/ShareFilesSection";
 import Pagination from "@/components/navigation/Pagination";
 import fetchYouTubeVideos from "@/actions/googleServices/fetchYoutubeVideos";
 import { fetchGallerySnapshot } from "@/actions/gallery/fetchGallerySnapshot";
@@ -207,6 +208,8 @@ export default async function Home() {
           {galleryImages.length > 0 && (
             <GallerySnapshot images={galleryImages} />
           )}
+
+          <ShareFilesSection />
 
           <Pagination
             nextPage="/about"

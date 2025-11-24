@@ -2,7 +2,7 @@
 import { cache } from "react";
 import { db } from "@/lib/firebase";
 import { timestampToDate } from "@/utils/timestampToDate";
-import { GalleryImageType } from "./uploadImage";
+import { GalleryImageType } from "./saveGalleryImage";
 
 export const fetchGallerySnapshot = cache(async (limit: number = 15): Promise<GalleryImageType[]> => {
     try {

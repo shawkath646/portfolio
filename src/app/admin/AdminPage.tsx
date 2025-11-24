@@ -1,15 +1,9 @@
 "use client";
 import { motion } from "motion/react";
-import siteLogout from "@/actions/secure/siteLogout";
 import adminOptions from "@/data/adminPageOptions";
 
 
 export default function AdminPage({ isAdministrator }: { isAdministrator: boolean }) {
-    const handleLogout = async() => {
-        const confirmLogOut = confirm("Do you want to logout?");
-        if (confirmLogOut) await siteLogout("admin-panel");
-    };
-
     return (
         <main className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -20,16 +14,6 @@ export default function AdminPage({ isAdministrator }: { isAdministrator: boolea
                     transition={{ duration: 0.6 }}
                     className="relative text-center mb-12"
                 >
-                    <button
-                        onClick={handleLogout}
-                        aria-label="Logout"
-                        className="absolute right-0 top-0 mt-2 mr-0 inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 dark:bg-red-700/10 dark:text-red-300 dark:border-red-600 transition"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
-                        </svg>
-                        <span className="text-sm font-medium">Logout</span>
-                    </button>
                     <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
                         <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
                             Admin Dashboard

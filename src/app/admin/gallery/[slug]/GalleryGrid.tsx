@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { GalleryImageType } from "@/actions/gallery/uploadImage";
+import { GalleryImageType } from "@/actions/gallery/saveGalleryImage";
 import { getAlbumImages } from "@/actions/gallery/getAlbumImages";
 import { deleteImage } from "@/actions/gallery/deleteImage";
 import { FaMapMarkerAlt, FaCalendar, FaTimes, FaSpinner, FaTrash } from "react-icons/fa";

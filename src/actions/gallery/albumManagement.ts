@@ -7,9 +7,20 @@ import { timestampToDate } from "@/utils/timestampToDate";
 
 export interface GalleryAlbumType {
     id: string;
+    albumSlug: string;
     name: string;
     timestamp: Date;
     imageCount?: number;
+}
+
+// Helper function to generate slug from text
+function generateSlug(text: string): string {
+    return text
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '') // Remove special characters
+        .replace(/[\s_]+/g, '-') // Replace spaces and underscores with hyphens
+        .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
 }
 
 export const getGalleryAlbums = cache(async (): Promise<GalleryAlbumType[]> => {
@@ -27,13 +38,40 @@ export const getGalleryAlbums = cache(async (): Promise<GalleryAlbumType[]> => {
     return albumList;
 });
 
-// For sitemap generation - returns albums with IDs
-export const getGalleryAlbumsForSitemap = cache(async (): Promise<Array<{ id: string, name: string, timestamp: Date }>> => {
+// Get album by slug (new function for slug-based routing)
+export const getAlbumBySlug = cache(async (albumSlug: string): Promise<GalleryAlbumType | null> => {
+    try {
+        const albumSnapshot = await db.collection("gallery")
+            .where("albumSlug", "==", albumSlug)
+            .limit(1)
+            .get();
+        
+        if (albumSnapshot.empty) {
+            return null;
+        }
+
+        const doc = albumSnapshot.docs[0];
+        const album = doc.data() as GalleryAlbumType;
+        album.timestamp = timestampToDate(album.timestamp);
+        
+        const imagesSnapshot = await doc.ref.collection("images").count().get();
+        album.imageCount = imagesSnapshot.data().count;
+        
+        return album;
+    } catch (error) {
+        console.error("Error fetching album by slug:", error);
+        return null;
+    }
+});
+
+// For sitemap generation - returns albums with IDs and slugs
+export const getGalleryAlbumsForSitemap = cache(async (): Promise<Array<{ id: string, albumSlug: string, name: string, timestamp: Date }>> => {
     const albumSnapshot = await db.collection("gallery").get();
     const albums = albumSnapshot.docs.map((doc) => {
         const albumData = doc.data();
         return {
             id: doc.id,
+            albumSlug: albumData.albumSlug || generateSlug(albumData.name || "untitled-album"),
             name: albumData.name || "Untitled Album",
             timestamp: timestampToDate(albumData.timestamp)
         };
@@ -44,7 +82,9 @@ export const getGalleryAlbumsForSitemap = cache(async (): Promise<Array<{ id: st
 
 export const getGalleryImagesForSitemap = cache(async (): Promise<Array<{
     albumId: string,
+    albumSlug: string,
     imageId: string,
+    imageSlug: string,
     src: string,
     title: string,
     alt: string,
@@ -54,7 +94,9 @@ export const getGalleryImagesForSitemap = cache(async (): Promise<Array<{
     const albumSnapshot = await db.collection("gallery").get();
     const images: Array<{
         albumId: string,
+        albumSlug: string,
         imageId: string,
+        imageSlug: string,
         src: string,
         title: string,
         alt: string,
@@ -63,13 +105,18 @@ export const getGalleryImagesForSitemap = cache(async (): Promise<Array<{
     }> = [];
 
     for (const albumDoc of albumSnapshot.docs) {
+        const albumData = albumDoc.data();
+        const albumSlug = albumData.albumSlug || generateSlug(albumData.name || "untitled-album");
+        
         const imagesSnapshot = await albumDoc.ref.collection("images").get();
         
         imagesSnapshot.docs.forEach((imageDoc) => {
             const imageData = imageDoc.data();
             images.push({
                 albumId: albumDoc.id,
+                albumSlug: albumSlug,
                 imageId: imageDoc.id,
+                imageSlug: imageData.imageSlug || generateSlug(imageData.title || "untitled-image"),
                 src: imageData.src || "",
                 title: imageData.title || "Untitled",
                 alt: imageData.alt || imageData.title || "Image",
@@ -84,19 +131,28 @@ export const getGalleryImagesForSitemap = cache(async (): Promise<Array<{
 
 export const createAlbum = async (albumName: string) => {
     const docRef = db.collection("gallery").doc();
+    const albumSlug = generateSlug(albumName);
+    
     const albumObject: GalleryAlbumType = {
         id: docRef.id,
+        albumSlug: albumSlug,
         name: albumName,
         timestamp: new Date()
     }
     await docRef.set(albumObject);
     revalidatePath("/admin/gallery");
-    return docRef.id;
+    revalidatePath("/about/gallery");
+    return { id: docRef.id, albumSlug };
 };
 
 export const updateAlbum = async (albumId: string, newName: string) => {
-    await db.collection("gallery").doc(albumId).set({ name: newName }, { merge: true });
+    const newSlug = generateSlug(newName);
+    await db.collection("gallery").doc(albumId).set({ 
+        name: newName,
+        albumSlug: newSlug 
+    }, { merge: true });
     revalidatePath("/admin/gallery");
+    revalidatePath("/about/gallery");
 };
 
 export const deleteAlbum = async (albumId: string) => {
@@ -121,4 +177,5 @@ export const deleteAlbum = async (albumId: string) => {
     }
     await docRef.delete();
     revalidatePath("/admin/gallery");
+    revalidatePath("/about/gallery");
 };

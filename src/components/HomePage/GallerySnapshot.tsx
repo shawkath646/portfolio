@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { GalleryImageType } from "@/actions/gallery/uploadImage";
+import { GalleryImageType } from "@/actions/gallery/saveGalleryImage";
 import { FiArrowRight, FiCamera } from "react-icons/fi";
 
 interface GallerySnapshotProps {

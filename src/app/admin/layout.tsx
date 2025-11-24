@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { adminAllowedPaths } from '@/data/pathsConfig';
+import AdminNavbar from '@/components/navigation/AdminNavbar';
 
 export const metadata: Metadata = {
     description: 'Admin panel for managing portfolio content and settings',
@@ -26,5 +27,10 @@ export default function AdminLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    return <>{children}</>;
+    return (
+        <>
+            <AdminNavbar />
+            {children}
+        </>
+    );
 }
