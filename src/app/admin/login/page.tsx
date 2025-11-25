@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
 import AdminLoginForm from "./AdminLoginForm";
 // import LoginWithDevices from "@/modals/LoginWithDevices";
 // import { reachableDeviceList } from "@/actions/secure/passwordlessLogin.bak/reachableDeviceList";
@@ -34,7 +35,15 @@ export default async function Page() {
             </div>
 
             {/* Login Form Component */}
-            <AdminLoginForm />
+            <Suspense fallback={
+                <div className="relative w-full max-w-md">
+                    <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-8 flex items-center justify-center min-h-[400px]">
+                        <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    </div>
+                </div>
+            }>
+                <AdminLoginForm />
+            </Suspense>
             {/* <LoginWithDevices reachableDevices={reachableDevices} /> */}
 
             {/* Decorative Dots */}

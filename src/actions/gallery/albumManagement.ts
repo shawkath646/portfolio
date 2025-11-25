@@ -59,7 +59,6 @@ export const getAlbumBySlug = cache(async (albumSlug: string): Promise<GalleryAl
         
         return album;
     } catch (error) {
-        console.error("Error fetching album by slug:", error);
         return null;
     }
 });

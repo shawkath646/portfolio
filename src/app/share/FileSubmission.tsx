@@ -128,8 +128,6 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
         const { file, id: fileId, note } = fileWithMetadata;
         const controller = new AbortController();
 
-        console.log("[uploadFile] Starting upload for:", file.name);
-
         // Initialize progress
         setUploadProgress(prev => new Map(prev).set(fileId, {
             fileId,
@@ -143,14 +141,11 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
 
         try {
             // Step 1: Generate signed upload URL
-            console.log("[uploadFile] Generating signed URL...");
             const urlResult = await generateSharedFileUploadURL({
                 fileName: file.name,
                 fileType: file.type,
                 fileSize: file.size
             });
-
-            console.log("[uploadFile] URL generation result:", urlResult);
 
             if (!urlResult.success || !urlResult.uploadURL || !urlResult.storagePath) {
                 throw new Error(urlResult.error || 'Failed to generate upload URL');
@@ -197,27 +192,21 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
             // Handle upload completion
             await new Promise<void>((resolve, reject) => {
                 xhr.addEventListener('load', () => {
-                    console.log("[uploadFile] XHR upload completed with status:", xhr.status);
                     if (xhr.status >= 200 && xhr.status < 300) {
-                        console.log("[uploadFile] File successfully uploaded to storage");
                         resolve();
                     } else {
-                        console.error("[uploadFile] Upload failed with status:", xhr.status, xhr.statusText);
                         reject(new Error(`Upload failed with status ${xhr.status}`));
                     }
                 });
 
                 xhr.addEventListener('error', () => {
-                    console.error("[uploadFile] Network error during upload");
                     reject(new Error('Network error during upload'));
                 });
 
                 xhr.addEventListener('abort', () => {
-                    console.log("[uploadFile] Upload cancelled by user");
                     reject(new Error('Upload cancelled'));
                 });
 
-                console.log("[uploadFile] Starting XHR PUT to signed URL...");
                 xhr.open('PUT', urlResult.uploadURL!);
                 xhr.send(file);
 
@@ -228,7 +217,6 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
             });
 
             // Step 3: Finalize - save metadata to Firestore
-            console.log("[uploadFile] Upload complete, saving metadata...");
             setUploadProgress(prev => new Map(prev).set(fileId, {
                 ...prev.get(fileId)!,
                 status: 'finalizing',
@@ -244,14 +232,11 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
                 userNote: note.trim() || undefined
             });
 
-            console.log("[uploadFile] Metadata save result:", metadataResult);
-
             if (!metadataResult.success) {
                 throw new Error(metadataResult.error || 'Failed to save metadata');
             }
 
             // Step 4: Completed
-            console.log("[uploadFile] Upload and save completed successfully");
             setUploadProgress(prev => new Map(prev).set(fileId, {
                 ...prev.get(fileId)!,
                 status: 'completed',
@@ -263,7 +248,6 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
             return true;
 
         } catch (error: any) {
-            console.error('Upload error:', error);
             setUploadProgress(prev => new Map(prev).set(fileId, {
                 ...prev.get(fileId)!,
                 status: 'error',
@@ -540,16 +524,16 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
                                         whileTap={!isUploading ? { scale: 0.98 } : {}}
                                         onClick={handleUploadAll}
                                         disabled={isUploading}
-                                        className="flex-1 px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                                        className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-semibold text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
                                     >
                                         {isUploading ? (
                                             <>
-                                                <FiLoader className="animate-spin" />
+                                                <FiLoader className="animate-spin text-base" />
                                                 <span>Uploading...</span>
                                             </>
                                         ) : (
                                             <>
-                                                <FiSend />
+                                                <FiSend className="text-base" />
                                                 <span>Upload {files.length} {files.length === 1 ? 'File' : 'Files'}</span>
                                             </>
                                         )}
@@ -560,7 +544,7 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
                                             onClick={handleReset}
-                                            className="px-6 py-4 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-xl font-semibold transition-colors"
+                                            className="px-4 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg font-medium text-sm transition-colors"
                                         >
                                             Clear All
                                         </motion.button>

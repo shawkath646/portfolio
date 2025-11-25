@@ -7,6 +7,7 @@ import { webcrypto as crypto } from "crypto";
 import bcrypt from "bcryptjs";
 import { timestampToDate } from "@/utils/timestampToDate";
 import getAddressFromIP from "@/actions/admin/getAddressFromIP";
+import { getClientIPWithFallback } from "@/utils/getClientIP";
 import { AddressType, SiteCodeType } from "@/types";
 
 
@@ -104,7 +105,8 @@ export async function generatePassword({
 }: GeneratePasswordPropsType): Promise<GeneratePasswordResponseType> {
 
     const headerList = await headers();
-    const deviceIP = headerList.get('x-forwarded-for') || headerList.get('x-real-ip');
+    // Use secure IP extraction with fallback for admin panel (allows localhost)
+    const deviceIP = getClientIPWithFallback(headerList);
 
     try {
         if (!siteCode || !length || !expireDays || !usableTimes) {

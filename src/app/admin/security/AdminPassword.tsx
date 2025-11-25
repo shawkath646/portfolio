@@ -60,7 +60,6 @@ export default function AdminPassword() {
                     type: "error",
                     message: "Failed to update password. Please try again later."
                 });
-                console.error("Error updating admin password:", error);
             }
         });
     };

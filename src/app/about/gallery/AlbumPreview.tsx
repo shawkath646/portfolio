@@ -20,7 +20,7 @@ export default function AlbumPreview({ albumId, albumSlug }: AlbumPreviewProps) 
                 const result = await getAlbumImages(albumSlug, 4); // Get latest 4 images
                 setImages(result.images);
             } catch (error) {
-                console.error("Error fetching preview images:", error);
+                // Error fetching preview images
             } finally {
                 setLoading(false);
             }

@@ -33,7 +33,7 @@ export default function GalleryGrid({ albumSlug, albumId, initialImages, hasMore
             setImages((prev) => [...prev, ...response.images]);
             setHasMore(response.hasMore);
         } catch (error) {
-            console.error("Error loading more images:", error);
+            // Error loading more images
         } finally {
             setLoading(false);
         }
@@ -88,7 +88,7 @@ export default function GalleryGrid({ albumSlug, albumId, initialImages, hasMore
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
-                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4"
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3"
             >
                 {images.map((image) => (
                     <motion.div key={image.id} variants={itemVariants} className="group relative">
@@ -109,24 +109,24 @@ export default function GalleryGrid({ albumSlug, albumId, initialImages, hasMore
                                 </div>
 
                                 {/* Info */}
-                                <div className="p-2.5">
-                                    <h3 className="font-semibold text-sm text-gray-900 dark:text-white mb-1 line-clamp-1">
+                                <div className="p-2">
+                                    <h3 className="font-semibold text-xs text-gray-900 dark:text-white mb-1 line-clamp-1">
                                         {image.title}
                                     </h3>
                                     {image.description && (
-                                        <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
+                                        <p className="text-[10px] text-gray-600 dark:text-gray-400 line-clamp-1 mb-1.5">
                                             {image.description}
                                         </p>
                                     )}
-                                    <div className="flex flex-col gap-0.5 text-[10px] text-gray-500 dark:text-gray-500">
+                                    <div className="flex flex-col gap-0.5 text-[9px] text-gray-500 dark:text-gray-500">
                                         {image.location && (
                                             <div className="flex items-center gap-1">
-                                                <FaMapMarkerAlt className="text-red-500 text-[9px]" />
+                                                <FaMapMarkerAlt className="text-red-500 text-[8px]" />
                                                 <span className="line-clamp-1">{image.location}</span>
                                             </div>
                                         )}
                                         <div className="flex items-center gap-1">
-                                            <FaCalendar className="text-blue-500 text-[9px]" />
+                                            <FaCalendar className="text-blue-500 text-[8px]" />
                                             <span>
                                                 {image.timestamp.toLocaleDateString("en-US", {
                                                     year: "numeric",
@@ -145,10 +145,10 @@ export default function GalleryGrid({ albumSlug, albumId, initialImages, hasMore
 
             {/* Load More Trigger */}
             {hasMore && (
-                <div ref={loadMoreRef} className="flex justify-center py-8">
+                <div ref={loadMoreRef} className="flex justify-center py-6">
                     {loading && (
-                        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                            <FaSpinner className="animate-spin" />
+                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <FaSpinner className="animate-spin text-sm" />
                             <span>Loading more photos...</span>
                         </div>
                     )}
@@ -157,7 +157,7 @@ export default function GalleryGrid({ albumSlug, albumId, initialImages, hasMore
 
             {/* No More Images */}
             {!hasMore && images.length > 0 && (
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                <div className="text-center py-6 text-sm text-gray-500 dark:text-gray-400">
                     <p>You&apos;ve reached the end! 🎉</p>
                 </div>
             )}

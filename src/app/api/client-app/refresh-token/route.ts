@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { refreshClientAppTokens } from "@/lib/auth";
+import { getClientIP } from "@/utils/getClientIP";
 
 
 export async function POST(req: NextRequest) {
     const headersList = await headers();
     const { access_token } = await req.json();
 
-    const rawIP = headersList.get("x-forwarded-for") || headersList.get("x-real-ip");
-    const clientIP = rawIP ? rawIP.split(',')[0].trim() : null;
+    // Securely extract client IP with anti-spoofing protection
+    const validatedIP = headersList.get("x-validated-ip");
+    const clientIP = validatedIP || getClientIP(headersList);
 
     if (!clientIP) {
         return NextResponse.json(
-            { success: false, message: "Unable to determine client IP address." },
+            { success: false, message: "Unable to verify client identity. Please ensure you're not using a VPN or proxy." },
             { status: 400 }
         );
     }

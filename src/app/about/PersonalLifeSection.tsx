@@ -115,7 +115,7 @@ export default function PersonalLifeSection() {
             variants={itemVariants}
           >
             <Link 
-              href="/life" 
+              href="/about/personal-life"
               className="group relative inline-flex items-center justify-center px-8 py-3 overflow-hidden font-medium transition-all bg-gradient-to-br from-blue-500 to-purple-600 rounded-full hover:scale-105 transform text-white shadow-lg hover:shadow-xl active:scale-95"
               aria-label="Visit my life page to learn more about my personal journey"
             >

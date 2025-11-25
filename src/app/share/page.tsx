@@ -43,39 +43,39 @@ export default function SharePage() {
 
             <div className="max-w-5xl mx-auto relative z-10">
                 {/* Header */}
-                <header className="text-center mb-12">
-                    <div className="inline-flex items-center gap-2 mb-4">
-                        <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
-                            <FiUpload className="text-3xl text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                <header className="text-center mb-8">
+                    <div className="inline-flex items-center gap-2 mb-3">
+                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                            <FiUpload className="text-2xl text-blue-600 dark:text-blue-400" aria-hidden="true" />
                         </div>
                     </div>
                     
-                    <h1 id="page-title" className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-white mb-4">
+                    <h1 id="page-title" className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-3">
                         Upload Files
                     </h1>
                     
-                    <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-8">
+                    <p className="text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
                         Share documents, images, videos, and more. Upload multiple files with real-time progress tracking.
                     </p>
 
                     {/* Features */}
-                    <div className="flex flex-wrap gap-4 justify-center mb-8" role="list" aria-label="Upload features">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 dark:border-gray-700" role="listitem">
+                    <div className="flex flex-wrap gap-3 justify-center mb-6" role="list" aria-label="Upload features">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 dark:border-gray-700" role="listitem">
                             <FiLock className="text-green-600 dark:text-green-400" aria-hidden="true" />
-                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                                 Secure & Encrypted
                             </span>
                         </div>
                         
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 dark:border-gray-700" role="listitem">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 dark:border-gray-700" role="listitem">
                             <FiUser className="text-blue-600 dark:text-blue-400" aria-hidden="true" />
-                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                                 Multi-File Upload
                             </span>
                         </div>
                         
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 dark:border-gray-700" role="listitem">
-                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 dark:border-gray-700" role="listitem">
+                            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                                 100MB Max Per File
                             </span>
                         </div>
@@ -86,14 +86,14 @@ export default function SharePage() {
 
                 {/* Usage Guidelines */}
                 <aside 
-                    className="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6"
+                    className="mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4"
                     role="note"
                     aria-label="Upload guidelines"
                 >
-                    <h2 className="text-base font-bold text-blue-900 dark:text-blue-200 mb-3">
+                    <h2 className="text-sm font-bold text-blue-900 dark:text-blue-200 mb-2">
                         Upload Guidelines
                     </h2>
-                    <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-300">
+                    <ul className="space-y-1.5 text-xs text-blue-800 dark:text-blue-300">
                         <li className="flex items-start gap-2">
                             <span className="text-blue-600 dark:text-blue-400 mt-0.5">•</span>
                             <span>Upload multiple files simultaneously with drag-and-drop or file selection</span>

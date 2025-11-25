@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FaFolder, FaImage, FaCalendar, FaArrowLeft } from "react-icons/fa";
-import Link from "next/link";
+import { FaFolder, FaImage, FaCalendar } from "react-icons/fa";
 
 interface GalleryHeaderProps {
     name: string;
@@ -18,15 +17,6 @@ export default function GalleryHeader({ name, timestamp, imageCount }: GalleryHe
             transition={{ duration: 0.5 }}
             className="mb-6"
         >
-            {/* Back Button */}
-            <Link 
-                href="/admin/gallery"
-                className="inline-flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors mb-3"
-            >
-                <FaArrowLeft className="text-[10px]" />
-                <span>Back to Albums</span>
-            </Link>
-
             {/* Header Card */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-5 border border-gray-200 dark:border-gray-700">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">

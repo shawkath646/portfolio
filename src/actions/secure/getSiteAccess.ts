@@ -6,6 +6,7 @@ import { db } from "@/lib/firebase";
 import { ClientAppTokensType, generateClientAppToken, generateSessionToken, SessionTokensType } from "@/lib/auth";
 import { timestampToDate } from "@/utils/timestampToDate";
 import getAddressFromIP from "@/actions/admin/getAddressFromIP";
+import { getClientIP } from "@/utils/getClientIP";
 import { PasswordObjectType } from "./passwordFunc";
 import { AddressType, PartialBy, SiteCodeType } from "@/types";
 
@@ -129,12 +130,19 @@ const getSiteAccess = async (siteCode: SiteCodeType, password: string) => {
     const headersList = await headers();
     const cookieStore = await cookies();
 
-    const rawIP = headersList.get("x-forwarded-for") || headersList.get("x-real-ip");
-    const clientIP = rawIP ? rawIP.split(',')[0].trim() : null;
+    // Securely extract client IP with anti-spoofing protection
+    // Prefer validated IP from middleware, fallback to direct validation
+    const validatedIP = headersList.get("x-validated-ip");
+    const clientIP = validatedIP || getClientIP(headersList);
     const userAgent = headersList.get("user-agent") || "unknown";
 
     if (!clientIP) {
-        return { success: false, message: "Unable to determine client IP address." };
+        // No valid public IP found - potential spoofing attempt or development environment
+        // In production with proper proxy setup, this should never happen
+        return { 
+            success: false, 
+            message: "Unable to verify client identity. Please ensure you're not using a VPN or proxy." 
+        };
     }
 
     const address = await getAddressFromIP(clientIP);
@@ -286,6 +294,11 @@ const getSiteAccess = async (siteCode: SiteCodeType, password: string) => {
             timestamp: new Date(),
             address,
             invoked: false
+        });
+
+        // Increment the password usage counter
+        await db.collection("passwords").doc(passwordDoc.id).update({
+            usedTimes: (passwordData.usedTimes || 0) + 1
         });
 
         const tokenObject = await generateSessionToken(

@@ -2,10 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiFile, FiDownload, FiTrash2, FiClock, FiFileText, FiAlertCircle, FiArrowLeft } from "react-icons/fi";
+import { FiFile, FiDownload, FiTrash2, FiClock, FiFileText, FiAlertCircle } from "react-icons/fi";
 import { SharedFileUpload } from "@/actions/storage/getAllSharedFiles";
 import { deleteSharedFile } from "@/actions/storage/deleteSharedFile";
-import Link from "next/link";
 
 interface SharedFilesClientProps {
     initialFiles: SharedFileUpload[];
@@ -72,22 +71,14 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="mb-8"
+                className="mb-6"
             >
-                <Link
-                    href="/admin"
-                    className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-4 transition-colors"
-                >
-                    <FiArrowLeft className="text-lg" />
-                    <span className="font-medium">Back to Dashboard</span>
-                </Link>
-
-                <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3">
                     <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
                         Shared Files
                     </span>
                 </h1>
-                <p className="text-xl text-gray-600 dark:text-gray-300">
+                <p className="text-base text-gray-600 dark:text-gray-300">
                     Manage files uploaded by users through the public file sharing system
                 </p>
             </motion.div>
@@ -97,44 +88,44 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8"
+                className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6"
             >
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Files</p>
-                            <p className="text-3xl font-bold text-gray-900 dark:text-white">{files.length}</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Files</p>
+                            <p className="text-2xl font-bold text-gray-900 dark:text-white">{files.length}</p>
                         </div>
-                        <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                            <FiFile className="text-2xl text-blue-600 dark:text-blue-400" />
+                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                            <FiFile className="text-xl text-blue-600 dark:text-blue-400" />
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Size</p>
-                            <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Size</p>
+                            <p className="text-2xl font-bold text-gray-900 dark:text-white">
                                 {formatFileSize(files.reduce((sum, f) => sum + f.fileSize, 0))}
                             </p>
                         </div>
-                        <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                            <FiDownload className="text-2xl text-green-600 dark:text-green-400" />
+                        <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                            <FiDownload className="text-xl text-green-600 dark:text-green-400" />
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Reviewed</p>
-                            <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Reviewed</p>
+                            <p className="text-2xl font-bold text-gray-900 dark:text-white">
                                 {files.filter(f => f.reviewed).length}
                             </p>
                         </div>
-                        <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                            <FiFileText className="text-2xl text-purple-600 dark:text-purple-400" />
+                        <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                            <FiFileText className="text-xl text-purple-600 dark:text-purple-400" />
                         </div>
                     </div>
                 </div>
@@ -145,15 +136,15 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-8"
+                    className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6"
                 >
                     <div className="flex items-start gap-3">
-                        <FiAlertCircle className="text-2xl text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                        <FiAlertCircle className="text-xl text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                         <div>
-                            <h3 className="text-lg font-semibold text-red-900 dark:text-red-200 mb-1">
+                            <h3 className="text-base font-semibold text-red-900 dark:text-red-200 mb-1">
                                 Error Loading Files
                             </h3>
-                            <p className="text-red-700 dark:text-red-300">{error}</p>
+                            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
                         </div>
                     </div>
                 </motion.div>
@@ -165,13 +156,13 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-12 text-center"
+                    className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8 text-center"
                 >
-                    <FiFile className="text-6xl text-gray-400 dark:text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    <FiFile className="text-5xl text-gray-400 dark:text-gray-600 mx-auto mb-3" />
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                         No Files Yet
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                         Files uploaded through the public sharing page will appear here
                     </p>
                 </motion.div>
@@ -194,21 +185,21 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: 20, height: 0 }}
                                     transition={{ delay: index * 0.05, duration: 0.3 }}
-                                    className="p-4 sm:p-6 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
+                                    className="p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
                                 >
-                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                                         {/* File Icon */}
-                                        <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex-shrink-0">
-                                            <FiFile className="text-2xl text-blue-600 dark:text-blue-400" />
+                                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex-shrink-0">
+                                            <FiFile className="text-xl text-blue-600 dark:text-blue-400" />
                                         </div>
 
                                         {/* File Info */}
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="font-semibold text-gray-900 dark:text-white truncate mb-1">
+                                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate mb-1">
                                                 {file.fileName}
                                             </h3>
                                             
-                                            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                                            <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                                                 <span>{formatFileSize(file.fileSize)}</span>
                                                 <span className="flex items-center gap-1">
                                                     <FiClock className="text-xs" />
@@ -217,7 +208,7 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
                                             </div>
 
                                             {file.userNote && (
-                                                <div className="mt-2 flex items-start gap-2 text-sm">
+                                                <div className="mt-2 flex items-start gap-2 text-xs">
                                                     <FiFileText className="text-gray-400 flex-shrink-0 mt-0.5" />
                                                     <p className="text-gray-600 dark:text-gray-400 italic">
                                                         {file.userNote}
@@ -232,17 +223,17 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
                                                 href={file.downloadURL}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                                                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
                                                 aria-label={`Download ${file.fileName}`}
                                             >
-                                                <FiDownload className="text-lg" />
+                                                <FiDownload className="text-base" />
                                                 <span className="font-medium">Download</span>
                                             </a>
 
                                             <button
                                                 onClick={() => handleDelete(file.id, file.storagePath, file.fileName)}
                                                 disabled={isPending && deletingId === file.id}
-                                                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white rounded-lg transition-colors disabled:cursor-not-allowed"
+                                                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white rounded-lg transition-colors disabled:cursor-not-allowed text-sm"
                                                 aria-label={`Delete ${file.fileName}`}
                                             >
                                                 {isPending && deletingId === file.id ? (
@@ -252,7 +243,7 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <FiTrash2 className="text-lg" />
+                                                        <FiTrash2 className="text-base" />
                                                         <span className="font-medium">Delete</span>
                                                     </>
                                                 )}

@@ -25,15 +25,4 @@ const app = admin.apps.length
 const db = admin.firestore(app);
 const bucket = admin.storage(app).bucket(process.env.FIREBASE_STORAGE_BUCKET);
 
-if (!admin.apps.length) {
-    bucket.setCorsConfiguration([
-        {
-            origin: [process.env.NEXT_PUBLIC_APP_BASE_URL ?? ""],
-            method: ["GET", "HEAD", "PUT", "POST", "DELETE"],
-            responseHeader: ["Content-Type", "Access-Control-Allow-Origin"],
-            maxAgeSeconds: 3600,
-        },
-    ]).catch(() => {});
-}
-
 export { admin, db, bucket, FieldValue };

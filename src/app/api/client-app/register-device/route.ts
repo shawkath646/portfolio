@@ -47,7 +47,6 @@ export const POST = withClientAppAuth(async (req: NextRequest) => {
       );
     }
   } catch (error) {
-    console.error("Device registration failed:", error);
     if (error instanceof SyntaxError) {
       return NextResponse.json({ error: "Invalid JSON in request body." }, { status: 400 });
     }

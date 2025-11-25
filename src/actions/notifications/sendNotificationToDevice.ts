@@ -64,7 +64,6 @@ export const sendNotificationToDevice = async (props: SendMessageProps) => {
     const messageId = await admin.messaging().send(message);
     return messageId;
   } catch (error) {
-    console.error("Error sending notification:", error);
     throw new Error("Failed to send notification.");
   }
 };

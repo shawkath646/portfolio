@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyTokens } from './lib/auth';
+import { getClientIP } from './utils/getClientIP';
 
 const CLIENT_APP_API_KEY = process.env.CLIENT_APP_API_KEY;
 if (!CLIENT_APP_API_KEY) throw Error("Error: CLIENT_APP_API_KEY not found!");
@@ -9,6 +10,13 @@ if (!CLIENT_APP_API_KEY) throw Error("Error: CLIENT_APP_API_KEY not found!");
 export default async function proxy(request: NextRequest) {
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-url-path', request.nextUrl.pathname);
+    
+    // Extract and validate client IP with anti-spoofing protection
+    const clientIP = getClientIP(requestHeaders);
+    if (clientIP) {
+        // Set validated IP in a custom header for downstream use
+        requestHeaders.set('x-validated-ip', clientIP);
+    }
 
     const loginUrl = new URL('/admin/login', request.url);
 
@@ -20,11 +28,17 @@ export default async function proxy(request: NextRequest) {
         }
 
         const adminToken = request.cookies.get('admin-panel_access_token');
-        if (!adminToken?.value) return NextResponse.redirect(loginUrl);
+        if (!adminToken?.value) {
+            // Add redirect parameter to preserve intended destination
+            loginUrl.searchParams.set('redirect', request.nextUrl.pathname);
+            return NextResponse.redirect(loginUrl);
+        }
 
         const tokenValid = await verifyTokens(adminToken.value, "admin-panel");
 
         if (!tokenValid) {
+            // Add redirect parameter to preserve intended destination
+            loginUrl.searchParams.set('redirect', request.nextUrl.pathname);
             const response = NextResponse.redirect(loginUrl);
             response.cookies.delete('admin-panel_access_token');
             return response;
@@ -34,7 +48,6 @@ export default async function proxy(request: NextRequest) {
         const apiKey = requestHeaders.get("x-api-key");
 
         if (!apiKey) {
-            console.warn('API access denied: Missing x-api-key header.');
             return NextResponse.json(
                 {
                     success: false,
@@ -45,7 +58,6 @@ export default async function proxy(request: NextRequest) {
         }
 
         if (apiKey !== CLIENT_APP_API_KEY) {
-            console.warn('API access denied: Invalid API Key provided.');
             return NextResponse.json(
                 {
                     success: false,

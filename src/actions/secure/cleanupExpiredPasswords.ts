@@ -41,7 +41,6 @@ const cleanupExpiredPasswords = async (): Promise<CleanupResult> => {
             message: `Successfully removed ${snapshot.size} expired password${snapshot.size === 1 ? '' : 's'}`
         };
     } catch (error) {
-        console.error("Failed to cleanup expired passwords:", error);
         return { 
             success: false, 
             count: 0,

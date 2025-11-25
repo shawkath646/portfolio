@@ -1,14 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { FiHome, FiGrid, FiLogOut } from "react-icons/fi";
+import { FiLogOut } from "react-icons/fi";
 import siteLogout from "@/actions/secure/siteLogout";
 
 export default function AdminNavbar() {
-    const pathname = usePathname();
-    const isAdminHome = pathname === "/admin";
 
     const handleLogout = async () => {
         const confirmLogOut = confirm("Do you want to logout?");
@@ -24,31 +20,8 @@ export default function AdminNavbar() {
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
-                    {/* Left Section */}
-                    <div className="flex items-center gap-4">
-                        <Link
-                            href="/"
-                            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                            aria-label="Back to homepage"
-                        >
-                            <FiHome className="text-lg" />
-                            <span className="font-medium hidden sm:inline">Home</span>
-                        </Link>
-
-                        {!isAdminHome && (
-                            <Link
-                                href="/admin"
-                                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                                aria-label="Back to admin dashboard"
-                            >
-                                <FiGrid className="text-lg" />
-                                <span className="font-medium hidden sm:inline">Dashboard</span>
-                            </Link>
-                        )}
-                    </div>
-
                     {/* Center Section - Title */}
-                    <div className="absolute left-1/2 -translate-x-1/2">
+                    <div className="flex-1">
                         <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
                             Admin Panel
                         </h1>

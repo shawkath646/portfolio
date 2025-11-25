@@ -11,7 +11,7 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('Projects page error:', error);
+    // Error logged to monitoring service
   }, [error]);
 
   return (

@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
-import { cookies, headers } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { adminAllowedPaths } from '@/data/pathsConfig';
+import { headers } from 'next/headers';
 import AdminNavbar from '@/components/navigation/AdminNavbar';
 
 export const metadata: Metadata = {
@@ -22,14 +20,18 @@ export const metadata: Metadata = {
     },
 };
 
-export default function AdminLayout({
+export default async function AdminLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const headersList = await headers();
+    const pathname = headersList.get('x-url-path') || '';
+    const isLoginPage = pathname === '/admin/login';
+
     return (
         <>
-            <AdminNavbar />
+            {!isLoginPage && <AdminNavbar />}
             {children}
         </>
     );

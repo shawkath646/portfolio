@@ -196,7 +196,6 @@ export async function getProjectsData(): Promise<CategorizedProjects> {
 
         return categorizedProjects;
     } catch (error) {
-        console.error("Error fetching GitHub projects:", error);
         throw new Error("Failed to fetch GitHub projects");
     }
 }

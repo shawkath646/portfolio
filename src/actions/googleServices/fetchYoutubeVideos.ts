@@ -43,7 +43,6 @@ const fetchYouTubeVideos = cache(async () => {
 
         return { channel, videos };
     } catch (error) {
-        console.error("Error fetching YouTube videos:", error);
         return {
             channel: {
                 title: "Unavailable",

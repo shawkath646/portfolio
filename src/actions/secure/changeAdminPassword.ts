@@ -21,7 +21,6 @@ const changeAdminPassword = async (newPassword: string) => {
             message: "Admin password updated successfully"
         };
     } catch (error) {
-        console.error("Error updating admin password:", error);
         return {
             success: false,
             message: "Failed to update admin password. Please try again."

@@ -234,7 +234,7 @@ export const GeneratePasswordModal = ({ open, onClose, onSuccess }: GeneratePass
                 await navigator.clipboard.writeText(generatedPassword);
                 alert('Password copied to clipboard!');
             } catch (err) {
-                console.error('Failed to copy password:', err);
+                alert('Failed to copy password to clipboard');
             }
         }
     };

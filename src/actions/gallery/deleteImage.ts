@@ -15,16 +15,15 @@ export async function deleteImage(albumId: string, imageId: string, imagePath: s
         const fileName = imagePath.split('/').pop();
         if (fileName) {
             try {
-                await bucket.file(fileName).delete();
+                await bucket.file(imagePath).delete();
             } catch (storageError) {
-                console.error("Error deleting file from storage:", storageError);
+                // Storage deletion error handled silently
             }
         }
 
         revalidatePath(`/admin/gallery/${albumId}`);
         return { success: true };
     } catch (error) {
-        console.error("Error deleting image:", error);
         return { success: false, error: "Failed to delete image" };
     }
 }

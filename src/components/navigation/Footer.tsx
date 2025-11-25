@@ -2,6 +2,7 @@
 import { usePathname } from "next/navigation";
 import { footerDisallowedPaths } from "@/data/pathsConfig";
 import Link from "next/link";
+import Image from "next/image";
 
 // Quick navigation links
 const quickLinks = [
@@ -75,7 +76,20 @@ export default function Footer() {
               shawkath646
             </a>
             <span>&</span>
-            <span className="text-blue-400 font-semibold">CloudBurst Lab</span>
+            <a 
+              href="https://cloudburstlab.vercel.app" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center hover:opacity-80 transition-opacity duration-200"
+            >
+              <Image
+                src="https://cloudburstlab.vercel.app/api/branding/logo?variant=transparent"
+                alt="CloudBurst Lab"
+                width={120}
+                height={30}
+                className="h-5 w-auto"
+              />
+            </a>
           </p>
           
           <p className="text-gray-500">

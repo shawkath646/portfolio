@@ -11,8 +11,6 @@ async function handler() {
             data: adminData
         });
     } catch (error) {
-        console.error("Error fetching admin data:", error);
-        
         return NextResponse.json({
             success: false,
             message: "Failed to fetch admin data"

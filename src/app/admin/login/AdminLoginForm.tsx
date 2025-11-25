@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import getSiteAccess from "@/actions/secure/getSiteAccess";
 import { FiLock, FiEye, FiEyeOff, FiShield } from "react-icons/fi";
@@ -11,6 +11,8 @@ export default function AdminLoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get('redirect') || '/admin';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,10 +24,9 @@ export default function AdminLoginForm() {
       if (!response.success) {
         setError(response.message);
       } else if (response.success) {
-        router.push("/admin");
+        router.push(redirectUrl);
       }
     } catch (err) {
-      console.error("Login error:", err);
       setError("An unexpected error occurred. Please try again.");
     }
 

@@ -70,7 +70,6 @@ export default function PasswordManagement({ passwordList }: { passwordList: Pas
                 await removePassword(passwordId);
                 setDeletingId(null);
             } catch (error) {
-                console.error('Failed to delete password:', error);
                 setDeletingId(null);
             }
         });
@@ -271,9 +270,6 @@ export default function PasswordManagement({ passwordList }: { passwordList: Pas
                 onClose={handleCloseCleanupModal}
                 onSuccess={(count) => {
                     // Optional: Show a toast or notification about successful cleanup
-                    if (count > 0) {
-                        console.log(`Successfully cleaned up ${count} expired passwords`);
-                    }
                     handleCloseCleanupModal();
                 }}
                 expiredCount={expiredPasswordsCount}

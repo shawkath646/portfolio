@@ -210,7 +210,6 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
             reset();
             setImagePreview(null);
         } catch (error) {
-            console.error("Upload failed:", error);
             alert("Failed to upload image");
         }
     });

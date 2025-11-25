@@ -70,7 +70,6 @@ export default function LoginWithDevices({ reachableDevices, redirectUrl }: Logi
         } catch (error) {
             setStep('error');
             setErrorMessage('Authentication failed. Please try again.');
-            console.error('Error during device authentication:', error);
         }
     };
 

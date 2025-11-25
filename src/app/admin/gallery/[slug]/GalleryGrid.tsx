@@ -34,7 +34,7 @@ export default function GalleryGrid({ albumId, initialImages, hasMore: initialHa
             setImages(prev => [...prev, ...response.images]);
             setHasMore(response.hasMore);
         } catch (error) {
-            console.error("Error loading more images:", error);
+            // Error loading more images
         } finally {
             setLoading(false);
         }
@@ -55,7 +55,6 @@ export default function GalleryGrid({ albumId, initialImages, hasMore: initialHa
                 alert(result.error || "Failed to delete image");
             }
         } catch (error) {
-            console.error("Error deleting image:", error);
             alert("Failed to delete image");
         } finally {
             setDeletingId(null);

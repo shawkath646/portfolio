@@ -42,7 +42,6 @@ export const fetchGallerySnapshot = cache(async (limit: number = 15): Promise<Ga
 
         return sortedImages;
     } catch (error) {
-        console.error("Error fetching gallery snapshot:", error);
         return [];
     }
 });

@@ -5,6 +5,7 @@ import EducationFlowChart from "./EducationFlowChart";
 import WorkExperience from "./WorkExperience";
 import Achievements from "./Achievements";
 import PersonalLifeSection from "./PersonalLifeSection";
+import GalleryNavigation from "./GalleryNavigation";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL || "https://shawkath646.pro";
 
@@ -70,6 +71,7 @@ export default function About() {
       <EducationFlowChart />
       <WorkExperience />
       <Achievements />
+      <GalleryNavigation />
       <PersonalLifeSection />
     </main>
   );

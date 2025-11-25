@@ -228,22 +228,27 @@ shawkath646-portfolio/
 | Route | Description | Features |
 |-------|-------------|----------|
 | `/` | Home page | Hero section, skills, projects, YouTube videos, task board |
-| `/about` | About me | Professional background, education, work experience |
+| `/about` | About me | Professional background, education, work experience, achievements |
 | `/about/gallery` | Photo gallery | Album listing with preview images |
-| `/about/gallery/[slug]` | Album details | View images in a specific album |
-| `/contact` | Contact page | Contact form, social links, Buy Me a Coffee |
+| `/about/gallery/[albumSlug]` | Album details | View images in a specific album with lightbox |
+| `/about/gallery/[albumSlug]/[imageSlug]` | Image detail | Individual image view with metadata |
+| `/about/friends-corner` | Friends Corner | Protected page celebrating friendships (password required) |
+| `/about/love-corner` | Love Corner | Protected page about love and relationships (password required) |
+| `/about/personal-life` | Personal Life | Protected intimate glimpse into personal journey (password required) |
+| `/contact` | Contact page | Contact form, social links, Buy Me a Coffee integration |
 | `/projects` | Projects portfolio | GitHub repositories categorized by type (Web, Android, Libraries) |
-| `/blog` | Blog listing | Articles and tutorials (upcoming) |
+| `/share` | File sharing | Public file sharing page |
 
 ### **Admin Routes** (Protected)
 
 | Route | Description | Access |
 |-------|-------------|--------|
-| `/admin` | Admin dashboard | Requires authentication |
-| `/admin/login` | Login page | Public |
-| `/admin/gallery` | Gallery management | Admin only |
-| `/admin/gallery/[slug]` | Album editor | Admin only |
-| `/admin/security` | Security settings | Admin only |
+| `/admin` | Admin dashboard | Requires admin authentication |
+| `/admin/login` | Login page | Public, with redirect to intended page support |
+| `/admin/gallery` | Gallery management | Admin only - manage albums and images |
+| `/admin/gallery/[slug]` | Album editor | Admin only - upload, delete, manage album images |
+| `/admin/security` | Security settings | Admin only - password generation, login attempts |
+| `/admin/shared-files` | File management | Admin only - manage shared files and uploads |
 
 ### **API Endpoints**
 
@@ -256,6 +261,18 @@ shawkath646-portfolio/
 | `/api/client-app/register-device` | `POST` | Register FCM token for push notifications |
 | `/api/client-app/admin-data` | `GET` | Fetch admin information |
 
+#### **Social API**
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/social` | `GET` | Fetch social media links and profiles |
+
+#### **File Upload API**
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/upload-shared-file` | `POST` | Upload files to shared storage |
+
 #### **Test API**
 
 | Endpoint | Method | Description |
@@ -264,9 +281,27 @@ shawkath646-portfolio/
 
 ### **Dynamic Routes**
 
-- **Sitemap**: `/sitemap.xml` - XML sitemap with all routes and images
+- **Sitemap**: `/sitemap.xml` - XML sitemap with all public routes and gallery images
 - **Robots**: `/robots.txt` - Search engine crawler instructions
-- **Manifest**: `/manifest.webmanifest` - PWA manifest file
+- **Manifest**: `/manifest.webmanifest` - PWA manifest file for installable app
+- **OpenGraph Image**: `/opengraph-image.png` - Social media preview image
+
+### **Protected Content Features**
+
+Three special pages under `/about` require temporary password access:
+
+- **Friends Corner** - Dedicated space for friendships and shared memories
+- **Love Corner** - Heartfelt content about love and relationships  
+- **Personal Life** - Intimate glimpse into personal journey
+
+**Access Control:**
+- Admin users bypass password requirement automatically
+- Visitors need temporary password from admin
+- Passwords can have expiration dates and usage limits
+- Generate passwords from `/admin/security` panel
+- Beautiful login UI with CloudBurst Lab branding
+- SEO-friendly (search engines can index, but content requires login)
+- IP-based rate limiting and anti-spoofing protection
 
 ---
 
@@ -461,7 +496,7 @@ The project is compatible with any platform supporting Next.js:
 
 <div align="center">
 
-<img src="/public/cloudburst_lab_logo_transparent.png" alt="Cloudburst Lab" width="200" />
+<img src="https://cloudburstlab.vercel.app/api/branding/logo?variant=transparent" alt="Cloudburst Lab" width="200" />
 
 ### **Cloudburst Lab**
 

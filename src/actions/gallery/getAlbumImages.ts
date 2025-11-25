@@ -41,7 +41,6 @@ export const getAlbumDetails = cache(async (albumSlug: string): Promise<AlbumDet
             imageCount: imagesSnapshot.data().count
         };
     } catch (error) {
-        console.error("Error fetching album details:", error);
         return null;
     }
 });
@@ -103,7 +102,6 @@ export const getAlbumImages = async (
             total: totalSnapshot.data().count
         };
     } catch (error) {
-        console.error("Error fetching album images:", error);
         return {
             images: [],
             hasMore: false,
@@ -150,7 +148,6 @@ export const getImageBySlug = cache(async (
             timestamp: timestampToDate(data.timestamp)
         };
     } catch (error) {
-        console.error("Error fetching image by slug:", error);
         return null;
     }
 });

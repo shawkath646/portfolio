@@ -21,23 +21,18 @@ export default function UserUploadsList() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        console.log("[UserUploadsList] Component mounted, loading uploads...");
         loadUploads();
     }, []);
 
     const loadUploads = async () => {
-        console.log("[UserUploadsList] loadUploads called");
         setLoading(true);
         setError(null);
         
         const result = await getSharedFileUploads();
-        console.log("[UserUploadsList] getSharedFileUploads result:", result);
         
         if (result.success && result.uploads) {
-            console.log("[UserUploadsList] Setting", result.uploads.length, "uploads");
             setUploads(result.uploads);
         } else {
-            console.log("[UserUploadsList] Error:", result.error);
             setError(result.error || "Failed to load uploads");
         }
         
