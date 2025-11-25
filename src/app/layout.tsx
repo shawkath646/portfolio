@@ -7,6 +7,7 @@ import NoJavaScript from "@/components/NoJavaScript";
 import getJsonLd from "@/actions/dataFetch/getJsonLd";
 import "./globals.css";
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL || "https://shawkath646.pro";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
   description:
     "Full-stack developer and Computer Science student at Sejong University specializing in React, Next.js, TypeScript, and Android development. Building modern web applications and mobile solutions with cutting-edge technologies.",
   applicationName: "Shawkat Hossain Maruf Portfolio",
-  metadataBase: new URL("https://shawkath646.pro"),
+  metadataBase: new URL(baseUrl),
   generator: "Next.js",
   referrer: "origin-when-cross-origin",
   keywords: [
@@ -58,7 +59,7 @@ export const metadata: Metadata = {
   ],
   authors: {
     name: "Shawkat Hossain Maruf",
-    url: "https://shawkath646.pro",
+    url: baseUrl,
   },
   creator: "Shawkat Hossain Maruf",
   publisher: "Shawkat Hossain Maruf",
@@ -82,7 +83,7 @@ export const metadata: Metadata = {
     siteName: "Shawkat Hossain Maruf Portfolio",
     images: [
       {
-        url: "https://shawkath646.pro/profile.jpg",
+        url: `${baseUrl}/profile.jpg`,
         width: 1200,
         height: 630,
         alt: "Shawkat Hossain Maruf - Full-stack Developer",

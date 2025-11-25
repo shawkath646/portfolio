@@ -11,6 +11,8 @@ import Pagination from "@/components/navigation/Pagination";
 import fetchYouTubeVideos from "@/actions/googleServices/fetchYoutubeVideos";
 import { fetchGallerySnapshot } from "@/actions/gallery/fetchGallerySnapshot";
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL || "https://shawkath646.pro";
+
 export const metadata: Metadata = {
   title: "Shawkat Hossain Maruf - Full-Stack Developer & Software Engineer",
   description: "Full-stack developer and Computer Science student at Sejong University specializing in React, Next.js, TypeScript, and Android development. Building modern web applications and mobile solutions with cutting-edge technologies.",
@@ -31,18 +33,18 @@ export const metadata: Metadata = {
     "Tech Projects",
   ],
   alternates: {
-    canonical: "https://shawkath646.pro",
+    canonical: baseUrl,
   },
   openGraph: {
     title: "Shawkat Hossain Maruf - Full-Stack Developer & Software Engineer",
-    description: "Full-stack developer and Computer Science student at Sejong University specializing in React, Next.js, TypeScript, and Android development.",
-    url: "https://shawkath646.pro",
+    description: "Explore the portfolio of a full-stack developer specializing in React, Next.js, and Android development. Building modern web and mobile solutions.",
+    url: baseUrl,
     siteName: "Shawkat Hossain Maruf Portfolio",
     locale: "en_US",
     type: "website",
     images: [
       {
-        url: "https://shawkath646.pro/profile.jpg",
+        url: `${baseUrl}/profile.jpg`,
         width: 1200,
         height: 630,
         alt: "Shawkat Hossain Maruf - Full Stack Developer",
@@ -55,7 +57,7 @@ export const metadata: Metadata = {
     creator: "@shawkath646",
     title: "Shawkat Hossain Maruf - Full Stack Developer & Software Engineer",
     description: "Explore innovative web applications, Android apps, and data analysis projects.",
-    images: ["https://shawkath646.pro/profile.jpg"],
+    images: [`${baseUrl}/profile.jpg`],
   },
 };
 

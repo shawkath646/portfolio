@@ -6,6 +6,8 @@ import WorkExperience from "./WorkExperience";
 import Achievements from "./Achievements";
 import PersonalLifeSection from "./PersonalLifeSection";
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL || "https://shawkath646.pro";
+
 // Enhanced metadata for better SEO
 export const metadata: Metadata = {
   title: "About Shawkat Hossain Maruf - Computer Science Student & Developer",
@@ -24,18 +26,18 @@ export const metadata: Metadata = {
     "Software Development",
   ],
   alternates: {
-    canonical: "https://shawkath646.pro/about"
+    canonical: `${baseUrl}/about`
   },
   openGraph: {
     title: "About Shawkat Hossain Maruf - Computer Science Student & Developer",
     description: "Discover my academic journey, technical skills, and aspirations as a Computer Science student at Sejong University and aspiring software engineer.",
-    url: "https://shawkath646.pro/about",
+    url: `${baseUrl}/about`,
     siteName: "Shawkat Hossain Maruf Portfolio",
     locale: "en_US",
     type: "profile",
     images: [
       {
-        url: "https://shawkath646.pro/profile.jpg",
+        url: `${baseUrl}/profile.jpg`,
         width: 1200,
         height: 630,
         alt: "Shawkat Hossain Maruf - Computer Science Student",
@@ -48,7 +50,7 @@ export const metadata: Metadata = {
     creator: "@shawkath646",
     title: "About Shawkat Hossain Maruf - Computer Science Student & Developer",
     description: "Discover my academic journey, technical skills, and aspirations as a Computer Science student and aspiring software engineer.",
-    images: ["https://shawkath646.pro/profile.jpg"],
+    images: [`${baseUrl}/profile.jpg`],
   },
 };
 

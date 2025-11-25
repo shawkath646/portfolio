@@ -3,7 +3,8 @@ import BuyMeACoffee from "./BuyMeACoffee";
 import Connections from "./Connections";
 import ContactForm from "./ContactForm";
 
-// Enhanced metadata specifically for the contact page
+const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL || "https://shawkath646.pro";
+
 export const metadata: Metadata = {
   title: "Contact Shawkat Hossain Maruf - Get in Touch for Projects & Collaborations",
   description: "Get in touch with Shawkat Hossain Maruf for web development projects, software engineering opportunities, collaborations, or networking. Available through LinkedIn, email, GitHub, and various messaging platforms.",
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://shawkath646.pro/profile.jpg",
+        url: `${baseUrl}/profile.jpg`,
         width: 1200,
         height: 630,
         alt: "Contact Shawkat Hossain Maruf",

@@ -2,6 +2,8 @@ import { Metadata } from "next";
 import GalleryView from "./GalleryView";
 import { getGalleryAlbums } from "@/actions/gallery/albumManagement";
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL || "https://shawkath646.pro";
+
 export const metadata: Metadata = {
   title: "Photography Gallery - Captured Moments by Shawkat Hossain Maruf",
   description: "Explore Shawkat Hossain Maruf's photography gallery showcasing captured moments, travel experiences, and creative work organized in albums. View stunning photos from various locations and events.",
@@ -16,18 +18,18 @@ export const metadata: Metadata = {
     "Image Gallery",
   ],
   alternates: {
-    canonical: "https://shawkath646.pro/about/gallery",
+    canonical: `${baseUrl}/about/gallery`,
   },
   openGraph: {
     title: "Photography Gallery - Captured Moments by Shawkat Hossain Maruf",
     description: "Explore my photography gallery showcasing captured moments, travel experiences, and creative work organized in albums.",
-    url: "https://shawkath646.pro/about/gallery",
+    url: `${baseUrl}/about/gallery`,
     siteName: "Shawkat Hossain Maruf Portfolio",
     locale: "en_US",
     type: "website",
     images: [
       {
-        url: "https://shawkath646.pro/profile.jpg",
+        url: `${baseUrl}/profile.jpg`,
         width: 1200,
         height: 630,
         alt: "Photography Gallery by Shawkat Hossain Maruf",
@@ -40,7 +42,7 @@ export const metadata: Metadata = {
     creator: "@shawkath646",
     title: "Photography Gallery - Captured Moments by Shawkat Hossain Maruf",
     description: "Explore my photography gallery showcasing captured moments and creative work.",
-    images: ["https://shawkath646.pro/profile.jpg"],
+    images: [`${baseUrl}/profile.jpg`],
   },
 };
 

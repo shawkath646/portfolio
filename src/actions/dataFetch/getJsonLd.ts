@@ -59,6 +59,7 @@ interface WebPage {
 interface PersonSchema {
   "@context": "https://schema.org";
   "@type": "Person";
+  "@id"?: string;
   name: string;
   alternateName: string[];
   url: string;
@@ -86,6 +87,7 @@ const getJsonLd = cache(async () => {
   const docRef = await db.collection("site-config").doc("jsonLd").get();
   const jsonLd = docRef.data() as PersonSchema;
   
+  jsonLd["@id"] = `${process.env.NEXT_PUBLIC_APP_BASE_URL}/#person`;
   jsonLd.sameAs = [...(jsonLd.sameAs || []), ...socialLinksArray];
   
   return jsonLd;

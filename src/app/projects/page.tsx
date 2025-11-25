@@ -2,6 +2,8 @@ import { Metadata } from 'next';
 import ProjectsClient from './ProjectsClient';
 import { getProjectsData } from '@/actions/dataFetch/getProjectsData';
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL || "https://shawkath646.pro";
+
 export const metadata: Metadata = {
   title: "Projects Portfolio - Shawkat Hossain Maruf (shawkath646) | Full-Stack Developer",
   description: "Browse 100+ projects by Shawkat Hossain Maruf (shawkath646) - Full-stack developer specializing in React, Next.js, TypeScript. View web applications, mobile apps, open-source libraries, and client work on GitHub.",
@@ -23,23 +25,23 @@ export const metadata: Metadata = {
   ],
   authors: {
     name: "Shawkat Hossain Maruf",
-    url: "https://shawkath646.pro",
+    url: baseUrl,
   },
   creator: "Shawkat Hossain Maruf (shawkath646)",
   publisher: "Shawkat Hossain Maruf",
   alternates: {
-    canonical: "https://shawkath646.pro/projects",
+    canonical: `${baseUrl}/projects`,
   },
   openGraph: {
     title: "Projects Portfolio - Shawkat Hossain Maruf (shawkath646)",
     description: "Browse 100+ projects by Shawkat Hossain Maruf - Full-stack developer. React, Next.js, TypeScript, mobile apps, open-source libraries, and more.",
-    url: "https://shawkath646.pro/projects",
+    url: `${baseUrl}/projects`,
     siteName: "Shawkat Hossain Maruf Portfolio",
     locale: "en_US",
     type: "profile",
     images: [
       {
-        url: "https://shawkath646.pro/profile.jpg",
+        url: `${baseUrl}/profile.jpg`,
         width: 1200,
         height: 630,
         alt: "Shawkat Hossain Maruf - Projects Portfolio",
@@ -52,7 +54,7 @@ export const metadata: Metadata = {
     creator: "@shawkath646",
     title: "Projects Portfolio - Shawkat Hossain Maruf (shawkath646)",
     description: "Browse 100+ projects by Shawkat Hossain Maruf - React, Next.js, TypeScript, mobile apps, and more.",
-    images: ["https://shawkath646.pro/profile.jpg"],
+    images: [`${baseUrl}/profile.jpg`],
   },
 };
 

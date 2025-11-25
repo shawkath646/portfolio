@@ -2,9 +2,10 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import GalleryGrid from "./GalleryGrid";
-import DeleteAlbumButton from "@/app/about/gallery/[slug]/DeleteAlbumButton";
 import { getAlbumDetails, getAlbumImages } from "@/actions/gallery/getAlbumImages";
 import { FiArrowLeft, FiFolder } from "react-icons/fi";
+
+const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL || "https://shawkath646.pro";
 
 interface AlbumPageProps {
     params: Promise<{ albumSlug: string }>;
@@ -39,18 +40,18 @@ export async function generateMetadata({ params }: AlbumPageProps): Promise<Meta
             "Photo Collection",
         ],
         alternates: {
-            canonical: `https://shawkath646.pro/about/gallery/${albumSlug}`,
+            canonical: `${baseUrl}/about/gallery/${albumSlug}`,
         },
         openGraph: {
             title: `${albumDetails.name} - Photo Album`,
             description: `View ${albumDetails.imageCount} ${albumDetails.imageCount === 1 ? "photo" : "photos"} from this album.`,
-            url: `https://shawkath646.pro/about/gallery/${albumSlug}`,
+            url: `${baseUrl}/about/gallery/${albumSlug}`,
             siteName: "Shawkat Hossain Maruf Portfolio",
             locale: "en_US",
             type: "website",
             images: [
                 {
-                    url: "https://shawkath646.pro/profile.jpg",
+                    url: `${baseUrl}/profile.jpg`,
                     width: 1200,
                     height: 630,
                     alt: `${albumDetails.name} Photo Album`,
@@ -63,7 +64,7 @@ export async function generateMetadata({ params }: AlbumPageProps): Promise<Meta
             creator: "@shawkath646",
             title: `${albumDetails.name} - Photo Album`,
             description: `View ${albumDetails.imageCount} ${albumDetails.imageCount === 1 ? "photo" : "photos"} from this album.`,
-            images: ["https://shawkath646.pro/profile.jpg"],
+            images: [`${baseUrl}/profile.jpg`],
         },
     };
 }
@@ -107,11 +108,6 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
                                         </time>
                                     </p>
                                 </div>
-                            </div>
-                            
-                            {/* Delete Album Button */}
-                            <div className="flex items-center">
-                                <DeleteAlbumButton albumId={albumDetails.id} albumName={albumDetails.name} />
                             </div>
                         </div>
                     </div>
