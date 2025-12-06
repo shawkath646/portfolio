@@ -4,13 +4,11 @@
 
 ### Full-Stack Developer | Software Engineer | Mobile App Developer
 
-[![Next.js](https://img.shields.io/badge/Next.js-16.0.0-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.0.7-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Firebase](https://img.shields.io/badge/Firebase-Admin-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
-
-[🌐 Live Demo](https://shawkath646.pro) • [📧 Contact](mailto:shawkath646@gmail.com) • [💼 LinkedIn](https://linkedin.com/in/shawkath645)
 
 </div>
 
@@ -122,7 +120,7 @@ This portfolio serves multiple purposes:
 
 </div>
 
-- **Next.js 16.0.0** - React framework with App Router and Turbopack
+- **Next.js 16.0.7** - React framework with App Router and Turbopack
 - **React 19.2.0** - Latest React with Server Components
 - **TypeScript 5.x** - Type-safe development experience
 - **Tailwind CSS 4.0** - Utility-first CSS framework
@@ -492,25 +490,19 @@ The project is compatible with any platform supporting Next.js:
 
 ---
 
-## 🏢 Made By
+## 🏢 Powered By
 
 <div align="center">
 
 <img src="https://cloudburstlab.vercel.app/api/branding/logo?variant=transparent" alt="Cloudburst Lab" width="200" />
 
-### **Cloudburst Lab**
-
-*Innovating Digital Solutions*
-
-[Website](https://cloudburstlab.com) • [Projects](https://cloudburstlab.com/projects) • [Contact](https://cloudburstlab.com/contact)
-
----
 
 **Cloudburst Lab** is a digital innovation studio focused on creating exceptional web and mobile applications. We specialize in modern JavaScript frameworks, cloud technologies, and user-centric design principles.
 
+<br />
+
 </div>
 
----
 
 ## 📄 License
 
@@ -543,9 +535,5 @@ The source code is available for viewing and learning purposes. For commercial u
 <div align="center">
 
 ### ⭐ Star this repository if you find it helpful
-
-**Built with ❤️ by [Shawkat Hossain Maruf](https://shawkath646.pro)**
-
-**Powered by [Cloudburst Lab](https://cloudburstlab.vercel.app)**
 
 </div>
