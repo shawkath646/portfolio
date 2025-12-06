@@ -12,7 +12,7 @@ const navigation = [
     { name: "Home", href: "/", description: "Welcome to my portfolio" },
     { name: "About", href: "/about", description: "Learn about my background and experience" },
     { name: "Projects", href: "/projects", description: "View my latest projects and work" },
-    { name: "Blog", href: "/blog", description: "Read my thoughts and tutorials" },
+    { name: "Blog", href: "#", description: "Read my thoughts and tutorials" },
     { name: "Contact", href: "/contact", description: "Get in touch with me" },
 ];
 

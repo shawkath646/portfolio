@@ -1,6 +1,6 @@
 "use client";
 import { Fragment, useState, useTransition } from 'react';
-import { Dialog, DialogTitle, Transition, Radio, RadioGroup } from '@headlessui/react';
+import { Dialog, DialogTitle, DialogDescription, Transition, Radio, RadioGroup } from '@headlessui/react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { generatePassword } from '@/actions/secure/passwordFunc';
 import { FiPlus, FiRefreshCw, FiCheck, FiX, FiKey, FiCopy } from 'react-icons/fi';
@@ -353,12 +353,12 @@ export const GeneratePasswordModal = ({ open, onClose, onSuccess }: GeneratePass
                                                     <DialogTitle className="text-xl font-bold text-white">
                                                         {step === 'config' ? 'Generate Site Password' : 'Password Generated!'}
                                                     </DialogTitle>
-                                                    <p className="text-purple-100 text-sm mt-1">
+                                                    <DialogDescription className="text-purple-100 text-sm mt-1">
                                                         {step === 'config'
                                                             ? 'Create a secure password with custom settings'
                                                             : 'Your secure password is ready to use'
                                                         }
-                                                    </p>
+                                                    </DialogDescription>
                                                 </div>
                                             </div>
                                             <button

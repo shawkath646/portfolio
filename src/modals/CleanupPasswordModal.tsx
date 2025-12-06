@@ -1,6 +1,6 @@
 "use client";
 import { Fragment, useState, useTransition } from 'react';
-import { Dialog, DialogTitle, Transition } from '@headlessui/react';
+import { Dialog, DialogTitle, DialogDescription, Transition } from '@headlessui/react';
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { FiTrash2, FiX, FiCheck, FiAlertTriangle, FiLoader } from 'react-icons/fi';
 import cleanupExpiredPasswords from '@/actions/secure/cleanupExpiredPasswords';
@@ -135,12 +135,12 @@ export const CleanupPasswordModal = ({ open, onClose, onSuccess, expiredCount = 
                                                     <DialogTitle className="text-xl font-bold text-white">
                                                         {result ? 'Cleanup Complete' : 'Clean Up Expired Passwords'}
                                                     </DialogTitle>
-                                                    <p className="text-orange-50 text-sm mt-1">
+                                                    <DialogDescription className="text-orange-50 text-sm mt-1">
                                                         {result 
                                                             ? `${result.success ? 'Successfully removed' : 'Failed to remove'} expired passwords`
                                                             : 'Remove all expired passwords from the system'
                                                         }
-                                                    </p>
+                                                    </DialogDescription>
                                                 </div>
                                             </div>
                                             <button

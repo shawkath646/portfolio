@@ -8,8 +8,8 @@ import Image from "next/image";
 const quickLinks = [
   { name: "Admin Panel", href: "/admin" },
   { name: "Sitemap", href: "/sitemap.xml" },
-  { name: "Privacy Policy", href: "/privacy" },
-  { name: "Terms of Service", href: "/terms" },
+  { name: "Privacy Policy", href: "#" },
+  { name: "Terms of Service", href: "#" },
 ];
 
 export default function Footer() {
