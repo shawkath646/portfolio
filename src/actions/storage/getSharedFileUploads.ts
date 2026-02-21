@@ -1,12 +1,11 @@
 "use server";
 
-import { db } from "@/lib/firebase";
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
+import { db } from "@/lib/firebase";
+import { getEnv } from "@/utils/getEnv";
 
-const JWT_SECRET = new TextEncoder().encode(
-    process.env.JWT_SECRET || "your-secret-key-change-in-production"
-);
+const JWT_SECRET = new TextEncoder().encode(getEnv("FILE_HISTORY_COOKIE_SECRET"));
 
 interface SharedFileUpload {
     id: string;
@@ -43,7 +42,7 @@ export async function addFileToUserTracking(fileId: string): Promise<void> {
 
     cookieStore.set("shared_files", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: getEnv("NODE_ENV") === "production",
         sameSite: "lax",
         maxAge: 365 * 24 * 60 * 60,
         path: "/",
@@ -98,7 +97,7 @@ export async function getSharedFileUploads(): Promise<{ success: boolean; upload
         uploads.sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
 
         return { success: true, uploads };
-    } catch (error: any) {
-        return { success: false, error: `Failed to fetch uploads: ${error.message}` };
+    } catch (error: unknown) {
+        return { success: false, error: `Failed to fetch uploads: ${error instanceof Error ? error.message : "Unknown error"}` };
     }
 }

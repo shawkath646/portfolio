@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { motion, Variants, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import Image from "next/image";
+import Link from "next/link";
+import { motion, Variants, useAnimation } from "framer-motion";
 import {
     FaCode,
     FaAndroid,
@@ -17,8 +17,8 @@ import {
     FaCloudDownloadAlt
 } from "react-icons/fa";
 import { IoIosArrowForward } from "react-icons/io";
-import AnimatedHeading from "./AnimatedHeading";
 import useReducedMotion from "@/hooks/useReducedMotion";
+import AnimatedHeading from "./AnimatedHeading";
 
 // Animation Variants with performance optimizations
 const containerVariants: Variants = {
@@ -87,7 +87,7 @@ function AnimatedBackground() {
     return (
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
             {/* Main gradient background - Lighter for light mode, darker for dark mode */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-400 via-cyan-400 to-blue-300 dark:from-slate-900/50 dark:via-blue-900/50 dark:to-slate-800/50" />
+            <div className="absolute inset-0 bg-linear-to-br from-blue-400 via-cyan-400 to-blue-300 dark:from-slate-900/50 dark:via-blue-900/50 dark:to-slate-800/50" />
             
             {/* Overlay gradients for depth */}
             <div className="absolute inset-0 bg-gradient-to-tr from-blue-300/40 via-transparent to-cyan-300/30 dark:from-blue-800/50 dark:via-transparent dark:to-cyan-800/30" />

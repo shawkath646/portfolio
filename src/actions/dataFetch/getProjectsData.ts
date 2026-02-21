@@ -1,5 +1,7 @@
 "use server";
 
+import { getEnv } from "@/utils/getEnv";
+
 interface GitHubRepo {
     id: number;
     name: string;
@@ -44,10 +46,10 @@ interface CategorizedProjects {
     Uncategorized: CategorizedProject[];
 }
 
-const GITHUB_USERNAME = process.env.GITHUB_USERNAME || "shawkath646";
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const GITHUB_USERNAME = getEnv("GITHUB_USERNAME");
+const GITHUB_TOKEN = getEnv("GITHUB_TOKEN");
 
-const categories = ["Personal", "Assignments", "Voluntary", "Client Work", "Public Release"] as const;
+//const categories = ["Personal", "Assignments", "Voluntary", "Client Work", "Public Release"] as const;
 
 export async function getProjectsData(): Promise<CategorizedProjects> {
     try {
@@ -195,7 +197,7 @@ export async function getProjectsData(): Promise<CategorizedProjects> {
         });
 
         return categorizedProjects;
-    } catch (error) {
+    } catch {
         throw new Error("Failed to fetch GitHub projects");
     }
 }

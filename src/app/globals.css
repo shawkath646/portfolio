@@ -199,3 +199,8 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: #555;
 }
+
+/* Hide reCAPTCHA badge by default (only show on restricted login pages) */
+.grecaptcha-badge {
+  display: none !important;
+}

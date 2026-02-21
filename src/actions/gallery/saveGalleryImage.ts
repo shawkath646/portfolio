@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { db, bucket } from "@/lib/firebase";
+import getErrorMessage from "@/utils/getErrorMessage";
 import { verifyFileExists } from "../storage/storageUtils";
 
 export interface GalleryImageType {
@@ -24,15 +25,6 @@ interface SaveGalleryImageParams {
     metadata: Omit<GalleryImageType, 'id' | 'src'>;
 }
 
-// Helper function to generate slug from text
-function generateSlug(text: string): string {
-    return text
-        .toLowerCase()
-        .trim()
-        .replace(/[^\w\s-]/g, '') // Remove special characters
-        .replace(/[\s_]+/g, '-') // Replace spaces and underscores with hyphens
-        .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
-}
 
 interface SaveGalleryImageResult {
     success: boolean;
@@ -70,7 +62,7 @@ export async function saveGalleryImage(params: SaveGalleryImageParams): Promise<
         revalidatePath("/about/gallery");
 
         return { success: true, imageId, publicURL };
-    } catch (error: any) {
-        return { success: false, error: `Failed to save image: ${error.message}` };
+    } catch (error) {
+        return { success: false, error: `Failed to save image: ${getErrorMessage(error)}` };
     }
 }

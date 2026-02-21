@@ -61,7 +61,7 @@ export async function submitFile(data: FileSubmissionData): Promise<{ success: b
         });
 
         return { success: true, fileId: docRef.id };
-    } catch (error: any) {
-        return { success: false, error: error.message || "Failed to submit file" };
+    } catch (error: unknown) {
+        return { success: false, error: error instanceof Error ? error.message : "Failed to submit file" };
     }
 }

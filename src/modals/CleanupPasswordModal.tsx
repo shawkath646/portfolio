@@ -1,14 +1,15 @@
 "use client";
 import { Fragment, useState, useTransition } from 'react';
-import { Dialog, DialogTitle, DialogDescription, Transition } from '@headlessui/react';
+import { Dialog, DialogTitle, Description, Transition } from '@headlessui/react';
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { FiTrash2, FiX, FiCheck, FiAlertTriangle, FiLoader } from 'react-icons/fi';
-import cleanupExpiredPasswords from '@/actions/secure/cleanupExpiredPasswords';
+import { cleanupExpirePassword } from '@/actions/genericAuth/passwordManagement';
+import { APIResponseType } from '@/types/common.types';
 
 interface CleanupPasswordModalProps {
     open: boolean;
     onClose: () => void;
-    onSuccess?: (count: number) => void;
+    onSuccess?: (message: string) => void;
     expiredCount?: number;
 }
 
@@ -73,7 +74,7 @@ export const CleanupPasswordButton = ({ isOpen, onOpen, expiredCount = 0 }: { is
             </div>
 
             {/* Animated background */}
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-400/10 to-red-400/10 dark:from-orange-400/20 dark:to-red-400/20 opacity-0 hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-linear-to-r from-orange-400/10 to-red-400/10 dark:from-orange-400/20 dark:to-red-400/20 opacity-0 hover:opacity-100 transition-opacity duration-300" />
         </motion.button>
     );
 };
@@ -82,7 +83,7 @@ export const CleanupPasswordButton = ({ isOpen, onOpen, expiredCount = 0 }: { is
 export const CleanupPasswordModal = ({ open, onClose, onSuccess, expiredCount = 0 }: CleanupPasswordModalProps) => {
     const shouldReduceMotion = useReducedMotion();
     const [isPending, startTransition] = useTransition();
-    const [result, setResult] = useState<{success: boolean; count: number; message?: string} | null>(null);
+    const [result, setResult] = useState<APIResponseType | null>(null);
 
     // Animation variants
     const backdropVariants = createBackdropVariants(shouldReduceMotion ?? false);
@@ -90,10 +91,10 @@ export const CleanupPasswordModal = ({ open, onClose, onSuccess, expiredCount = 
 
     const handleCleanup = () => {
         startTransition(async () => {
-            const result = await cleanupExpiredPasswords();
-            setResult(result);
-            if (result.success && onSuccess) {
-                onSuccess(result.count);
+            const response = await cleanupExpirePassword();
+            setResult(response);
+            if (response.success && onSuccess) {
+                onSuccess(response.message);
             }
         });
     };
@@ -125,28 +126,28 @@ export const CleanupPasswordModal = ({ open, onClose, onSuccess, expiredCount = 
                                     className="w-full max-w-md rounded-3xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl ring-1 ring-gray-200/70 dark:ring-gray-700/50 overflow-hidden"
                                 >
                                     {/* Modal Header */}
-                                    <div className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 p-5">
+                                    <div className="border-b border-indigo-100/50 dark:border-indigo-900/40 bg-white/80 dark:bg-gray-900/80 backdrop-blur p-5">
                                         <div className="flex items-start justify-between">
                                             <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                                <div className="p-2 bg-linear-to-br from-blue-600 via-indigo-600 to-fuchsia-600 rounded-xl shadow-md" aria-hidden="true">
                                                     <FiTrash2 className="text-white text-xl" />
                                                 </div>
                                                 <div>
-                                                    <DialogTitle className="text-xl font-bold text-white">
+                                                    <DialogTitle className="text-xl font-bold bg-linear-to-r from-blue-900 via-indigo-800 to-fuchsia-700 dark:from-white dark:via-indigo-200 dark:to-pink-200 bg-clip-text text-transparent">
                                                         {result ? 'Cleanup Complete' : 'Clean Up Expired Passwords'}
                                                     </DialogTitle>
-                                                    <DialogDescription className="text-orange-50 text-sm mt-1">
-                                                        {result 
+                                                    <Description className="text-gray-600 dark:text-gray-300 text-sm mt-1">
+                                                        {result
                                                             ? `${result.success ? 'Successfully removed' : 'Failed to remove'} expired passwords`
                                                             : 'Remove all expired passwords from the system'
                                                         }
-                                                    </DialogDescription>
+                                                    </Description>
                                                 </div>
                                             </div>
                                             <button
                                                 onClick={handleClose}
                                                 disabled={isPending}
-                                                className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition disabled:opacity-50"
+                                                className="p-2 text-gray-500 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100/70 dark:hover:bg-white/10 rounded-xl transition disabled:opacity-50"
                                                 aria-label="Close"
                                             >
                                                 <FiX className="h-5 w-5" />
@@ -159,13 +160,13 @@ export const CleanupPasswordModal = ({ open, onClose, onSuccess, expiredCount = 
                                         {!result ? (
                                             /* Confirmation Step */
                                             <div className="space-y-6">
-                                                <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4 flex items-start gap-3">
-                                                    <FiAlertTriangle className="text-orange-500 text-xl flex-shrink-0 mt-0.5" />
+                                                <div className="bg-indigo-50/60 dark:bg-indigo-900/20 border border-indigo-100/70 dark:border-indigo-800/60 rounded-xl p-4 flex items-start gap-3">
+                                                    <FiAlertTriangle className="text-indigo-600 dark:text-indigo-200 text-xl shrink-0 mt-0.5" />
                                                     <div>
-                                                        <h3 className="font-semibold text-orange-800 dark:text-orange-300 mb-1">
+                                                        <h3 className="font-semibold text-indigo-900 dark:text-indigo-100 mb-1">
                                                             Cleanup Confirmation
                                                         </h3>
-                                                        <p className="text-sm text-orange-700 dark:text-orange-200">
+                                                        <p className="text-sm text-indigo-700 dark:text-indigo-200">
                                                             This action will permanently remove all expired passwords from the system.
                                                             {expiredCount > 0 ? ` ${expiredCount} expired password${expiredCount === 1 ? '' : 's'} will be deleted.` : ' No expired passwords were found.'}
                                                         </p>
@@ -187,7 +188,7 @@ export const CleanupPasswordModal = ({ open, onClose, onSuccess, expiredCount = 
                                                         whileTap={{ scale: shouldReduceMotion ? 1 : 0.98 }}
                                                         onClick={handleCleanup}
                                                         disabled={isPending || expiredCount === 0}
-                                                        className="px-4 sm:px-6 py-2 rounded-md sm:rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2 text-sm"
+                                                        className="px-4 py-2 rounded-lg bg-linear-to-r from-blue-600 via-indigo-600 to-fuchsia-600 text-white font-semibold hover:from-blue-700 hover:via-indigo-700 hover:to-fuchsia-700 transition-all disabled:opacity-50 flex items-center gap-2 text-sm"
                                                     >
                                                         {isPending ? (
                                                             <>
@@ -213,14 +214,12 @@ export const CleanupPasswordModal = ({ open, onClose, onSuccess, expiredCount = 
                                                         ? { duration: 0.1 }
                                                         : { type: "spring", stiffness: 200, damping: 10 }
                                                     }
-                                                    className={`mx-auto w-20 h-20 rounded-full flex items-center justify-center ${
-                                                        result.success ? 'bg-gradient-to-r from-green-400 to-emerald-500' : 'bg-gradient-to-r from-red-400 to-pink-500'
-                                                    }`}
+                                                    className="mx-auto w-16 h-16 rounded-full border border-indigo-200/70 dark:border-indigo-800/60 bg-indigo-50/70 dark:bg-indigo-900/30 flex items-center justify-center"
                                                 >
                                                     {result.success ? (
-                                                        <FiCheck className="text-white text-3xl" />
+                                                        <FiCheck className="text-indigo-600 dark:text-indigo-300 text-2xl" />
                                                     ) : (
-                                                        <FiX className="text-white text-3xl" />
+                                                        <FiX className="text-red-600 dark:text-red-400 text-2xl" />
                                                     )}
                                                 </motion.div>
 
@@ -229,10 +228,7 @@ export const CleanupPasswordModal = ({ open, onClose, onSuccess, expiredCount = 
                                                         {result.success ? 'Cleanup Successful' : 'Cleanup Failed'}
                                                     </h3>
                                                     <p className="text-gray-600 dark:text-gray-300">
-                                                        {result.message || (result.success 
-                                                            ? `Successfully removed ${result.count} expired password${result.count === 1 ? '' : 's'}.`
-                                                            : 'Failed to remove expired passwords. Please try again.'
-                                                        )}
+                                                        {result.message}
                                                     </p>
                                                 </div>
 
@@ -240,7 +236,7 @@ export const CleanupPasswordModal = ({ open, onClose, onSuccess, expiredCount = 
                                                     whileHover={{ scale: shouldReduceMotion ? 1 : 1.05 }}
                                                     whileTap={{ scale: shouldReduceMotion ? 1 : 0.95 }}
                                                     onClick={handleClose}
-                                                    className="px-4 sm:px-8 py-2 sm:py-3 rounded-md sm:rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:shadow-xl transition-all text-sm sm:text-base"
+                                                    className="px-4 py-2 rounded-lg bg-linear-to-r from-blue-600 via-indigo-600 to-fuchsia-600 text-white font-semibold hover:from-blue-700 hover:via-indigo-700 hover:to-fuchsia-700 transition-all text-sm"
                                                 >
                                                     Close
                                                 </motion.button>

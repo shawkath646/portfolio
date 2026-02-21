@@ -1,6 +1,6 @@
 "use client";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, Variants } from "framer-motion";
 
 const fadeUp: Variants = {
@@ -69,7 +69,7 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
             <div className="flex flex-col md:flex-row gap-6 items-start">
                 {/* Channel Info Card */}
                 <motion.aside
-                    className="bg-white dark:bg-gray-900 rounded-2xl shadow-md p-6 flex-shrink-0 w-full md:w-80 text-center"
+                    className="bg-white dark:bg-gray-900 rounded-2xl shadow-md p-6 shrink-0 w-full md:w-80 text-center"
                     variants={fadeUp}
                     aria-label="YouTube channel information"
                 >
@@ -106,7 +106,7 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
                     aria-label="Recent YouTube videos"
                 >
                     <motion.div className="flex gap-4 min-w-max">
-                        {videos.map((video: any) => (
+                        {videos.map((video: Video) => (
                             <motion.article
                                 key={video.videoId}
                                 variants={fadeUp}

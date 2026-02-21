@@ -1,14 +1,20 @@
 "use client";
 
+import { useState, useTransition } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { FiLogOut } from "react-icons/fi";
-import siteLogout from "@/actions/secure/siteLogout";
+import { FiHome, FiLogOut } from "react-icons/fi";
+import { performLogout } from "@/actions/authentication/authActions";
+import { LogoutModal } from "@/modals/LogoutModal";
 
 export default function AdminNavbar() {
+    const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+    const [isPending, startTransition] = useTransition();
 
-    const handleLogout = async () => {
-        const confirmLogOut = confirm("Do you want to logout?");
-        if (confirmLogOut) await siteLogout("admin-panel");
+    const handleLogout = () => {
+        startTransition(async () => {
+            await performLogout();
+        });
     };
 
     return (
@@ -21,23 +27,39 @@ export default function AdminNavbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Center Section - Title */}
-                    <div className="flex-1">
-                        <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                    <Link href="/admin" className="inline-flex">
+                        <h1 className="text-lg font-bold bg-linear-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
                             Admin Panel
                         </h1>
-                    </div>
+                    </Link>
 
                     {/* Right Section */}
-                    <button
-                        onClick={handleLogout}
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                        aria-label="Logout"
-                    >
-                        <FiLogOut className="text-lg" />
-                        <span className="font-medium hidden sm:inline">Logout</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <Link
+                            href="/"
+                            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                            aria-label="Back to Homepage"
+                        >
+                            <FiHome className="text-lg" />
+                            <span className="font-medium hidden sm:inline">Homepage</span>
+                        </Link>
+                        <button
+                            onClick={() => setIsLogoutOpen(true)}
+                            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                            aria-label="Logout"
+                        >
+                            <FiLogOut className="text-lg" />
+                            <span className="font-medium hidden sm:inline">Logout</span>
+                        </button>
+                    </div>
                 </div>
             </div>
+            <LogoutModal
+                open={isLogoutOpen}
+                onClose={() => setIsLogoutOpen(false)}
+                onConfirm={handleLogout}
+                isProcessing={isPending}
+            />
         </motion.nav>
     );
 }

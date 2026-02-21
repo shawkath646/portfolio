@@ -34,7 +34,7 @@ export async function getAllSharedFiles(): Promise<{ success: boolean; files?: S
         });
 
         return { success: true, files };
-    } catch (error: any) {
-        return { success: false, error: `Failed to fetch files: ${error.message}` };
+    } catch (error: unknown) {
+        return { success: false, error: `Failed to fetch files: ${error instanceof Error ? error.message : "Unknown error"}` };
     }
 }

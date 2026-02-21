@@ -1,22 +1,26 @@
 "use server";
-import { cache } from "react";
 import { db } from "@/lib/firebase";
-import { timestampToDate } from "@/utils/timestampToDate";
+import { timestampToDate } from "@/utils/dateTime";
 import { GalleryImageType } from "./saveGalleryImage";
 
-export const fetchGallerySnapshot = cache(async (limit: number = 15): Promise<GalleryImageType[]> => {
+export type GallerySnapshotImage = GalleryImageType & {
+    albumSlug?: string;
+};
+
+export const fetchGallerySnapshot = async (limit: number = 15): Promise<GallerySnapshotImage[]> => {
     try {
-        // Get all albums
         const albumsSnapshot = await db.collection("gallery").get();
         
         if (albumsSnapshot.empty) {
             return [];
         }
 
-        // Collect all images from all albums
-        const allImages: GalleryImageType[] = [];
+        const allImages: GallerySnapshotImage[] = [];
 
         for (const albumDoc of albumsSnapshot.docs) {
+            const albumData = albumDoc.data();
+            const albumSlug = typeof albumData?.albumSlug === "string" ? albumData.albumSlug : undefined;
+
             const imagesSnapshot = await albumDoc.ref
                 .collection("images")
                 .orderBy("timestamp", "desc")
@@ -28,20 +32,20 @@ export const fetchGallerySnapshot = cache(async (limit: number = 15): Promise<Ga
                 return {
                     ...data,
                     id: doc.id,
-                    timestamp: timestampToDate(data.timestamp)
+                    timestamp: timestampToDate(data.timestamp),
+                    albumSlug,
                 };
             });
 
             allImages.push(...albumImages);
         }
 
-        // Sort all images by timestamp (newest first) and return limited number
         const sortedImages = allImages
             .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
             .slice(0, limit);
 
         return sortedImages;
-    } catch (error) {
+    } catch {
         return [];
     }
-});
+};

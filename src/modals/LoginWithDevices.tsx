@@ -3,17 +3,17 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
+import { FaAndroid, FaApple, FaGlobe } from 'react-icons/fa';
+import { FiSmartphone, FiLogIn, FiCheckCircle, FiAlertTriangle, FiLock, FiUnlock } from 'react-icons/fi';
+import { HiX } from 'react-icons/hi';
 // Type definition inline (passwordless login feature is currently disabled)
 export interface DeviceWithReachabilityType {
     id: string;
     deviceName: string;
     deviceOs: string;
     isReachable: boolean;
-    lastActive?: Date | { toDate: () => Date } | any;
+    lastActive?: Date | { toDate: () => Date } | unknown;
 }
-import { FaAndroid, FaApple, FaGlobe } from 'react-icons/fa';
-import { HiX } from 'react-icons/hi';
-import { FiSmartphone, FiLogIn, FiCheckCircle, FiAlertTriangle, FiLock, FiUnlock } from 'react-icons/fi';
 
 interface LoginWithDevicesProps {
     reachableDevices: DeviceWithReachabilityType[];
@@ -23,19 +23,19 @@ interface LoginWithDevicesProps {
 type LoginStep = 'select' | 'authenticating' | 'success' | 'error';
 
 export default function LoginWithDevices({ reachableDevices, redirectUrl }: LoginWithDevicesProps) {
+    const reachableDevicesCount = reachableDevices.filter(device => device.isReachable).length;
     const [isOpen, setIsOpen] = useState(false);
     const [step, setStep] = useState<LoginStep>('select');
     const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
     const [selectedDeviceData, setSelectedDeviceData] = useState<DeviceWithReachabilityType | null>(null);
     const [errorMessage, setErrorMessage] = useState<string>('');
-    const reachableDevicesCount = reachableDevices.filter(device => device.isReachable).length;
 
     const router = useRouter();
 
+    // Open modal when reachable devices are detected
+     
     useEffect(() => {
-        if (reachableDevicesCount > 0) {
-            setIsOpen(true);
-        }
+        setIsOpen(reachableDevicesCount > 0);
     }, [reachableDevicesCount]);
 
     const getDeviceIcon = (deviceOs: string) => {
@@ -67,7 +67,7 @@ export default function LoginWithDevices({ reachableDevices, redirectUrl }: Logi
 
 
             // Simulate an API call to authenticate the device
-        } catch (error) {
+        } catch {
             setStep('error');
             setErrorMessage('Authentication failed. Please try again.');
         }
@@ -105,7 +105,7 @@ export default function LoginWithDevices({ reachableDevices, redirectUrl }: Logi
                     aria-labelledby="modal-title"
                 >
                     {/* Modal Header */}
-                    <div className="bg-gradient-to-r from-blue-400/30 via-blue-500/30 to-indigo-400/30 dark:from-blue-600/30 dark:via-blue-500/30 dark:to-indigo-600/30 p-5 flex justify-between items-center">
+                    <div className="bg-linear-to-r from-blue-400/30 via-blue-500/30 to-indigo-400/30 dark:from-blue-600/30 dark:via-blue-500/30 dark:to-indigo-600/30 p-5 flex justify-between items-center">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-white/30 dark:bg-white/20 rounded-xl backdrop-blur-sm">
                                 {step === 'select' && <FiLogIn className="text-white text-xl" />}
@@ -166,16 +166,16 @@ export default function LoginWithDevices({ reachableDevices, redirectUrl }: Logi
                                                 whileTap={{ scale: 0.98 }}
                                                 className={`w-full flex items-center gap-4 p-4 ${
                                                     selectedDevice === device.id 
-                                                        ? 'bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-300 dark:border-blue-700' 
+                                                        ? 'bg-linear-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-300 dark:border-blue-700' 
                                                         : 'bg-gray-50/80 dark:bg-gray-800/50 hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-transparent'
                                                 } rounded-xl transition-all duration-200`}
                                                 onClick={() => handleDeviceSelect(device.id)}
                                                 disabled={!!selectedDevice}
                                             >
-                                                <div className={`flex-shrink-0 w-12 h-12 ${
+                                                <div className={`shrink-0 w-12 h-12 ${
                                                     selectedDevice === device.id 
-                                                        ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
-                                                        : 'bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30'
+                                                        ? 'bg-linear-to-br from-blue-500 to-indigo-600'
+                                                        : 'bg-linear-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30'
                                                 } rounded-full shadow-lg flex items-center justify-center`}>
                                                     {selectedDevice === device.id ? (
                                                         <FiCheckCircle className="text-white text-xl" />
@@ -190,11 +190,11 @@ export default function LoginWithDevices({ reachableDevices, redirectUrl }: Logi
                                                         {device.deviceName}
                                                     </p>
                                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                        Last active: {device.lastActive.toLocaleString()}
+                                                        Last active: null
                                                     </p>
                                                 </div>
                                             </motion.button>
-                                        ))}
+                                        ))} 
                                 </div>
 
                                 {reachableDevicesCount === 0 && (
@@ -216,7 +216,7 @@ export default function LoginWithDevices({ reachableDevices, redirectUrl }: Logi
                             >
                                 {selectedDeviceData && (
                                     <div className="mb-8 flex flex-col items-center">
-                                        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 mb-4 flex items-center justify-center">
+                                        <div className="w-20 h-20 rounded-full bg-linear-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 mb-4 flex items-center justify-center">
                                             {getDeviceIcon(selectedDeviceData.deviceOs)}
                                         </div>
                                         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
@@ -271,7 +271,7 @@ export default function LoginWithDevices({ reachableDevices, redirectUrl }: Logi
                                 
                                 {selectedDeviceData && (
                                     <div className="flex items-center gap-2 mb-4">
-                                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                                        <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
                                             {getDeviceIcon(selectedDeviceData.deviceOs)}
                                         </div>
                                         <p className="text-gray-600 dark:text-gray-300">
@@ -289,7 +289,7 @@ export default function LoginWithDevices({ reachableDevices, redirectUrl }: Logi
                                         initial={{ width: 0 }}
                                         animate={{ width: "100%" }}
                                         transition={{ duration: 2 }}
-                                        className="bg-gradient-to-r from-blue-400 to-indigo-500 dark:from-blue-500 dark:to-indigo-600 h-1.5 rounded-full"
+                                        className="bg-linear-to-r from-blue-400 to-indigo-500 dark:from-blue-500 dark:to-indigo-600 h-1.5 rounded-full"
                                         onAnimationComplete={() => {
                                             setTimeout(() => {
                                                 closeModal();
@@ -314,7 +314,7 @@ export default function LoginWithDevices({ reachableDevices, redirectUrl }: Logi
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
                                     transition={{ type: "spring", damping: 15, stiffness: 300 }}
-                                    className="w-24 h-24 bg-gradient-to-r from-red-400 to-pink-500 rounded-full flex items-center justify-center mb-6"
+                                    className="w-24 h-24 bg-linear-to-r from-red-400 to-pink-500 rounded-full flex items-center justify-center mb-6"
                                 >
                                     <FiAlertTriangle className="text-white text-4xl" />
                                 </motion.div>
@@ -332,7 +332,7 @@ export default function LoginWithDevices({ reachableDevices, redirectUrl }: Logi
                                         whileHover={{ scale: 1.03 }}
                                         whileTap={{ scale: 0.97 }}
                                         onClick={resetModal}
-                                        className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium rounded-xl shadow-lg flex items-center gap-2"
+                                        className="px-5 py-2.5 bg-linear-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium rounded-xl shadow-lg flex items-center gap-2"
                                     >
                                         Try Again
                                     </motion.button>

@@ -1,9 +1,10 @@
 "use client";
-import { Patrick_Hand } from "next/font/google";
-import { motion, useAnimation } from "framer-motion";
 import { useRef, useEffect } from "react";
+import { Patrick_Hand } from "next/font/google";
+import { motion, useAnimation , useInView } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { useInView } from "framer-motion";
+
+
 
 // Sample tasks - could be fetched from an API in a real scenario
 const tasks = [
@@ -122,7 +123,7 @@ const TasksBoard = () => {
   return (
     <motion.aside
       aria-labelledby="tasks-heading"
-      className={`p-6 rounded-2xl bg-gradient-to-br from-gray-800 to-[#2f3e46] text-white shadow-xl 
+      className={`p-6 rounded-2xl bg-linear-to-br from-gray-800 to-[#2f3e46] text-white shadow-xl 
                  border-[3px] border-white/20 backdrop-blur-sm 
                  ${patrickHand.className} relative overflow-hidden`}
       initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 50, rotate: -2 }}

@@ -1,10 +1,7 @@
 "use client";
-import { usePathname } from "next/navigation";
-import { footerDisallowedPaths } from "@/data/pathsConfig";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 
-// Quick navigation links
 const quickLinks = [
   { name: "Admin Panel", href: "/admin" },
   { name: "Sitemap", href: "/sitemap.xml" },
@@ -13,18 +10,12 @@ const quickLinks = [
 ];
 
 export default function Footer() {
-  const currentPath = usePathname();
-  
-  // Check if footer should be shown
-  const shouldShowFooter = !footerDisallowedPaths.some((path) => currentPath.startsWith(path));
-  
-  if (!shouldShowFooter) return null;
 
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer 
-      className="w-full bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 dark:from-gray-950 dark:via-blue-950/50 dark:to-gray-950 text-white border-t border-blue-500/20"
+    <footer
+      className="w-full bg-linear-to-br from-gray-900 via-blue-900 to-gray-900 dark:from-gray-950 dark:via-blue-950/50 dark:to-gray-950 text-white border-t border-blue-500/20"
       role="contentinfo"
       aria-label="Site footer"
     >
@@ -34,7 +25,7 @@ export default function Footer() {
           <h3 className="text-lg font-semibold text-blue-300 mb-4 text-center sm:text-left">
             Quick Links
           </h3>
-          <nav 
+          <nav
             aria-label="Footer navigation"
             className="flex flex-wrap justify-center sm:justify-start gap-x-6 gap-y-3"
           >
@@ -67,18 +58,18 @@ export default function Footer() {
         <div className="space-y-3 text-center text-xs sm:text-sm text-gray-400">
           <p className="flex flex-wrap items-center justify-center gap-1">
             <span>Website built by</span>
-            <a 
-              href="https://github.com/shawkath646" 
-              target="_blank" 
+            <a
+              href="https://github.com/shawkath646"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-200"
             >
               shawkath646
             </a>
             <span>&</span>
-            <a 
-              href="https://cloudburstlab.vercel.app" 
-              target="_blank" 
+            <a
+              href="https://cloudburstlab.vercel.app"
+              target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center hover:opacity-80 transition-opacity duration-200"
             >
@@ -91,7 +82,7 @@ export default function Footer() {
               />
             </a>
           </p>
-          
+
           <p className="text-gray-500">
             Copyright © CloudBurst Lab 2025 ~ {currentYear}. All rights reserved.
           </p>

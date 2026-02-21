@@ -1,14 +1,13 @@
 "use server";
-import { unauthorized } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { unauthorized } from "next/navigation";
 import { db, bucket } from "@/lib/firebase";
-import getLoginSession from "@/actions/secure/getLoginSession";
-
+import { getAuthSession } from "../authentication/authActions";
 
 export async function deleteImage(albumId: string, imageId: string, imagePath: string) {
     try {
-        const session = await getLoginSession("admin-panel");
-        if (!session) unauthorized();
+        const loginSession = await getAuthSession();
+        if (!loginSession) unauthorized();
 
         await db.collection("gallery").doc(albumId).collection("images").doc(imageId).delete();
 
@@ -16,14 +15,12 @@ export async function deleteImage(albumId: string, imageId: string, imagePath: s
         if (fileName) {
             try {
                 await bucket.file(imagePath).delete();
-            } catch (storageError) {
-                // Storage deletion error handled silently
-            }
+            } catch { }
         }
 
         revalidatePath(`/admin/gallery/${albumId}`);
         return { success: true };
-    } catch (error) {
+    } catch {
         return { success: false, error: "Failed to delete image" };
     }
 }

@@ -1,9 +1,9 @@
 "use server";
 
-import { db } from "@/lib/firebase";
-import { Timestamp } from "firebase-admin/firestore";
-import { addFileToUserTracking } from "./getSharedFileUploads";
 import { revalidatePath } from "next/cache";
+import { Timestamp } from "firebase-admin/firestore";
+import { db } from "@/lib/firebase";
+import { addFileToUserTracking } from "./getSharedFileUploads";
 import { generateSignedDownloadURL, verifyFileExists } from "./storageUtils";
 
 interface FileMetadata {
@@ -56,7 +56,7 @@ export async function saveSharedFileMetadata(metadata: FileMetadata): Promise<Sa
         revalidatePath("/share");
 
         return { success: true, fileId: docRef.id, downloadURL };
-    } catch (error: any) {
-        return { success: false, error: `Failed to save metadata: ${error.message}` };
+    } catch (error: unknown) {
+        return { success: false, error: `Failed to save metadata: ${error instanceof Error ? error.message : "Unknown error"}` };
     }
 }

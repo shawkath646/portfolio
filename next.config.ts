@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["10.0.2.2"],
   reactStrictMode: true,
   reactCompiler: true,
   experimental: {
@@ -23,6 +24,12 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "storage.googleapis.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "api.qrserver.com",
         port: "",
         pathname: "/**",
       },

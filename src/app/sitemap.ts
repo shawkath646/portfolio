@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { getGalleryAlbumsForSitemap, getGalleryImagesForSitemap } from "@/actions/gallery/albumManagement";
+import { getEnv } from "@/utils/getEnv";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL || "https://shawkath646.pro";
+const baseUrl = getEnv("NEXT_PUBLIC_APP_BASE_URL");
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const albums = await getGalleryAlbumsForSitemap();

@@ -1,6 +1,6 @@
 "use server";
 import { cache } from "react";
-import { getDriveClient } from "@/lib/googleDrive";
+import { getDriveClient } from "@/actions/googleServices/googleDrive";
 
 const drive = getDriveClient();
 

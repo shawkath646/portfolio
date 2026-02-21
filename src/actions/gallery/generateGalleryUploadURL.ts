@@ -1,6 +1,7 @@
 "use server";
 
-import { generateStoragePath, generateSignedUploadURL, MAX_FILE_SIZE } from "../storage/storageUtils";
+import getErrorMessage from "@/utils/getErrorMessage";
+import { generateSignedUploadURL, MAX_FILE_SIZE } from "../storage/storageUtils";
 
 interface GenerateGalleryUploadURLParams {
     albumId: string;
@@ -32,7 +33,7 @@ export async function generateGalleryUploadURL(params: GenerateGalleryUploadURLP
         const uploadURL = await generateSignedUploadURL(storagePath, fileType);
 
         return { success: true, uploadURL, storagePath };
-    } catch (error: any) {
-        return { success: false, error: `Failed to generate upload URL: ${error.message}` };
+    } catch (error) {
+        return { success: false, error: `Failed to generate upload URL: ${getErrorMessage(error)}` };
     }
 }

@@ -254,10 +254,122 @@ shawkath646-portfolio/
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/client-app/login` | `POST` | Authenticate and get access/refresh tokens |
-| `/api/client-app/refresh-token` | `POST` | Refresh expired access token |
+| `/api/client-app/login` | `POST` | Authenticate and get access/refresh tokens + login attempt ID |
+| `/api/client-app/logout` | `POST` | Revoke tokens and logout (sets `invoked: true`, removes tokens) |
 | `/api/client-app/register-device` | `POST` | Register FCM token for push notifications |
 | `/api/client-app/admin-data` | `GET` | Fetch admin information |
+
+##### **Client App API Documentation**
+
+###### **POST `/api/client-app/logout`**
+
+Revokes the current session by invalidating tokens and marking the login attempt as revoked.
+
+**Authentication:**
+- Requires either an access token in the `Authorization` header OR a refresh token in the `x-refresh-token` header
+- Format: `Authorization: Bearer <access_token>` or `x-refresh-token: <refresh_token>`
+
+**Request Headers:**
+```
+Authorization: Bearer <access_token>
+x-refresh-token: <refresh_token> (optional, used as fallback if access token is missing)
+x-api-key: <api_key> (required for all client-app endpoints)
+```
+
+**Request Body:**
+- No body required
+
+**Response:**
+
+**Success (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Logout successful. Tokens have been revoked."
+}
+```
+
+**Error Responses:**
+
+**401 Unauthorized - Missing Token:**
+```json
+{
+  "success": false,
+  "message": "Unauthorized: Missing access token or refresh token"
+}
+```
+
+**401 Unauthorized - Invalid Token:**
+```json
+{
+  "success": false,
+  "message": "Unauthorized: Invalid or expired token"
+}
+```
+
+**401 Unauthorized - Already Revoked:**
+```json
+{
+  "success": false,
+  "message": "Session has already been revoked"
+}
+```
+
+**500 Internal Server Error:**
+```json
+{
+  "success": false,
+  "message": "An internal server error occurred"
+}
+```
+
+**What Happens:**
+1. Verifies the provided access token or refresh token
+2. Sets `invoked: true` in the `auth-data` document (marks session as revoked)
+3. Deletes `clientAppTokens` field from the `auth-data` document
+4. Returns success response
+
+**Example Usage:**
+
+```javascript
+// Using fetch with access token
+const response = await fetch('https://yourdomain.com/api/client-app/logout', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${accessToken}`,
+    'x-api-key': 'your-api-key',
+    'Content-Type': 'application/json'
+  }
+});
+
+const data = await response.json();
+if (data.success) {
+  console.log('Logged out successfully');
+  // Clear tokens from local storage
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+}
+```
+
+```javascript
+// Using fetch with refresh token (fallback)
+const response = await fetch('https://yourdomain.com/api/client-app/logout', {
+  method: 'POST',
+  headers: {
+    'x-refresh-token': refreshToken,
+    'x-api-key': 'your-api-key',
+    'Content-Type': 'application/json'
+  }
+});
+
+const data = await response.json();
+```
+
+**Notes:**
+- After logout, the tokens become invalid and cannot be used for authentication
+- The `invoked: true` flag prevents token refresh attempts
+- The `clientAppTokens` field is completely removed from the database
+- Both access and refresh tokens are invalidated by this operation
 
 #### **Social API**
 

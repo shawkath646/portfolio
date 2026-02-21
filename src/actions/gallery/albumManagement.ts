@@ -1,8 +1,8 @@
 "use server";
-import { revalidatePath } from "next/cache";
 import { cache } from "react";
+import { revalidatePath } from "next/cache";
 import { db } from "@/lib/firebase";
-import { timestampToDate } from "@/utils/timestampToDate";
+import { timestampToDate } from "@/utils/dateTime";
 
 
 export interface GalleryAlbumType {
@@ -13,14 +13,13 @@ export interface GalleryAlbumType {
     imageCount?: number;
 }
 
-// Helper function to generate slug from text
 function generateSlug(text: string): string {
     return text
         .toLowerCase()
         .trim()
-        .replace(/[^\w\s-]/g, '') // Remove special characters
-        .replace(/[\s_]+/g, '-') // Replace spaces and underscores with hyphens
-        .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_]+/g, '-')
+        .replace(/^-+|-+$/g, '');
 }
 
 export const getGalleryAlbums = cache(async (): Promise<GalleryAlbumType[]> => {
@@ -58,12 +57,11 @@ export const getAlbumBySlug = cache(async (albumSlug: string): Promise<GalleryAl
         album.imageCount = imagesSnapshot.data().count;
         
         return album;
-    } catch (error) {
+    } catch {
         return null;
     }
 });
 
-// For sitemap generation - returns albums with IDs and slugs
 export const getGalleryAlbumsForSitemap = cache(async (): Promise<Array<{ id: string, albumSlug: string, name: string, timestamp: Date }>> => {
     const albumSnapshot = await db.collection("gallery").get();
     const albums = albumSnapshot.docs.map((doc) => {

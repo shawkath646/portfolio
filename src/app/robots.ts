@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
+import { getEnv } from '@/utils/getEnv';
 
-const appBaseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL || 'https://shawkath646.pro';
+const baseUrl = getEnv("NEXT_PUBLIC_APP_BASE_URL");
  
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -9,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin', '/api'],
     },
-    sitemap: `${appBaseUrl}/sitemap.xml`,
+    sitemap: `${baseUrl}/sitemap.xml`,
   }
 }

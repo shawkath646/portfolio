@@ -1,9 +1,9 @@
 "use client";
 import { memo, useEffect, useRef } from "react";
-import { motion, useAnimation } from "framer-motion";
-import GradientLink from "../GradientLink";
+import { motion, useAnimation , useInView } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { useInView } from "framer-motion";
+import GradientLink from "../GradientLink";
+
 
 const CompanyIntro = memo(function CompanyIntro() {
     // Animation controls
@@ -36,7 +36,7 @@ const CompanyIntro = memo(function CompanyIntro() {
                 whileHover={prefersReducedMotion ? {} : { scale: 1.02, y: -5 }}
             >
                 {/* Animated Gradient Border */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500 via-cyan-400 to-purple-500">
+                <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-blue-500 via-cyan-400 to-purple-500">
                     <motion.div
                         className="absolute inset-0 rounded-2xl bg-[conic-gradient(at_top_left,_#3b82f6,_#06b6d4,_#8b5cf6)] blur-md"
                         animate={{ 
@@ -60,14 +60,14 @@ const CompanyIntro = memo(function CompanyIntro() {
                         <header className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4">
                             {/* Logo Section */}
                             <motion.figure 
-                                className="flex-shrink-0"
+                                className="shrink-0"
                                 initial={prefersReducedMotion ? { scale: 1, opacity: 1 } : { scale: 0.5, opacity: 0, rotate: -180 }}
                                 animate={controls}
                                 transition={{ delay: 0.3, duration: 0.8, type: "spring", bounce: 0.5 }}
                                 whileHover={prefersReducedMotion ? {} : { rotate: 360, scale: 1.1 }}
                                 aria-label="Cloudburst Lab logo"
                             >
-                                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg overflow-hidden relative">
+                                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-linear-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg overflow-hidden relative">
                                     <motion.span 
                                         className="text-white font-bold text-lg sm:text-xl relative z-10" 
                                         aria-hidden="true"
@@ -99,13 +99,13 @@ const CompanyIntro = memo(function CompanyIntro() {
                             {/* Heading */}
                             <motion.h2 
                                 id="company-intro-heading"
-                                className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400 sm:self-center"
+                                className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400 sm:self-center"
                                 initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                                 animate={controls}
                                 transition={{ delay: 0.4, duration: 0.6 }}
                                 whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
                             >
-                                Meet my brand "Cloudburst Lab"
+                                Meet my brand &quot;Cloudburst Lab&quot;
                             </motion.h2>
                         </header>
                         
@@ -122,7 +122,7 @@ const CompanyIntro = memo(function CompanyIntro() {
                                 Cloudburst Lab is the identity of my dream to build a software startup.
                                 I envision branding my developed software products under this name as a mark of innovation and trust.
                                 In the near future, this dream will grow into a team-driven company focusing on developing cutting-edge,
-                                AI-powered software solutions that shape tomorrow's digital experience.
+                                AI-powered software solutions that shape tomorrow&apos;s digital experience.
                             </motion.p>
 
                             {/* Buttons */}

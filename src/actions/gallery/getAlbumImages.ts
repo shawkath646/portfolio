@@ -1,7 +1,7 @@
 "use server";
 import { cache } from "react";
 import { db } from "@/lib/firebase";
-import { timestampToDate } from "@/utils/timestampToDate";
+import { timestampToDate } from "@/utils/dateTime";
 import { GalleryImageType } from "./saveGalleryImage";
 
 export interface AlbumDetailsType {
@@ -40,7 +40,7 @@ export const getAlbumDetails = cache(async (albumSlug: string): Promise<AlbumDet
             timestamp: timestampToDate(albumData?.timestamp),
             imageCount: imagesSnapshot.data().count
         };
-    } catch (error) {
+    } catch {
         return null;
     }
 });
@@ -101,7 +101,7 @@ export const getAlbumImages = async (
             hasMore,
             total: totalSnapshot.data().count
         };
-    } catch (error) {
+    } catch {
         return {
             images: [],
             hasMore: false,
@@ -147,7 +147,7 @@ export const getImageBySlug = cache(async (
             id: imageDoc.id,
             timestamp: timestampToDate(data.timestamp)
         };
-    } catch (error) {
+    } catch {
         return null;
     }
 });

@@ -1,7 +1,7 @@
 "use client";
-import React, { memo, useEffect, useState } from "react";
-import { motion, Variants, useAnimation } from "framer-motion";
+import React, { memo, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
+import { motion, Variants, useAnimation } from "framer-motion";
 import { FaCode, FaAndroid, FaChartBar, FaVuejs, FaJava, FaChartLine } from "react-icons/fa";
 import { SiReact, SiNextdotjs, SiBootstrap, SiTailwindcss, SiNodedotjs, SiExpress, SiFirebase, SiMongodb, SiPython, SiPandas, SiNumpy, SiJupyter, SiScikitlearn } from "react-icons/si";
 import { TbBrandReactNative } from "react-icons/tb";
@@ -37,6 +37,7 @@ const SkillItem = memo(({ leaf, index }: { leaf: SkillLeaf; index: number }) => 
     </motion.li>
   );
 });
+SkillItem.displayName = 'SkillItem';
 
 // Memoized skill branch component for better performance
 const SkillBranchComponent = memo(({ branch }: { branch: SkillBranch }) => {
@@ -76,6 +77,7 @@ const SkillBranchComponent = memo(({ branch }: { branch: SkillBranch }) => {
     </motion.li>
   );
 });
+SkillBranchComponent.displayName = 'SkillBranchComponent';
 
 // Skills data structure
 const skillsTree: SkillBranch[] = [
@@ -221,14 +223,14 @@ const SkillsComponent = memo(function SkillsComponent() {
         <header className="mb-10 flex flex-col items-center">
           <motion.h2
             id="skills-title"
-            className="text-2xl sm:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-cyan-500 to-purple-600 dark:from-cyan-200 dark:via-blue-400 dark:to-purple-500 text-center"
+            className="text-2xl sm:text-3xl font-semibold text-transparent bg-clip-text bg-linear-to-r from-blue-700 via-cyan-500 to-purple-600 dark:from-cyan-200 dark:via-blue-400 dark:to-purple-500 text-center"
             variants={fadeInUp}
           >
             Skills That Power My Work
           </motion.h2>
 
           <motion.div
-            className="w-20 h-1 rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-purple-500 mt-2 mb-4"
+            className="w-20 h-1 rounded-full bg-linear-to-r from-blue-500 via-cyan-400 to-purple-500 mt-2 mb-4"
             variants={scaleLine}
             style={{ originX: 0 }}
             aria-hidden="true"

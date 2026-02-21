@@ -51,13 +51,13 @@ export default function GradientLink({
     >
       {/* Base gradient background */}
       <div className={clsx(
-        "absolute inset-0 bg-gradient-to-r transition-opacity duration-300",
+        "absolute inset-0 bg-linear-to-r transition-opacity duration-300",
         gradientConfig.base
       )} />
       
       {/* Hover gradient overlay */}
       <div className={clsx(
-        "absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+        "absolute inset-0 bg-linear-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-300",
         gradientConfig.hover
       )} />
       

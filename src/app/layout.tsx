@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import { Analytics } from "@vercel/analytics/next";
-import Navbar from "@/components/navigation/Navbar";
-import Footer from "@/components/navigation/Footer";
 import NoJavaScript from "@/components/NoJavaScript";
-import getJsonLd from "@/actions/dataFetch/getJsonLd";
 import "./globals.css";
+import { getEnv } from "@/utils/getEnv";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL || "https://shawkath646.pro";
+const baseUrl = getEnv("NEXT_PUBLIC_APP_BASE_URL");
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -99,13 +97,11 @@ export const metadata: Metadata = {
 };
 
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-  const jsonLd = await getJsonLd();
 
   return (
     <html
@@ -123,15 +119,6 @@ export default async function RootLayout({
         {/* DNS prefetch for external resources */}
         <link rel="dns-prefetch" href="//www.google-analytics.com" />
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-
-        {/* Enhanced structured data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
-          }}
-        />
-
         {/* Viewport and theme color */}
         <meta name="theme-color" content="#3b82f6" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#0a192f" media="(prefers-color-scheme: dark)" />
@@ -153,9 +140,7 @@ export default async function RootLayout({
           Skip to main content
         </Link>
 
-        <Navbar />
         {children}
-        <Footer />
 
         <Analytics />
       </body>

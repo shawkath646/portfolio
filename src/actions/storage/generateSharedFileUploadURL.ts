@@ -31,7 +31,7 @@ export async function generateSharedFileUploadURL(params: GenerateUploadURLParam
         const uploadURL = await generateSignedUploadURL(storagePath, fileType);
 
         return { success: true, uploadURL, storagePath };
-    } catch (error: any) {
-        return { success: false, error: `Failed to generate upload URL: ${error.message}` };
+    } catch (error: unknown) {
+        return { success: false, error: `Failed to generate upload URL: ${error instanceof Error ? error.message : "Unknown error"}` };
     }
 }

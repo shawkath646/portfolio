@@ -1,6 +1,6 @@
 "use client";
-import { motion } from "motion/react";
 import Link from "next/link";
+import { motion } from "motion/react";
 
 export default function ShareFilesSection() {
     return (
@@ -22,12 +22,12 @@ export default function ShareFilesSection() {
                         className="block group relative overflow-hidden rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-6 shadow-lg hover:shadow-xl transition-all duration-300"
                     >
                         {/* Animated Gradient Border */}
-                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500 opacity-75 blur-sm animate-[spin_15s_linear_infinite]"></div>
+                        <div className="absolute inset-0 rounded-xl bg-linear-to-r from-blue-500 via-cyan-500 to-blue-500 opacity-75 blur-sm animate-[spin_15s_linear_infinite]"></div>
                         <div className="absolute inset-[2px] rounded-xl bg-white dark:bg-gray-800"></div>
                         
                         <div className="relative flex items-center gap-4">
                             {/* Icon */}
-                            <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-800/40 transition-colors duration-300">
+                            <div className="shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-800/40 transition-colors duration-300">
                                 <svg
                                     className="w-6 h-6 text-blue-600 dark:text-blue-400"
                                     fill="none"

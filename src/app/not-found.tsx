@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
+import { motion , Variants } from "framer-motion";
 import {
     FiHome,
     FiAlertCircle
 } from "react-icons/fi";
-import { Variants } from "framer-motion";
+
 import "../styles/not-found.css";
 
 // Animation variants
@@ -51,7 +51,7 @@ export default function NotFound() {
             id="main-content"
             tabIndex={-1}
             role="main"
-            className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100 dark:from-[#0a192f] dark:via-[#1e293b] dark:to-[#172554]"
+            className="min-h-screen flex flex-col items-center justify-center p-4 bg-linear-to-br from-blue-50 via-blue-100 to-indigo-100 dark:from-[#0a192f] dark:via-[#1e293b] dark:to-[#172554]"
             aria-label="Notfound page content"
         >
             {/* Decorative background elements */}
@@ -76,7 +76,7 @@ export default function NotFound() {
             >
                 {/* Top "Error" bar */}
                 <div 
-                    className="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-500 h-2 w-full"
+                    className="bg-linear-to-r from-blue-500 via-blue-600 to-indigo-500 h-2 w-full"
                     aria-hidden="true" 
                 />
 
@@ -89,7 +89,7 @@ export default function NotFound() {
                     >
                         <h1
                             id="error-title"
-                            className="font-mono text-8xl md:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-500 dark:from-blue-400 dark:to-indigo-400 inline-block"
+                            className="font-mono text-8xl md:text-9xl font-bold text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-blue-500 to-indigo-500 dark:from-blue-400 dark:to-indigo-400 inline-block"
                             aria-label="404 error"
                         >
                             404
@@ -107,7 +107,7 @@ export default function NotFound() {
                         className="text-gray-600 dark:text-gray-300 mb-8 max-w-lg mx-auto"
                         variants={itemVariants}
                     >
-                        The page you are looking for doesn't exist or has been moved.
+                        The page you are looking for doesn&apos;t exist or has been moved.
                     </motion.p>
 
                     {/* Requested Path */}
@@ -117,7 +117,7 @@ export default function NotFound() {
                         role="alert"
                         aria-live="polite"
                     >
-                        <FiAlertCircle className="text-blue-500 flex-shrink-0" aria-hidden="true" />
+                        <FiAlertCircle className="text-blue-500 shrink-0" aria-hidden="true" />
                         <span className="font-mono text-sm truncate max-w-[230px] sm:max-w-sm md:max-w-md">
                             Requested path: <code>{pathname}</code>
                         </span>
@@ -130,7 +130,7 @@ export default function NotFound() {
                     >
                         <Link
                             href="/"
-                            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium py-3 px-6 rounded-full hover:shadow-lg transition transform hover:-translate-y-1 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                            className="inline-flex items-center gap-2 bg-linear-to-r from-blue-500 to-indigo-600 text-white font-medium py-3 px-6 rounded-full hover:shadow-lg transition transform hover:-translate-y-1 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
                             aria-label="Go back to home page"
                         >
                             <FiHome className="text-lg" aria-hidden="true" />

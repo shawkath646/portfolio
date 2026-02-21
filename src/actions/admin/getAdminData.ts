@@ -1,8 +1,8 @@
 "use server";
 import { cache } from "react";
 import { db } from "@/lib/firebase";
-import { timestampToDate } from "@/utils/timestampToDate";
-import { AddressType, PhoneNumberType } from "@/types";
+import { AddressType, PhoneNumberType } from "@/types/common.types";
+import { timestampToDate } from "@/utils/dateTime";
 
 export interface AdminDataType {
   firstName: string;

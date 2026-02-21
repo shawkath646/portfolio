@@ -1,7 +1,7 @@
 "use server";
 
-import { db, bucket } from "@/lib/firebase";
 import { revalidatePath } from "next/cache";
+import { db, bucket } from "@/lib/firebase";
 
 export async function deleteSharedFile(fileId: string, storagePath: string): Promise<{ success: boolean; error?: string }> {
     try {
@@ -15,7 +15,7 @@ export async function deleteSharedFile(fileId: string, storagePath: string): Pro
 
         revalidatePath("/admin/shared-files");
         return { success: true };
-    } catch (error: any) {
-        return { success: false, error: `Failed to delete file: ${error.message}` };
+    } catch (error: unknown) {
+        return { success: false, error: `Failed to delete file: ${error instanceof Error ? error.message : "Unknown error"}` };
     }
 }
