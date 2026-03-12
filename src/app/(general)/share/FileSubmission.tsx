@@ -3,18 +3,17 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiUpload, FiFile, FiX, FiCheck, FiAlertCircle, FiLoader, FiClock, FiSend } from "react-icons/fi";
-import { generateSharedFileUploadURL } from "@/actions/storage/generateSharedFileUploadURL";
-import { saveSharedFileMetadata } from "@/actions/storage/saveSharedFileMetadata";
+import { requestSharedFileUploadURL } from "@/actions/share/sharedFileManagement";
 import getErrorMessage from "@/utils/getErrorMessage";
 
 interface FileWithMetadata {
+    tempId: string;
     file: File;
-    id: string;
     note: string;
 }
 
 interface UploadProgress {
-    fileId: string;
+    tempId: string;
     fileName: string;
     status: 'pending' | 'generating-url' | 'uploading' | 'finalizing' | 'completed' | 'error';
     progress: number;
@@ -22,17 +21,12 @@ interface UploadProgress {
     timeRemaining: number;
     error?: string;
     uploadURL?: string;
-    storagePath?: string;
     controller?: AbortController;
 }
 
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+const MAX_FILE_SIZE = 250 * 1024 * 1024;
 
-interface FileSubmissionProps {
-    onUploadComplete?: () => void;
-}
-
-export default function FileSubmission({ onUploadComplete }: FileSubmissionProps) {
+export default function FileSubmission() {
     const [files, setFiles] = useState<FileWithMetadata[]>([]);
     const [uploadProgress, setUploadProgress] = useState<Map<string, UploadProgress>>(new Map());
     const [isDragging, setIsDragging] = useState(false);
@@ -58,10 +52,6 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
         return `${minutes}m ${remainingSeconds}s`;
     };
 
-    const generateFileId = () => {
-        return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    };
-
     const handleFileSelect = useCallback((selectedFiles: FileList | File[]) => {
         const fileArray = Array.from(selectedFiles);
         const validFiles: FileWithMetadata[] = [];
@@ -72,8 +62,8 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
                 continue;
             }
             validFiles.push({
+                tempId: Math.random().toString(36).slice(2, 10),
                 file,
-                id: generateFileId(),
                 note: ''
             });
         }
@@ -106,32 +96,31 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
         }
     }, [handleFileSelect]);
 
-    const removeFile = useCallback((fileId: string) => {
+    const removeFile = useCallback((tempId: string) => {
         // Cancel upload if in progress
-        const progress = uploadProgress.get(fileId);
+        const progress = uploadProgress.get(tempId);
         if (progress?.controller) {
             progress.controller.abort();
         }
 
-        setFiles(prev => prev.filter(f => f.id !== fileId));
+        setFiles(prev => prev.filter(f => f.tempId !== tempId));
         setUploadProgress(prev => {
             const newMap = new Map(prev);
-            newMap.delete(fileId);
+            newMap.delete(tempId);
             return newMap;
         });
     }, [uploadProgress]);
 
-    const updateNote = useCallback((fileId: string, note: string) => {
-        setFiles(prev => prev.map(f => f.id === fileId ? { ...f, note } : f));
+    const updateNote = useCallback((tempId: string, note: string) => {
+        setFiles(prev => prev.map(f => f.tempId === tempId ? { ...f, note } : f));
     }, []);
 
     const uploadFile = async (fileWithMetadata: FileWithMetadata): Promise<boolean> => {
-        const { file, id: fileId, note } = fileWithMetadata;
+        const { file, tempId } = fileWithMetadata;
         const controller = new AbortController();
 
-        // Initialize progress
-        setUploadProgress(prev => new Map(prev).set(fileId, {
-            fileId,
+        setUploadProgress(prev => new Map(prev).set(tempId, {
+            tempId,
             fileName: file.name,
             status: 'generating-url',
             progress: 0,
@@ -142,22 +131,20 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
 
         try {
             // Step 1: Generate signed upload URL
-            const urlResult = await generateSharedFileUploadURL({
-                fileName: file.name,
+            const urlResult = await requestSharedFileUploadURL({
                 fileType: file.type,
                 fileSize: file.size
             });
 
-            if (!urlResult.success || !urlResult.uploadURL || !urlResult.storagePath) {
-                throw new Error(urlResult.error || 'Failed to generate upload URL');
+            if (!urlResult.fileId || !urlResult.uploadURL) {
+                throw new Error(urlResult.message || 'Failed to generate upload URL');
             }
 
             // Update status to uploading
-            setUploadProgress(prev => new Map(prev).set(fileId, {
-                ...prev.get(fileId)!,
+            setUploadProgress(prev => new Map(prev).set(tempId, {
+                ...prev.get(tempId)!,
                 status: 'uploading',
                 uploadURL: urlResult.uploadURL,
-                storagePath: urlResult.storagePath
             }));
 
             // Step 2: Upload file directly to GCS using signed URL
@@ -178,8 +165,8 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
                     const timeRemaining = speed > 0 ? bytesRemaining / speed : 0;
                     const progress = (e.loaded / e.total) * 100;
 
-                    setUploadProgress(prev => new Map(prev).set(fileId, {
-                        ...prev.get(fileId)!,
+                    setUploadProgress(prev => new Map(prev).set(tempId, {
+                        ...prev.get(tempId)!,
                         progress,
                         speed,
                         timeRemaining
@@ -218,28 +205,28 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
             });
 
             // Step 3: Finalize - save metadata to Firestore
-            setUploadProgress(prev => new Map(prev).set(fileId, {
-                ...prev.get(fileId)!,
+            setUploadProgress(prev => new Map(prev).set(tempId, {
+                ...prev.get(tempId)!,
                 status: 'finalizing',
                 progress: 100
             }));
 
-            const metadataResult = await saveSharedFileMetadata({
-                storagePath: urlResult.storagePath,
-                fileName: file.name,
-                fileSize: file.size,
-                fileType: file.type,
-                lastModified: file.lastModified,
-                userNote: note.trim() || undefined
-            });
+            // const metadataResult = await saveSharedFileMetadata({
+            //     storagePath: urlResult.storagePath,
+            //     fileName: file.name,
+            //     fileSize: file.size,
+            //     fileType: file.type,
+            //     lastModified: file.lastModified,
+            //     userNote: note.trim() || undefined
+            // });
 
-            if (!metadataResult.success) {
-                throw new Error(metadataResult.error || 'Failed to save metadata');
-            }
+            // if (!metadataResult.success) {
+            //     throw new Error(metadataResult.error || 'Failed to save metadata');
+            // }
 
             // Step 4: Completed
-            setUploadProgress(prev => new Map(prev).set(fileId, {
-                ...prev.get(fileId)!,
+            setUploadProgress(prev => new Map(prev).set(tempId, {
+                ...prev.get(tempId)!,
                 status: 'completed',
                 progress: 100,
                 speed: 0,
@@ -249,8 +236,8 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
             return true;
 
         } catch (error) {
-            setUploadProgress(prev => new Map(prev).set(fileId, {
-                ...prev.get(fileId)!,
+            setUploadProgress(prev => new Map(prev).set(tempId, {
+                ...prev.get(tempId)!,
                 status: 'error',
                 error: getErrorMessage(error) || 'Upload failed'
             }));
@@ -267,15 +254,9 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
         // Check if all completed successfully by checking the results
         const allSuccessful = results.every(result => result === true);
         setAllCompleted(allSuccessful);
-
-        // Notify parent component to refresh uploads list
-        if (allSuccessful && onUploadComplete) {
-            onUploadComplete();
-        }
     };
 
     const handleReset = () => {
-        // Cancel all ongoing uploads
         uploadProgress.forEach(progress => {
             if (progress.controller) {
                 progress.controller.abort();
@@ -329,7 +310,7 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+            className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden mt-8"
         >
             <div className="p-6 sm:p-8">
                 <AnimatePresence mode="wait">
@@ -411,12 +392,12 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
                             {files.length > 0 && (
                                 <div className="space-y-4 mb-6">
                                     {files.map((fileWithMetadata) => {
-                                        const progress = uploadProgress.get(fileWithMetadata.id);
+                                        const progress = uploadProgress.get(fileWithMetadata.tempId);
                                         const isProcessing = progress && ['generating-url', 'uploading', 'finalizing'].includes(progress.status);
 
                                         return (
                                             <motion.div
-                                                key={fileWithMetadata.id}
+                                                key={fileWithMetadata.tempId}
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 exit={{ opacity: 0, x: 20 }}
@@ -438,7 +419,7 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
                                                     </div>
                                                     {!isProcessing && progress?.status !== 'completed' && (
                                                         <button
-                                                            onClick={() => removeFile(fileWithMetadata.id)}
+                                                            onClick={() => removeFile(fileWithMetadata.tempId)}
                                                             className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors shrink-0"
                                                             aria-label="Remove file"
                                                         >
@@ -452,7 +433,7 @@ export default function FileSubmission({ onUploadComplete }: FileSubmissionProps
                                                     <input
                                                         type="text"
                                                         value={fileWithMetadata.note}
-                                                        onChange={(e) => updateNote(fileWithMetadata.id, e.target.value)}
+                                                        onChange={(e) => updateNote(fileWithMetadata.tempId, e.target.value)}
                                                         placeholder="Add a note (optional)"
                                                         className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                                     />

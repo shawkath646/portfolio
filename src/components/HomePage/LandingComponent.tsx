@@ -91,7 +91,7 @@ function AnimatedBackground() {
             
             {/* Overlay gradients for depth */}
             <div className="absolute inset-0 bg-gradient-to-tr from-blue-300/40 via-transparent to-cyan-300/30 dark:from-blue-800/50 dark:via-transparent dark:to-cyan-800/30" />
-            <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-cyan-300/20 to-blue-400/30 dark:from-transparent dark:via-blue-700/20 dark:to-slate-900/40" />
+            <div className="absolute inset-0 bg-linear-to-bl from-transparent via-cyan-300/20 to-blue-400/30 dark:from-transparent dark:via-blue-700/20 dark:to-slate-900/40" />
             
             {/* Animated gradient orbs */}
             <div className="absolute top-0 left-0 w-96 h-96 bg-cyan-300/30 dark:bg-cyan-400/20 rounded-full blur-3xl animate-float" />
@@ -110,7 +110,7 @@ function AnimatedBackground() {
             }} />
             
             {/* Light rays effect */}
-            <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent dark:from-white/5 dark:via-transparent dark:to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-b from-white/10 via-transparent to-transparent dark:from-white/5 dark:via-transparent dark:to-transparent" />
         </div>
     );
 }

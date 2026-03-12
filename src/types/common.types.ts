@@ -2,7 +2,7 @@ export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export type PlatformType = "android" | "desktop" | "web";
 
-export type AuthTokenPayload ={
+export type AuthTokenPayload = {
   sessionId: string;
 }
 
@@ -26,6 +26,5 @@ export interface PhoneNumberType {
   countryCode: string;
   number: string;
 }
-
 
 

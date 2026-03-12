@@ -118,7 +118,7 @@ export default function NotFound() {
                         aria-live="polite"
                     >
                         <FiAlertCircle className="text-blue-500 shrink-0" aria-hidden="true" />
-                        <span className="font-mono text-sm truncate max-w-[230px] sm:max-w-sm md:max-w-md">
+                        <span className="font-mono text-sm truncate max-w-57.5 sm:max-w-sm md:max-w-md">
                             Requested path: <code>{pathname}</code>
                         </span>
                     </motion.div>

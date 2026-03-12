@@ -1,8 +1,6 @@
 import type { MetadataRoute } from 'next'
-import { getEnv } from '@/utils/getEnv';
+import appBaseUrl from '@/data/appBaseUrl'
 
-const baseUrl = getEnv("NEXT_PUBLIC_APP_BASE_URL");
- 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
@@ -10,6 +8,9 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin', '/api'],
     },
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: [
+      new URL("/sitemap.xml", appBaseUrl).toString(),
+      new URL("/gallery/sitemap.xml", appBaseUrl).toString()
+    ],
   }
 }

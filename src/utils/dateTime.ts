@@ -23,17 +23,6 @@ export function formatDateTime(date: Date): string {
     });
 }
 
-export function formatRelativeTime(date: Date): string {
-    const diff = Date.now() - new Date(date).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "Just now";
-    if (mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
-    const days = Math.floor(hrs / 24);
-    return `${days}d ago`;
-}
-
 export function imageNameToDate(filename: string): Date | null {
     const nameWithoutExt = filename.replace(/\.[^/.]+$/, '');
 
@@ -98,3 +87,32 @@ export function imageNameToDate(filename: string): Date | null {
 
     return null;
 }
+
+export function formatRelativeTime(date: Date | string): string {
+    const now = Date.now();
+    const target = new Date(date).getTime();
+
+    const diffInSeconds = Math.round((target - now) / 1000);
+
+    const divisions: { amount: number; unit: Intl.RelativeTimeFormatUnit }[] = [
+        { amount: 60, unit: "second" },
+        { amount: 60, unit: "minute" },
+        { amount: 24, unit: "hour" },
+        { amount: 7, unit: "day" },
+        { amount: 4.34524, unit: "week" },
+        { amount: 12, unit: "month" },
+        { amount: Number.POSITIVE_INFINITY, unit: "year" },
+    ];
+
+    let duration = diffInSeconds;
+
+    for (const division of divisions) {
+        if (Math.abs(duration) < division.amount) {
+            const rtf = new Intl.RelativeTimeFormat("en-US", { numeric: "auto" });
+            return rtf.format(Math.round(duration), division.unit);
+        }
+        duration /= division.amount;
+    }
+
+    return "";
+};

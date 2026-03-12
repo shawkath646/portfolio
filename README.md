@@ -496,7 +496,8 @@ YOUTUBE_CHANNEL_ID=your_youtube_channel_id
 GOOGLE_DRIVE_FOLDER_ID=your_drive_folder_id
 
 # Site Configuration
-NEXT_PUBLIC_SITE_URL=https://yourdomain.com
+NEXT_PUBLIC_APP_BASE_URL=https://shawkath646.pro
+APP_ALLOWED_HOSTS=localhost,shawkath646.pro,shawkath646.vercel.app
 ```
 
 ### GitHub Token Setup

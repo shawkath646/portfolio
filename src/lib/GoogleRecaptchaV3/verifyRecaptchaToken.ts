@@ -1,5 +1,6 @@
 "use server";
 
+import appBaseUrl from "@/data/appBaseUrl";
 import { APIResponseType } from "@/types/common.types";
 import { RecaptchaEnterpriseAssessment } from "@/types/recaptcha.types";
 import { getEnv } from "@/utils/getEnv";
@@ -54,11 +55,7 @@ export default async function verifyRecaptchaToken(
             };
         }
 
-        if (
-            data.tokenProperties.hostname &&
-            data.tokenProperties.hostname !== "localhost" &&
-            !data.tokenProperties.hostname.includes("yourdomain.com")
-        ) {
+        if (data.tokenProperties.hostname && data.tokenProperties.hostname !== appBaseUrl.hostname) {
             return {
                 success: false,
                 message: "Invalid reCAPTCHA hostname.",

@@ -1,91 +1,67 @@
 import type { MetadataRoute } from "next";
-import { getGalleryAlbumsForSitemap, getGalleryImagesForSitemap } from "@/actions/gallery/albumManagement";
-import { getEnv } from "@/utils/getEnv";
+import appBaseUrl from "@/data/appBaseUrl";
 
-const baseUrl = getEnv("NEXT_PUBLIC_APP_BASE_URL");
-
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const albums = await getGalleryAlbumsForSitemap();
-    const images = await getGalleryImagesForSitemap();
-
-    const staticRoutes: MetadataRoute.Sitemap = [
+export default function sitemap(): MetadataRoute.Sitemap {
+    return [
         {
-            url: baseUrl,
+            url: appBaseUrl.origin,
             lastModified: new Date(),
             changeFrequency: "weekly",
             priority: 1,
         },
         {
-            url: `${baseUrl}/about`,
+            url: new URL("/about", appBaseUrl).toString(),
             lastModified: new Date(),
             changeFrequency: "monthly",
             priority: 0.8,
         },
         {
-            url: `${baseUrl}/projects`,
+            url: new URL("/creations", appBaseUrl).toString(),
             lastModified: new Date(),
             changeFrequency: "daily",
             priority: 0.9,
         },
         {
-            url: `${baseUrl}/about/gallery`,
+            url: new URL("/creations/projects", appBaseUrl).toString(),
+            lastModified: new Date(),
+            changeFrequency: "daily",
+            priority: 0.8,
+        },
+        {
+            url: new URL("/about/gallery", appBaseUrl).toString(),
             lastModified: new Date(),
             changeFrequency: "weekly",
             priority: 0.7,
         },
         {
-            url: `${baseUrl}/about/friends-corner`,
+            url: new URL("/about/personal-life", appBaseUrl).toString(),
             lastModified: new Date(),
             changeFrequency: "monthly",
             priority: 0.7,
         },
         {
-            url: `${baseUrl}/about/love-corner`,
+            url: new URL("/about/love-corner", appBaseUrl).toString(),
             lastModified: new Date(),
             changeFrequency: "monthly",
             priority: 0.7,
         },
         {
-            url: `${baseUrl}/about/personal-life`,
+            url: new URL("/about/friends-corner", appBaseUrl).toString(),
             lastModified: new Date(),
             changeFrequency: "monthly",
             priority: 0.7,
         },
         {
-            url: `${baseUrl}/contact`,
+            url: new URL("/contact", appBaseUrl).toString(),
             lastModified: new Date(),
             changeFrequency: "yearly",
             priority: 0.6,
         },
         {
-            url: `${baseUrl}/share`,
+            url: new URL("/share", appBaseUrl).toString(),
             lastModified: new Date(),
             changeFrequency: "monthly",
             priority: 0.5,
         },
     ];
-
-    // Album pages
-    const albumRoutes: MetadataRoute.Sitemap = albums.map<MetadataRoute.Sitemap[number]>(({ albumSlug, timestamp }) => ({
-        url: `${baseUrl}/about/gallery/${albumSlug}`,
-        lastModified: timestamp,
-        changeFrequency: "weekly",
-        priority: 0.6,
-    }));
-
-    // Individual image pages - with noindex robots meta
-    const imageRoutes: MetadataRoute.Sitemap = images.map<MetadataRoute.Sitemap[number]>(({ 
-        albumSlug,
-        imageSlug,
-        src,
-        timestamp 
-    }) => ({
-        url: `${baseUrl}/about/gallery/${albumSlug}/${imageSlug}`,
-        lastModified: timestamp,
-        changeFrequency: "monthly",
-        priority: 0.4,
-        images: [src],
-    }));
-
-    return [...staticRoutes, ...albumRoutes, ...imageRoutes];
 }

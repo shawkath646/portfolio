@@ -1,7 +1,7 @@
 "use server";
 import { cache } from "react";
+import appBaseUrl from "@/data/appBaseUrl";
 import { db } from "@/lib/firebase";
-import { getEnv } from "@/utils/getEnv";
 import getSocialLinks from "./getSocialLinks";
 
 interface ImageObject {
@@ -80,8 +80,6 @@ interface PersonSchema {
   mainEntityOfPage: WebPage;
 }
 
-const baseUrl = getEnv("NEXT_PUBLIC_APP_BASE_URL");
-
 const getJsonLd = cache(async () => {
   const socialLinks = await getSocialLinks();  
   const socialLinksArray = Object.values(socialLinks)
@@ -90,7 +88,7 @@ const getJsonLd = cache(async () => {
   const docRef = await db.collection("site-config").doc("jsonLd").get();
   const jsonLd = docRef.data() as PersonSchema;
   
-  jsonLd["@id"] = `${baseUrl}/#person`;
+  jsonLd["@id"] = new URL("/#person", appBaseUrl).toString();
   jsonLd.sameAs = [...(jsonLd.sameAs || []), ...socialLinksArray];
   
   return jsonLd;

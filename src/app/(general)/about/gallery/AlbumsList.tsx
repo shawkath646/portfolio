@@ -2,14 +2,16 @@
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaFolder, FaImage } from "react-icons/fa";
-import { GalleryAlbumType } from "@/actions/gallery/albumManagement";
+import { GalleryAlbumType, GalleryImageType } from "@/types/gallery.types";
 import AlbumPreview from "./AlbumPreview";
 
 interface AlbumsListProps {
     albumList: GalleryAlbumType[];
+    previewImages: Map<string, GalleryImageType>;
 }
 
-export default function AlbumsList({ albumList }: AlbumsListProps) {
+export default function AlbumsList({ albumList, previewImages }: AlbumsListProps) {
+
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -31,6 +33,7 @@ export default function AlbumsList({ albumList }: AlbumsListProps) {
             },
         },
     };
+
 
     if (albumList.length === 0) {
         return (
@@ -72,13 +75,16 @@ export default function AlbumsList({ albumList }: AlbumsListProps) {
                     >
                         <article className="h-full">
                             <Link
-                                href={`/about/gallery/${album.albumSlug}`}
+                                href={`/about/gallery/${album.slug}`}
                                 className="group block bg-white/30 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg shadow-md hover:shadow-xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-all duration-300 h-full"
                                 aria-label={`View ${album.name} album with ${album.imageCount ?? 0} photos`}
                             >
                                 {/* Album Preview - Folder-style with latest images */}
                                 <figure className="relative bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-                                    <AlbumPreview albumId={album.id} albumSlug={album.albumSlug} />
+                                    <AlbumPreview previewImages={album.previewImages
+                                        .map(id => previewImages.get(id))
+                                        .filter((img): img is GalleryImageType => img !== undefined)
+                                    } />
                                 </figure>
 
                                 {/* Album Info */}

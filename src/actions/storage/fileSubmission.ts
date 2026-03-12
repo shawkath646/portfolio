@@ -1,7 +1,7 @@
 "use server";
 
 import { bucket, db } from "@/lib/firebase";
-import { generateStoragePath, generateSignedDownloadURL, MAX_FILE_SIZE } from "./storageUtils";
+import { generateStoragePath, generateSignedDownloadURL } from "@/utils/storage";
 
 interface FileSubmissionData {
     fileName: string;
@@ -14,7 +14,7 @@ interface FileSubmissionData {
 
 export async function submitFile(data: FileSubmissionData): Promise<{ success: boolean; fileId?: string; error?: string }> {
     try {
-        if (data.fileSize > MAX_FILE_SIZE) {
+        if (data.fileSize > 100000) {
             return { success: false, error: "File size exceeds 100MB limit" };
         }
 

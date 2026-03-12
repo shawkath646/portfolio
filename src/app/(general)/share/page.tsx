@@ -1,9 +1,8 @@
 import { Metadata } from "next";
-import { FiUpload, FiLock, FiUser } from "react-icons/fi";
-import { getEnv } from "@/utils/getEnv";
-import SharePageClient from "./SharePageClient";
-
-const baseUrl = getEnv("NEXT_PUBLIC_APP_BASE_URL");
+// import { FiUpload, FiLock, FiUser } from "react-icons/fi";
+import appBaseUrl from "@/data/appBaseUrl";
+// import FileSubmission from "./FileSubmission";
+// import UserUploadsList from "./UserUploadsList";
 
 export const metadata: Metadata = {
     title: "File Upload - Shawkat Hossain Maruf",
@@ -19,34 +18,11 @@ export const metadata: Metadata = {
         "Shawkat Hossain Maruf"
     ],
     alternates: {
-        canonical: `${baseUrl}/share`,
+        canonical: `${appBaseUrl}/share`,
     },
     robots: {
         index: true,
         follow: true
-    },
-    openGraph: {
-        title: "File Upload - Shawkat Hossain Maruf",
-        description: "Upload and share files securely with real-time progress tracking",
-        url: `${baseUrl}/share`,
-        siteName: "Shawkat Hossain Maruf Portfolio",
-        type: "website",
-        images: [
-            {
-                url: `${baseUrl}/profile.jpg`,
-                width: 1200,
-                height: 630,
-                alt: "Shawkat Hossain Maruf - File Upload",
-            },
-        ],
-    },
-    twitter: {
-        card: "summary_large_image",
-        site: "@shawkath646",
-        creator: "@shawkath646",
-        title: "File Upload - Shawkat Hossain Maruf",
-        description: "Upload and share files securely with real-time progress tracking",
-        images: [`${baseUrl}/profile.jpg`],
     },
 };
 
@@ -56,6 +32,7 @@ export default function SharePage() {
             id="main-content"
             tabIndex={-1}
             role="main"
+            aria-label="Share page content"
             aria-labelledby="page-title"
             className="min-h-screen bg-linear-to-br from-blue-50 via-indigo-50 to-purple-100 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 py-20 px-4"
         >
@@ -65,8 +42,7 @@ export default function SharePage() {
                 <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-purple-300/20 dark:bg-purple-600/10 rounded-full blur-3xl" />
             </div>
 
-            <div className="max-w-5xl mx-auto relative z-10">
-                {/* Header */}
+            {/* <div className="max-w-5xl mx-auto relative z-10">
                 <header className="text-center mt-5 mb-8">
                     <div className="flex space-x-2 justify-center items-center mb-2">
                         <div className="inline-flex items-center gap-2 mb-3">
@@ -84,7 +60,6 @@ export default function SharePage() {
                         Share documents, images, videos, and more. Upload multiple files with real-time progress tracking.
                     </p>
 
-                    {/* Features */}
                     <div className="flex flex-wrap gap-3 justify-center mb-6" role="list" aria-label="Upload features">
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 dark:border-gray-700" role="listitem">
                             <FiLock className="text-green-600 dark:text-green-400" aria-hidden="true" />
@@ -108,9 +83,9 @@ export default function SharePage() {
                     </div>
                 </header>
 
-                <SharePageClient />
+                <UserUploadsList />
+                <FileSubmission />
 
-                {/* Usage Guidelines */}
                 <aside
                     className="mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4"
                     role="note"
@@ -142,7 +117,7 @@ export default function SharePage() {
                         </li>
                     </ul>
                 </aside>
-            </div>
+            </div> */}
         </main>
     );
 }

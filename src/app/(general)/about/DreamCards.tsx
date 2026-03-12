@@ -140,7 +140,7 @@ export default function DreamCards() {
                         aria-labelledby={goal.id}
                     >
                         <div className="h-full relative p-5 rounded-2xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                            <div className={`absolute top-0 left-0 w-2 h-full bg-gradient-to-b ${goal.color}`}></div>
+                            <div className={`absolute top-0 left-0 w-2 h-full bg-linear-to-b ${goal.color}`}></div>
                             
                             <motion.div 
                                 className="mb-4 flex justify-center"

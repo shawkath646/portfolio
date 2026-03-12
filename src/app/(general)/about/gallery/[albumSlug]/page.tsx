@@ -1,21 +1,19 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { FiFolder } from "react-icons/fi";
-import { getAlbumDetails, getAlbumImages } from "@/actions/gallery/getAlbumImages";
-import { getEnv } from "@/utils/getEnv";
+import { getAlbumBySlug, getImageFromAlbum } from "@/actions/gallery/getGalleryData";
+import appBaseUrl from "@/data/appBaseUrl";
+import { formatDateTime } from "@/utils/dateTime";
 import GalleryGrid from "./GalleryGrid";
 
+const IMAGES_PER_PAGE = 20;
 
+export async function generateMetadata(
+    { params, searchParams }: PageProps<'/about/gallery/[albumSlug]'>
+): Promise<Metadata> {
 
-const baseUrl = getEnv("NEXT_PUBLIC_APP_BASE_URL");
-
-interface AlbumPageProps {
-    params: Promise<{ albumSlug: string }>;
-}
-
-export async function generateMetadata({ params }: AlbumPageProps): Promise<Metadata> {
     const { albumSlug } = await params;
-    const albumDetails = await getAlbumDetails(albumSlug);
+    const albumDetails = await getAlbumBySlug(albumSlug);
 
     if (!albumDetails) {
         return {
@@ -28,15 +26,56 @@ export async function generateMetadata({ params }: AlbumPageProps): Promise<Meta
         };
     }
 
-    const albumDate = new Date(albumDetails.timestamp).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-    });
+    const requestedPage = Number((await searchParams).page) || 1;
+
+    const imagesResponse = await getImageFromAlbum(
+        albumDetails.id,
+        { page: requestedPage, limit: IMAGES_PER_PAGE }
+    );
+
+    const { page, totalPages } = imagesResponse;
+
+    const baseUrl = `/about/gallery/${albumSlug}`;
+
+    const previous =
+        page > 1
+            ? page === 2
+                ? baseUrl
+                : `${baseUrl}?page=${page - 1}`
+            : undefined;
+
+    const next =
+        page < totalPages
+            ? `${baseUrl}?page=${page + 1}`
+            : undefined;
+
+    const title =
+        page === 1
+            ? `${albumDetails.name} - Photo Album`
+            : `${albumDetails.name} - Photo Album (Page ${page})`;
+
+    const description =
+        page === 1
+            ? `View ${albumDetails.imageCount} ${albumDetails.imageCount === 1 ? "photo" : "photos"
+            } from the ${albumDetails.name} album. Captured moments and memories from ${formatDateTime(albumDetails.timestamp)}.`
+            : `Browse page ${page} of ${totalPages} from the ${albumDetails.name} photo album. Featuring ${albumDetails.imageCount} captured moments and memories from ${formatDateTime(albumDetails.timestamp)}.`;
 
     return {
-        title: `${albumDetails.name} - Photo Album by Shawkat Hossain Maruf`,
-        description: `View ${albumDetails.imageCount} ${albumDetails.imageCount === 1 ? "photo" : "photos"} from the ${albumDetails.name} album. Captured moments and memories from ${albumDate}.`,
+        title,
+        description,
+
+        pagination: {
+            previous,
+            next,
+        },
+
+        alternates: {
+            canonical:
+                page === 1
+                    ? `${appBaseUrl}${baseUrl}`
+                    : `${appBaseUrl}${baseUrl}?page=${page}`,
+        },
+
         keywords: [
             albumDetails.name,
             "Photo Album",
@@ -45,33 +84,7 @@ export async function generateMetadata({ params }: AlbumPageProps): Promise<Meta
             "Image Gallery",
             "Photo Collection",
         ],
-        alternates: {
-            canonical: `${baseUrl}/about/gallery/${albumSlug}`,
-        },
-        openGraph: {
-            title: `${albumDetails.name} - Photo Album`,
-            description: `View ${albumDetails.imageCount} ${albumDetails.imageCount === 1 ? "photo" : "photos"} from this album.`,
-            url: `${baseUrl}/about/gallery/${albumSlug}`,
-            siteName: "Shawkat Hossain Maruf Portfolio",
-            locale: "en_US",
-            type: "website",
-            images: [
-                {
-                    url: `${baseUrl}/profile.jpg`,
-                    width: 1200,
-                    height: 630,
-                    alt: `${albumDetails.name} Photo Album`,
-                },
-            ],
-        },
-        twitter: {
-            card: "summary_large_image",
-            site: "@shawkath646",
-            creator: "@shawkath646",
-            title: `${albumDetails.name} - Photo Album`,
-            description: `View ${albumDetails.imageCount} ${albumDetails.imageCount === 1 ? "photo" : "photos"} from this album.`,
-            images: [`${baseUrl}/profile.jpg`],
-        },
+
         robots: {
             index: true,
             follow: true,
@@ -86,18 +99,31 @@ export async function generateMetadata({ params }: AlbumPageProps): Promise<Meta
     };
 }
 
-export default async function AlbumPage({ params }: AlbumPageProps) {
+export default async function AlbumPage(
+    { params, searchParams }: PageProps<'/about/gallery/[albumSlug]'>
+) {
     const { albumSlug } = await params;
-    const albumDetails = await getAlbumDetails(albumSlug);
+    const albumDetails = await getAlbumBySlug(albumSlug);
+
+    const requestedPage = Number((await searchParams).page) || 1;
 
     if (!albumDetails) {
         notFound();
     }
 
-    const { images, hasMore } = await getAlbumImages(albumSlug, 20);
+    const imagesResponse = await getImageFromAlbum(
+        albumDetails.id,
+        { page: requestedPage, limit: IMAGES_PER_PAGE }
+    );
 
     return (
-        <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 pt-24 pb-16 px-3 sm:px-4 lg:px-6">
+        <main
+            id="main-content"
+            tabIndex={-1}
+            role="main"
+            aria-label="Album page content"
+            className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 pt-24 pb-16 px-3 sm:px-4 lg:px-6"
+        >
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <header className="mb-6">
@@ -116,12 +142,8 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
                                             {albumDetails.imageCount} {albumDetails.imageCount === 1 ? "photo" : "photos"}
                                         </span>
                                         {" • "}
-                                        <time dateTime={new Date(albumDetails.timestamp).toISOString()}>
-                                            {new Date(albumDetails.timestamp).toLocaleDateString("en-US", {
-                                                year: "numeric",
-                                                month: "short",
-                                                day: "numeric",
-                                            })}
+                                        <time dateTime={albumDetails.timestamp.toISOString()}>
+                                            {formatDateTime(albumDetails.timestamp)}
                                         </time>
                                     </p>
                                 </div>
@@ -131,12 +153,10 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
                 </header>
 
                 {/* Gallery Grid */}
-                {images.length > 0 ? (
-                    <section aria-label={`Photos from ${albumDetails.name} album`}>
-                        <GalleryGrid albumSlug={albumSlug} albumId={albumDetails.id} initialImages={images} hasMore={hasMore} />
-                    </section>
+                {imagesResponse.images.length > 0 ? (
+                    <GalleryGrid albumName={albumDetails.name} albumSlug={albumDetails.slug} images={imagesResponse.images} />
                 ) : (
-                    <div 
+                    <section
                         className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8 text-center"
                         role="status"
                     >
@@ -149,7 +169,7 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
                         <p className="text-gray-600 dark:text-gray-400">
                             This album doesn&apos;t have any photos yet.
                         </p>
-                    </div>
+                    </section>
                 )}
             </div>
         </main>

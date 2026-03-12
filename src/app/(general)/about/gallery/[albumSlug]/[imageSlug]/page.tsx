@@ -4,21 +4,20 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FaMapMarkerAlt, FaCalendar } from "react-icons/fa";
 import { FiArrowLeft } from "react-icons/fi";
-import { getAlbumDetails, getImageBySlug } from "@/actions/gallery/getAlbumImages";
-import { getEnv } from "@/utils/getEnv";
+import { getAlbumBySlug, getImageBySlug } from "@/actions/gallery/getGalleryData";
+import appBaseUrl from "@/data/appBaseUrl";
+import { formatDateTime } from "@/utils/dateTime";
 
-const baseUrl = getEnv("NEXT_PUBLIC_APP_BASE_URL");
 
-interface ImagePageProps {
-    params: Promise<{ albumSlug: string; imageSlug: string }>;
-}
-
-export async function generateMetadata({ params }: ImagePageProps): Promise<Metadata> {
+export async function generateMetadata(
+    { params }: PageProps<'/about/gallery/[albumSlug]/[imageSlug]'>
+): Promise<Metadata> {
     const { albumSlug, imageSlug } = await params;
-    const albumDetails = await getAlbumDetails(albumSlug);
-    const image = await getImageBySlug(albumSlug, imageSlug);
 
-    if (!image || !albumDetails) {
+    const albumDetails = await getAlbumBySlug(albumSlug);
+    const image = await getImageBySlug(imageSlug);
+
+    if (!image) {
         return {
             title: "Image Not Found",
             description: "The requested image could not be found.",
@@ -29,11 +28,15 @@ export async function generateMetadata({ params }: ImagePageProps): Promise<Meta
         };
     }
 
+    const albumName = albumDetails?.name ?? "Unknown Album";
+
     return {
-        title: `${image.title} - ${albumDetails.name} | Shawkat Hossain Maruf`,
-        description: image.description || `View ${image.title} from ${albumDetails.name} album.`,
+        title: `${image.title} - ${albumName}`,
+        description:
+            image.description ||
+            `View ${image.title} from ${albumName} album.`,
         alternates: {
-            canonical: `${baseUrl}/about/gallery/${albumSlug}/${imageSlug}`,
+            canonical: `${appBaseUrl}/about/gallery/${albumSlug}/${imageSlug}`,
         },
         robots: {
             index: true,
@@ -47,50 +50,30 @@ export async function generateMetadata({ params }: ImagePageProps): Promise<Meta
                 "max-snippet": -1,
             },
         },
-        openGraph: {
-            title: image.title,
-            description: image.description || `Photo from ${albumDetails.name}`,
-            url: `${baseUrl}/about/gallery/${albumSlug}/${imageSlug}`,
-            siteName: "Shawkat Hossain Maruf Portfolio",
-            locale: "en_US",
-            type: "website",
-            images: [
-                {
-                    url: image.src,
-                    width: image.width,
-                    height: image.height,
-                    alt: image.alt || image.title,
-                },
-            ],
-        },
-        twitter: {
-            card: "summary_large_image",
-            site: "@shawkath646",
-            creator: "@shawkath646",
-            title: image.title,
-            description: image.description || `Photo from ${albumDetails.name}`,
-            images: [image.src],
-        },
     };
 }
 
-export default async function ImagePage({ params }: ImagePageProps) {
+export default async function ImagePage(
+    { params }: PageProps<'/about/gallery/[albumSlug]/[imageSlug]'>
+) {
     const { albumSlug, imageSlug } = await params;
-    const albumDetails = await getAlbumDetails(albumSlug);
-    const image = await getImageBySlug(albumSlug, imageSlug);
+    const albumDetails = await getAlbumBySlug(albumSlug);
+    const image = await getImageBySlug(imageSlug);
 
-    if (!image || !albumDetails) {
+    if (!image) {
         notFound();
     }
+
+    const albumName = albumDetails?.name ?? "Unknown Album";
 
     const imageSchema = {
         "@context": "https://schema.org",
         "@type": "ImageObject",
-        "@id": `${baseUrl}/about/gallery/${albumSlug}/${imageSlug}#image`,
+        "@id": `${appBaseUrl}/about/gallery/${albumSlug}/${imageSlug}#image`,
         "name": image.title,
-        "description": image.description || `Photo from ${albumDetails.name} album`,
+        "description": image.description || `Photo from ${albumName} album`,
         "contentUrl": image.src,
-        "url": `${baseUrl}/about/gallery/${albumSlug}/${imageSlug}`,
+        "url": `${appBaseUrl}/about/gallery/${albumSlug}/${imageSlug}`,
         "thumbnailUrl": image.src,
         "width": {
             "@type": "QuantitativeValue",
@@ -103,25 +86,25 @@ export default async function ImagePage({ params }: ImagePageProps) {
             "unitCode": "E37"
         },
         "encodingFormat": "image/jpeg",
-        "uploadDate": image.timestamp.toISOString(),
-        "datePublished": image.timestamp.toISOString(),
+        "uploadDate": image.createdAt.toISOString(),
+        "datePublished": image.createdAt.toISOString(),
         "author": {
             "@type": "Person",
-            "@id": `${baseUrl}/#person`,
+            "@id": `${appBaseUrl}/#person`,
             "name": "Shawkat Hossain Maruf",
-            "url": "https://shawkath646.pro"
+            "url": appBaseUrl.toString()
         },
         "creator": {
             "@type": "Person",
-            "@id": `${baseUrl}/#person`
+            "@id": `${appBaseUrl}/#person`
         },
         "copyrightHolder": {
             "@type": "Person",
-            "@id": `${baseUrl}/#person`
+            "@id": `${appBaseUrl}/#person`
         },
-        "copyrightYear": new Date(image.timestamp).getFullYear(),
+        "copyrightYear": image.timestamp.getFullYear(),
         "license": "https://creativecommons.org/licenses/by-nc/4.0/",
-        "acquireLicensePage": `${baseUrl}/contact`,
+        "acquireLicensePage": `${appBaseUrl}/contact`,
         ...(image.location && {
             "contentLocation": {
                 "@type": "Place",
@@ -130,13 +113,13 @@ export default async function ImagePage({ params }: ImagePageProps) {
         }),
         "isPartOf": {
             "@type": "ImageGallery",
-            "@id": `${baseUrl}/about/gallery/${albumSlug}#gallery`,
-            "name": albumDetails.name,
-            "url": `${baseUrl}/about/gallery/${albumSlug}`
+            "@id": `${appBaseUrl}/about/gallery/${albumSlug}#gallery`,
+            "name": albumName,
+            "url": `${appBaseUrl}/about/gallery/${albumSlug}`
         },
         "mainEntityOfPage": {
             "@type": "WebPage",
-            "@id": `${baseUrl}/about/gallery/${albumSlug}/${imageSlug}`
+            "@id": `${appBaseUrl}/about/gallery/${albumSlug}/${imageSlug}`
         }
     };
 
@@ -148,7 +131,13 @@ export default async function ImagePage({ params }: ImagePageProps) {
                     __html: JSON.stringify(imageSchema).replace(/</g, '\\u003c'),
                 }}
             />
-            <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 pt-24 pb-16 px-3 sm:px-4 lg:px-6 relative overflow-hidden">
+            <main
+                id="main-content"
+                tabIndex={-1}
+                role="main"
+                aria-label="Image details page content"
+                className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 pt-24 pb-16 px-3 sm:px-4 lg:px-6 relative overflow-hidden"
+            >
                 {/* Animated Background Elements */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
                     {/* Floating Orbs */}
@@ -156,11 +145,11 @@ export default async function ImagePage({ params }: ImagePageProps) {
                     <div className="absolute top-1/4 -right-8 w-32 h-32 bg-purple-200 dark:bg-purple-900/30 rounded-full blur-xl opacity-40 animate-float-reverse"></div>
                     <div className="absolute bottom-1/4 left-1/4 w-20 h-20 bg-cyan-200 dark:bg-cyan-900/30 rounded-full blur-xl opacity-50 animate-float" style={{ animationDelay: '2s' }}></div>
                     <div className="absolute top-1/2 right-1/3 w-16 h-16 bg-pink-200 dark:bg-pink-900/30 rounded-full blur-xl opacity-45 animate-float-reverse" style={{ animationDelay: '1s' }}></div>
-                    
+
                     {/* Gradient Lines */}
-                    <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-blue-300/20 to-transparent"></div>
-                    <div className="absolute top-0 right-1/3 w-px h-full bg-gradient-to-b from-transparent via-purple-300/20 to-transparent"></div>
-                    
+                    <div className="absolute top-0 left-1/4 w-px h-full bg-linear-to-b from-transparent via-blue-300/20 to-transparent"></div>
+                    <div className="absolute top-0 right-1/3 w-px h-full bg-linear-to-b from-transparent via-purple-300/20 to-transparent"></div>
+
                     {/* Geometric Shapes */}
                     <div className="absolute top-1/3 left-1/6 w-8 h-8 border border-cyan-300/30 dark:border-cyan-500/20 rotate-45 animate-spin-slow"></div>
                     <div className="absolute bottom-1/4 right-1/5 w-6 h-6 border border-purple-300/30 dark:border-purple-500/20 rotate-12 animate-pulse"></div>
@@ -174,7 +163,7 @@ export default async function ImagePage({ params }: ImagePageProps) {
                             className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-900 dark:text-gray-100 hover:bg-white dark:hover:bg-gray-800 font-medium transition-all rounded-lg shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700 group"
                         >
                             <FiArrowLeft className="text-lg group-hover:-translate-x-1 transition-transform" />
-                            <span>Back to {albumDetails.name}</span>
+                            <span>Back to {albumName}</span>
                         </Link>
                     </nav>
 
@@ -182,7 +171,7 @@ export default async function ImagePage({ params }: ImagePageProps) {
                         {/* Image Section - Takes 2 columns */}
                         <div className="lg:col-span-2">
                             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                                <div className="relative aspect-video lg:aspect-[16/10] bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
+                                <div className="relative aspect-video lg:aspect-16/10 bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
                                     <Image
                                         src={image.src}
                                         alt={image.alt || image.title}
@@ -201,18 +190,19 @@ export default async function ImagePage({ params }: ImagePageProps) {
                         <div className="lg:col-span-1">
                             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 sm:p-8 space-y-6 sticky top-24">
                                 <div>
-                                    <h1 className="text-2xl sm:text-3xl font-bold mb-2 bg-linear-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                                    <h1 className="text-2xl sm:text-3xl font-bold mb-2 bg-linear-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent whitespace-normal wrap-break-word">
                                         {image.title}
                                     </h1>
+
                                     <div className="h-1 w-20 bg-linear-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 rounded-full"></div>
                                 </div>
 
                                 {image.description && (
                                     <div className="pb-6 border-b border-gray-200 dark:border-gray-700">
-                                        <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+                                        <h2 className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
                                             Description
                                         </h2>
-                                        <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">
+                                        <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed wrap-break-word">
                                             {image.description}
                                         </p>
                                     </div>
@@ -228,9 +218,14 @@ export default async function ImagePage({ params }: ImagePageProps) {
                                                 <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
                                                     Location
                                                 </h2>
-                                                <p className="text-sm sm:text-base text-gray-900 dark:text-white font-medium truncate">
+                                                <Link
+                                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(image.location)}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-sm text-gray-900 dark:text-white hover:text-blue-500 transition-all"
+                                                >
                                                     {image.location}
-                                                </p>
+                                                </Link>
                                             </div>
                                         </div>
                                     )}
@@ -243,14 +238,18 @@ export default async function ImagePage({ params }: ImagePageProps) {
                                             <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
                                                 Date Captured
                                             </h2>
-                                            <p className="text-sm sm:text-base text-gray-900 dark:text-white font-medium">
-                                                {image.timestamp.toLocaleDateString("en-US", {
-                                                    weekday: "long",
-                                                    year: "numeric",
-                                                    month: "long",
-                                                    day: "numeric",
-                                                })}
-                                            </p>
+                                            <time dateTime={image.timestamp.toISOString()} className="text-sm text-gray-900 dark:text-white">
+                                                {formatDateTime(image.timestamp)}
+                                            </time>
+                                        </div>
+
+                                        <div className="flex-1 min-w-0">
+                                            <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
+                                                Date Uploaded
+                                            </h2>
+                                            <time dateTime={image.createdAt.toISOString()} className="text-sm text-gray-900 dark:text-white">
+                                                {formatDateTime(image.createdAt)}
+                                            </time>
                                         </div>
                                     </div>
 

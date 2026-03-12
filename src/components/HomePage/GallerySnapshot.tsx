@@ -3,11 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FiArrowRight, FiCamera } from "react-icons/fi";
-import { GallerySnapshotImage } from "@/actions/gallery/fetchGallerySnapshot";
+import { GalleryImageType } from "@/types/gallery.types";
 
 
 interface GallerySnapshotProps {
-  images: GallerySnapshotImage[];
+  images: (GalleryImageType & { albumSlug: string })[];
 }
 
 export default function GallerySnapshot({ images }: GallerySnapshotProps) {
@@ -89,53 +89,47 @@ export default function GallerySnapshot({ images }: GallerySnapshotProps) {
         className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4"
         role="list"
       >
-        {displayImages.map((image) => {
-          const imageHref = image.albumSlug && image.imageSlug
-            ? `/about/gallery/${image.albumSlug}/${image.imageSlug}`
-            : "/about/gallery";
+        {displayImages.map((image) => (
+          <motion.li
+            key={image.id}
+            variants={itemVariants}
+            whileHover={{ scale: 1.05, zIndex: 10 }}
+            className="group relative aspect-square overflow-hidden rounded-xl shadow-md hover:shadow-2xl transition-shadow duration-300 bg-gray-200 dark:bg-gray-700"
+          >
+            <article className="w-full h-full">
+              <Link
+                href={`/gallery/${image.slug}`}
+                className="block w-full h-full"
+                aria-label={`View ${image.title} in gallery`}
+              >
+                <figure className="relative w-full h-full">
+                  <Image
+                    src={image.src}
+                    alt={image.alt || image.title}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
 
-          return (
-            <motion.li
-              key={image.id}
-              variants={itemVariants}
-              whileHover={{ scale: 1.05, zIndex: 10 }}
-              className="group relative aspect-square overflow-hidden rounded-xl shadow-md hover:shadow-2xl transition-shadow duration-300 bg-gray-200 dark:bg-gray-700"
-            >
-              <article className="w-full h-full">
-                <Link
-                  href={imageHref}
-                  className="block w-full h-full"
-                  aria-label={`View ${image.title} in gallery`}
-                >
-                  <figure className="relative w-full h-full">
-                    <Image
-                      src={image.src}
-                      alt={image.alt || image.title}
-                      fill
-                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    
-                    {/* Gradient overlay on hover */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-hidden="true" />
-                    
-                    {/* Image title on hover */}
-                    <figcaption className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                      <p className="text-white text-xs sm:text-sm font-semibold line-clamp-2">
-                        {image.title}
+                  {/* Gradient overlay on hover */}
+                  <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-hidden="true" />
+
+                  {/* Image title on hover */}
+                  <figcaption className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                    <p className="text-white text-xs sm:text-sm font-semibold line-clamp-2">
+                      {image.title}
+                    </p>
+                    {image.location && (
+                      <p className="text-white/80 text-xs line-clamp-1 mt-1">
+                        📍 {image.location}
                       </p>
-                      {image.location && (
-                        <p className="text-white/80 text-xs line-clamp-1 mt-1">
-                          📍 {image.location}
-                        </p>
-                      )}
-                    </figcaption>
-                  </figure>
-                </Link>
-              </article>
-            </motion.li>
-          );
-        })}
+                    )}
+                  </figcaption>
+                </figure>
+              </Link>
+            </article>
+          </motion.li>
+        ))}
 
         {/* View All Button as Grid Item */}
         <motion.li
@@ -154,7 +148,7 @@ export default function GallerySnapshot({ images }: GallerySnapshotProps) {
                 <FiArrowRight className="text-3xl sm:text-4xl text-white group-hover:translate-x-1 transition-transform duration-300" />
               </div>
             </div>
-            
+
             {/* Text */}
             <span className="text-white font-semibold text-sm sm:text-base text-center">
               View All

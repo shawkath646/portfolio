@@ -3,10 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { Analytics } from "@vercel/analytics/next";
 import NoJavaScript from "@/components/NoJavaScript";
+import appBaseUrl from "@/data/appBaseUrl";
 import "./globals.css";
-import { getEnv } from "@/utils/getEnv";
 
-const baseUrl = getEnv("NEXT_PUBLIC_APP_BASE_URL");
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +32,7 @@ export const metadata: Metadata = {
   description:
     "Full-stack developer and Computer Science student at Sejong University specializing in React, Next.js, TypeScript, and Android development. Building modern web applications and mobile solutions with cutting-edge technologies.",
   applicationName: "Shawkat Hossain Maruf Portfolio",
-  metadataBase: new URL(baseUrl),
+  metadataBase: appBaseUrl,
   generator: "Next.js",
   referrer: "origin-when-cross-origin",
   keywords: [
@@ -58,7 +57,7 @@ export const metadata: Metadata = {
   ],
   authors: {
     name: "Shawkat Hossain Maruf",
-    url: baseUrl,
+    url: appBaseUrl,
   },
   creator: "Shawkat Hossain Maruf",
   publisher: "Shawkat Hossain Maruf",
@@ -75,25 +74,7 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-video-preview": -1,
     },
-  },
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    siteName: "Shawkat Hossain Maruf Portfolio",
-    images: [
-      {
-        url: `${baseUrl}/profile.jpg`,
-        width: 1200,
-        height: 630,
-        alt: "Shawkat Hossain Maruf - Full-stack Developer",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: "@shawkath646",
-    creator: "@shawkath646",
-  },
+  }
 };
 
 

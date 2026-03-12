@@ -1,43 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import { FaFolder } from "react-icons/fa";
-import { getAlbumImages } from "@/actions/gallery/getAlbumImages";
-import { GalleryImageType } from "@/actions/gallery/saveGalleryImage";
+import { GalleryImageType } from "@/types/gallery.types";
 
 interface AlbumPreviewProps {
-    albumId: string;
-    albumSlug: string;
+    previewImages: GalleryImageType[];
 }
 
-export default function AlbumPreview({ albumId, albumSlug }: AlbumPreviewProps) {
-    const [images, setImages] = useState<GalleryImageType[]>([]);
-    const [loading, setLoading] = useState(true);
+export default function AlbumPreview({ previewImages }: AlbumPreviewProps) {
 
-    useEffect(() => {
-        const fetchPreviewImages = async () => {
-            try {
-                const result = await getAlbumImages(albumSlug, 4);
-                setImages(result.images);
-            } catch {
-                // Error fetching preview images
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchPreviewImages();
-    }, [albumId, albumSlug]);
-
-    if (loading) {
-        return (
-            <div className="aspect-square bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                <FaFolder className="text-3xl text-gray-400 dark:text-gray-600 animate-pulse" />
-            </div>
-        );
-    }
-
-    if (images.length === 0) {
+    if (previewImages.length === 0) {
         return (
             <div className="aspect-square bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                 <FaFolder className="text-3xl text-gray-400 dark:text-gray-600" />
@@ -45,14 +17,13 @@ export default function AlbumPreview({ albumId, albumSlug }: AlbumPreviewProps) 
         );
     }
 
-    // Folder-style layout with latest images
     return (
         <div className="aspect-square relative overflow-hidden">
-            {images.length === 1 && (
+            {previewImages.length === 1 && (
                 <div className="absolute inset-0">
                     <Image
-                        src={images[0].src}
-                        alt={images[0].alt || images[0].title}
+                        src={previewImages[0].src}
+                        alt={previewImages[0].alt || previewImages[0].title}
                         fill
                         sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
                         className="object-cover"
@@ -62,12 +33,12 @@ export default function AlbumPreview({ albumId, albumSlug }: AlbumPreviewProps) 
                 </div>
             )}
 
-            {images.length === 2 && (
+            {previewImages.length === 2 && (
                 <>
                     <div className="absolute inset-0 w-1/2">
                         <Image
-                            src={images[0].src}
-                            alt={images[0].alt || images[0].title}
+                            src={previewImages[0].src}
+                            alt={previewImages[0].alt || previewImages[0].title}
                             fill
                             sizes="(max-width: 640px) 25vw, (max-width: 768px) 16vw, (max-width: 1024px) 12vw, (max-width: 1280px) 10vw, 8vw"
                             className="object-cover"
@@ -77,8 +48,8 @@ export default function AlbumPreview({ albumId, albumSlug }: AlbumPreviewProps) 
                     </div>
                     <div className="absolute inset-0 left-1/2">
                         <Image
-                            src={images[1].src}
-                            alt={images[1].alt || images[1].title}
+                            src={previewImages[1].src}
+                            alt={previewImages[1].alt || previewImages[1].title}
                             fill
                             sizes="(max-width: 640px) 25vw, (max-width: 768px) 16vw, (max-width: 1024px) 12vw, (max-width: 1280px) 10vw, 8vw"
                             className="object-cover"
@@ -90,12 +61,12 @@ export default function AlbumPreview({ albumId, albumSlug }: AlbumPreviewProps) 
                 </>
             )}
 
-            {images.length === 3 && (
+            {previewImages.length === 3 && (
                 <>
                     <div className="absolute inset-0 w-1/2">
                         <Image
-                            src={images[0].src}
-                            alt={images[0].alt || images[0].title}
+                            src={previewImages[0].src}
+                            alt={previewImages[0].alt || previewImages[0].title}
                             fill
                             sizes="(max-width: 640px) 25vw, (max-width: 768px) 16vw, (max-width: 1024px) 12vw, (max-width: 1280px) 10vw, 8vw"
                             className="object-cover"
@@ -105,8 +76,8 @@ export default function AlbumPreview({ albumId, albumSlug }: AlbumPreviewProps) 
                     </div>
                     <div className="absolute top-0 right-0 w-1/2 h-1/2">
                         <Image
-                            src={images[1].src}
-                            alt={images[1].alt || images[1].title}
+                            src={previewImages[1].src}
+                            alt={previewImages[1].alt || previewImages[1].title}
                             fill
                             sizes="(max-width: 640px) 25vw, (max-width: 768px) 16vw, (max-width: 1024px) 12vw, (max-width: 1280px) 10vw, 8vw"
                             className="object-cover"
@@ -116,8 +87,8 @@ export default function AlbumPreview({ albumId, albumSlug }: AlbumPreviewProps) 
                     </div>
                     <div className="absolute bottom-0 right-0 w-1/2 h-1/2">
                         <Image
-                            src={images[2].src}
-                            alt={images[2].alt || images[2].title}
+                            src={previewImages[2].src}
+                            alt={previewImages[2].alt || previewImages[2].title}
                             fill
                             sizes="(max-width: 640px) 25vw, (max-width: 768px) 16vw, (max-width: 1024px) 12vw, (max-width: 1280px) 10vw, 8vw"
                             className="object-cover"
@@ -126,16 +97,16 @@ export default function AlbumPreview({ albumId, albumSlug }: AlbumPreviewProps) 
                         />
                     </div>
                     <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent w-px left-1/2"></div>
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent h-px top-1/2 left-1/2"></div>
+                    <div className="absolute inset-0 bg-linear-to-b from-transparent via-white/20 to-transparent h-px top-1/2 left-1/2"></div>
                 </>
             )}
 
-            {images.length >= 4 && (
+            {previewImages.length >= 4 && (
                 <>
                     <div className="absolute top-0 left-0 w-1/2 h-1/2">
                         <Image
-                            src={images[0].src}
-                            alt={images[0].alt || images[0].title}
+                            src={previewImages[0].src}
+                            alt={previewImages[0].alt || previewImages[0].title}
                             fill
                             sizes="(max-width: 640px) 25vw, (max-width: 768px) 16vw, (max-width: 1024px) 12vw, (max-width: 1280px) 10vw, 8vw"
                             className="object-cover"
@@ -145,8 +116,8 @@ export default function AlbumPreview({ albumId, albumSlug }: AlbumPreviewProps) 
                     </div>
                     <div className="absolute top-0 right-0 w-1/2 h-1/2">
                         <Image
-                            src={images[1].src}
-                            alt={images[1].alt || images[1].title}
+                            src={previewImages[1].src}
+                            alt={previewImages[1].alt || previewImages[1].title}
                             fill
                             sizes="(max-width: 640px) 25vw, (max-width: 768px) 16vw, (max-width: 1024px) 12vw, (max-width: 1280px) 10vw, 8vw"
                             className="object-cover"
@@ -156,8 +127,8 @@ export default function AlbumPreview({ albumId, albumSlug }: AlbumPreviewProps) 
                     </div>
                     <div className="absolute bottom-0 left-0 w-1/2 h-1/2">
                         <Image
-                            src={images[2].src}
-                            alt={images[2].alt || images[2].title}
+                            src={previewImages[2].src}
+                            alt={previewImages[2].alt || previewImages[2].title}
                             fill
                             sizes="(max-width: 640px) 25vw, (max-width: 768px) 16vw, (max-width: 1024px) 12vw, (max-width: 1280px) 10vw, 8vw"
                             className="object-cover"
@@ -167,8 +138,8 @@ export default function AlbumPreview({ albumId, albumSlug }: AlbumPreviewProps) 
                     </div>
                     <div className="absolute bottom-0 right-0 w-1/2 h-1/2">
                         <Image
-                            src={images[3].src}
-                            alt={images[3].alt || images[3].title}
+                            src={previewImages[3].src}
+                            alt={previewImages[3].alt || previewImages[3].title}
                             fill
                             sizes="(max-width: 640px) 25vw, (max-width: 768px) 16vw, (max-width: 1024px) 12vw, (max-width: 1280px) 10vw, 8vw"
                             className="object-cover"
@@ -178,7 +149,7 @@ export default function AlbumPreview({ albumId, albumSlug }: AlbumPreviewProps) 
                     </div>
                     {/* Grid separator lines */}
                     <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent w-px left-1/2"></div>
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-transparent h-px top-1/2"></div>
+                    <div className="absolute inset-0 bg-linear-to-b from-transparent via-white/20 to-transparent h-px top-1/2"></div>
                 </>
             )}
         </div>

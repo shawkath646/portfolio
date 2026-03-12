@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { fetchGallerySnapshot } from "@/actions/gallery/fetchGallerySnapshot";
+import { getLatestGalleryImages } from '@/actions/gallery/getGalleryData';
 import fetchYouTubeVideos from "@/actions/googleServices/fetchYoutubeVideos";
 import CompanyIntro from "@/components/HomePage/CompanyIntro";
 import GallerySnapshot from "@/components/HomePage/GallerySnapshot";
@@ -9,13 +9,13 @@ import ShareFilesSection from "@/components/HomePage/ShareFilesSection";
 import SkillsComponent from "@/components/HomePage/SkillsComponent";
 import TasksBoard from "@/components/HomePage/TaskBoard";
 import YoutubeGrid from "@/components/HomePage/YoutubeGrid";
-import Pagination from "@/components/navigation/Pagination";
-import { getEnv } from '@/utils/getEnv';
-
-const baseUrl = getEnv("NEXT_PUBLIC_APP_BASE_URL");
+import SimplePagination from "@/components/navigation/SimplePagination";
+import appBaseUrl from '@/data/appBaseUrl';
 
 export const metadata: Metadata = {
-  title: "Shawkat Hossain Maruf - Full-Stack Developer & Software Engineer",
+  title: {
+    absolute: "Shawkat Hossain Maruf - Full-Stack Developer & Software Engineer"
+  },
   description: "Full-stack developer and Computer Science student at Sejong University specializing in React, Next.js, TypeScript, and Android development. Building modern web applications and mobile solutions with cutting-edge technologies.",
   keywords: [
     "Shawkat Hossain Maruf",
@@ -34,39 +34,20 @@ export const metadata: Metadata = {
     "Tech Projects",
   ],
   alternates: {
-    canonical: baseUrl,
+    canonical: appBaseUrl.origin,
   },
-  openGraph: {
-    title: "Shawkat Hossain Maruf - Full-Stack Developer & Software Engineer",
-    description: "Explore the portfolio of a full-stack developer specializing in React, Next.js, and Android development. Building modern web and mobile solutions.",
-    url: baseUrl,
-    siteName: "Shawkat Hossain Maruf Portfolio",
-    locale: "en_US",
-    type: "website",
-    images: [
-      {
-        url: `${baseUrl}/profile.jpg`,
-        width: 1200,
-        height: 630,
-        alt: "Shawkat Hossain Maruf - Full Stack Developer",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: "@shawkath646",
-    creator: "@shawkath646",
-    title: "Shawkat Hossain Maruf - Full Stack Developer & Software Engineer",
-    description: "Explore innovative web applications, Android apps, and data analysis projects.",
-    images: [`${baseUrl}/profile.jpg`],
-  },
+  pagination: {
+    next: new URL("/about", appBaseUrl)
+  }
 };
 
 
 export default async function Home() {
-  // Fetch YouTube data and gallery images with error handling
-  const youtubeData = await fetchYouTubeVideos();
-  const galleryImages = await fetchGallerySnapshot(15);
+
+  const [youtubeData, galleryImages] = await Promise.all([
+    fetchYouTubeVideos(),
+    getLatestGalleryImages()
+  ]);
 
   return (
     <main
@@ -79,7 +60,7 @@ export default async function Home() {
       <LandingComponent />
 
       {/* Main Content Area */}
-      <div className="bg-linear-to-br from-blue-50 via-cyan-50 to-purple-100 dark:from-[#0a192f] dark:via-[#1e293b] dark:to-[#0f172a] transition-all duration-700 py-10 px-4 md:px-0 relative overflow-hidden">
+      <div className="bg-linear-to-br from-blue-50 via-cyan-50 to-purple-100 dark:from-[#0a192f] dark:via-[#1e293b] dark:to-[#0f172a] transition-all duration-700 pt-10 px-4 md:px-0 relative overflow-hidden">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {/* Floating Orbs */}
@@ -94,12 +75,12 @@ export default async function Home() {
           <div className="absolute top-2/3 right-2/3 w-32 h-32 bg-linear-to-br from-indigo-200/30 to-fuchsia-200/20 dark:from-indigo-900/20 dark:to-fuchsia-900/10 opacity-40 animate-morph"></div>
 
           {/* Gradient Lines */}
-          <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-blue-300/20 to-transparent"></div>
-          <div className="absolute top-0 left-2/3 w-px h-full bg-gradient-to-b from-transparent via-cyan-300/20 to-transparent"></div>
-          <div className="absolute top-0 right-1/6 w-px h-2/3 bg-gradient-to-b from-transparent via-pink-300/20 to-transparent"></div>
+          <div className="absolute top-0 left-1/4 w-px h-full bg-linear-to-b from-transparent via-blue-300/20 to-transparent"></div>
+          <div className="absolute top-0 left-2/3 w-px h-full bg-linear-to-b from-transparent via-cyan-300/20 to-transparent"></div>
+          <div className="absolute top-0 right-1/6 w-px h-2/3 bg-linear-to-b from-transparent via-pink-300/20 to-transparent"></div>
 
           {/* Grid Pattern */}
-          <div className="absolute top-[35%] left-[12%] w-24 h-24 grid grid-cols-3 gap-0.5 opacity-30 rotate-[15deg] animate-pulse-fade">
+          <div className="absolute top-[35%] left-[12%] w-24 h-24 grid grid-cols-3 gap-0.5 opacity-30 rotate-15 animate-pulse-fade">
             {[...Array(9)].map((_, i) => (
               <div key={`grid-${i}`} className="w-full h-full border border-blue-300/30 dark:border-blue-500/30"></div>
             ))}
@@ -109,9 +90,9 @@ export default async function Home() {
           {/* Squares & Diamonds */}
           <div className="absolute top-1/3 left-1/5 w-8 h-8 border border-cyan-300/30 rotate-45 animate-spin-slow"></div>
           <div className="absolute bottom-1/3 right-1/5 w-6 h-6 border border-blue-300/30 rotate-12 animate-pulse"></div>
-          <div className="absolute top-2/3 left-1/6 w-10 h-10 border-2 border-purple-300/30 rotate-[30deg] animate-spin-slow" style={{ animationDuration: '30s' }}></div>
-          <div className="absolute top-1/6 right-1/6 w-7 h-7 border border-emerald-300/30 rotate-[15deg] animate-pulse" style={{ animationDuration: '5s' }}></div>
-          <div className="absolute top-1/2 left-3/4 w-6 h-6 border border-amber-300/30 rotate-[60deg] animate-spin-slow" style={{ animationDuration: '25s', animationDelay: '5s' }}></div>
+          <div className="absolute top-2/3 left-1/6 w-10 h-10 border-2 border-purple-300/30 rotate-30 animate-spin-slow" style={{ animationDuration: '30s' }}></div>
+          <div className="absolute top-1/6 right-1/6 w-7 h-7 border border-emerald-300/30 rotate-15 animate-pulse" style={{ animationDuration: '5s' }}></div>
+          <div className="absolute top-1/2 left-3/4 w-6 h-6 border border-amber-300/30 rotate-60 animate-spin-slow" style={{ animationDuration: '25s', animationDelay: '5s' }}></div>
 
           {/* Concentric Circles */}
           <div className="absolute top-[60%] left-[8%]">
@@ -121,9 +102,9 @@ export default async function Home() {
           </div>
 
           {/* Triangles */}
-          <div className="absolute top-[15%] left-[35%] w-0 h-0 border-l-[10px] border-l-transparent border-b-[16px] border-b-pink-300/30 border-r-[10px] border-r-transparent animate-float" style={{ animationDuration: '20s', animationDelay: '2s' }}></div>
-          <div className="absolute top-[70%] left-[60%] w-0 h-0 border-l-[14px] border-l-transparent border-b-[20px] border-b-blue-300/30 border-r-[14px] border-r-transparent rotate-[30deg] animate-float-reverse" style={{ animationDuration: '15s', animationDelay: '1s' }}></div>
-          <div className="absolute bottom-[20%] right-[25%] w-0 h-0 border-l-[8px] border-l-transparent border-b-[12px] border-b-emerald-300/30 border-r-[8px] border-r-transparent rotate-[15deg] animate-bounce-gentle" style={{ animationDuration: '12s' }}></div>
+          <div className="absolute top-[15%] left-[35%] w-0 h-0 border-l-10 border-l-transparent border-b-16 border-b-pink-300/30 border-r-10 border-r-transparent animate-float" style={{ animationDuration: '20s', animationDelay: '2s' }}></div>
+          <div className="absolute top-[70%] left-[60%] w-0 h-0 border-l-14 border-l-transparent border-b-20 border-b-blue-300/30 border-r-10 border-r-transparent rotate-30 animate-float-reverse" style={{ animationDuration: '15s', animationDelay: '1s' }}></div>
+          <div className="absolute bottom-[20%] right-[25%] w-0 h-0 border-l-8 border-l-transparent border-b-12 border-b-emerald-300/30 border-r-8 border-r-transparent rotate-15 animate-bounce-gentle" style={{ animationDuration: '12s' }}></div>
 
           {/* Circles */}
           <div className="absolute top-1/4 left-2/3 w-4 h-4 rounded-full border border-cyan-300/40 animate-ping" style={{ animationDuration: '4s', animationDelay: '1s' }}></div>
@@ -147,7 +128,7 @@ export default async function Home() {
           {/* Plus Sign */}
           <div className="absolute top-[22%] right-[55%]">
             <div className="w-8 h-1.5 bg-emerald-300/30 relative">
-              <div className="absolute w-1.5 h-8 bg-emerald-300/30 left-[41%] top-[-12px]"></div>
+              <div className="absolute w-1.5 h-8 bg-emerald-300/30 left-[41%] -top-3"></div>
             </div>
           </div>
 
@@ -214,11 +195,13 @@ export default async function Home() {
 
           <ShareFilesSection />
 
-          <Pagination
-            nextPage="/about"
-            nextPageLabel="About Me"
-          />
+
         </div>
+
+        <SimplePagination
+          nextPage="/about"
+          nextPageLabel="About Me"
+        />
       </div>
     </main>
   );

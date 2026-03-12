@@ -9,8 +9,8 @@ import {
     GenericSessionTokenType,
     AccessScopeLabel,
 } from "@/types/genericAuth.types";
-import { getAddressFromIP } from "@/utils/ipAddress";
 import { timestampToDate } from "@/utils/dateTime";
+import { getAddressFromIP } from "@/utils/ipAddress";
 import { generateToken, verifyToken } from "@/utils/tokens";
 
 

@@ -2,11 +2,15 @@ import { Metadata } from "next";
 import { FiBook } from "react-icons/fi";
 import { getGenericAuthSession } from "@/actions/genericAuth/authActions";
 import RestrictedPageLogin from "@/components/RestrictedPageLogin";
+import appBaseUrl from "@/data/appBaseUrl";
 
 export const metadata: Metadata = {
     title: 'Personal Life',
     description: 'An intimate glimpse into my personal journey, daily life, thoughts, and the experiences that shape who I am.',
     keywords: ['personal life', 'journey', 'experiences', 'lifestyle', 'personal'],
+    alternates: {
+        canonical: `${appBaseUrl}/about/personal-life`,
+    },
     openGraph: {
         title: 'Personal Life - Shawkat Hossain Maruf',
         description: 'An intimate glimpse into my personal journey, daily life, thoughts, and the experiences that shape who I am.',
@@ -34,7 +38,13 @@ export default async function PersonalLifePage() {
     }
 
     return (
-        <main className="min-h-screen bg-linear-to-br from-indigo-900 via-purple-900 to-pink-900 py-20 px-4">
+        <main
+            id="main-content"
+            tabIndex={-1}
+            role="main"
+            aria-label="Personal life page content"
+            className="min-h-screen bg-linear-to-br from-indigo-900 via-purple-900 to-pink-900 py-20 px-4"
+        >
             <div className="max-w-4xl mx-auto">
                 {/* Header Section */}
                 <header className="text-center mb-16">

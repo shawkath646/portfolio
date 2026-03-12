@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import { Dialog, DialogTitle, Description, Transition } from "@headlessui/react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { FiLogOut, FiX } from "react-icons/fi";
+import useLockBodyScroll from "@/hooks/useLockBodyScroll";
 
 interface LogoutModalProps {
     open: boolean;
@@ -58,6 +59,8 @@ export const LogoutModal = ({
     const shouldReduceMotion = useReducedMotion();
     const backdropVariants = createBackdropVariants(shouldReduceMotion ?? false);
     const panelVariants = createPanelVariants(shouldReduceMotion ?? false);
+
+    useLockBodyScroll(open);
 
     return (
         <AnimatePresence>

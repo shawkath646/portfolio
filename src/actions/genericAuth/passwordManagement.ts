@@ -9,8 +9,8 @@ import {
     AccessScopeLabel,
     GenericAuthPasswordRecordType,
 } from "@/types/genericAuth.types";
-import { getEnv } from "@/utils/getEnv";
 import { timestampToDate } from "@/utils/dateTime";
+import { getEnv } from "@/utils/getEnv";
 import { getAuthSession } from "../authentication/authActions";
 
 interface GeneratePasswordPropsType {

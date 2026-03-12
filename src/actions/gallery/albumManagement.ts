@@ -1,178 +1,166 @@
 "use server";
-import { cache } from "react";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/firebase";
-import { timestampToDate } from "@/utils/dateTime";
+import { APIResponseType } from "@/types/common.types";
+import { GalleryAlbumType } from "@/types/gallery.types";
+import { generateSlug } from "@/utils/string";
+import { getAuthSession } from "../authentication/authActions";
 
 
-export interface GalleryAlbumType {
-    id: string;
-    albumSlug: string;
-    name: string;
-    timestamp: Date;
-    imageCount?: number;
-}
+export const createAlbum = async (
+    albumName: string
+): Promise<APIResponseType> => {
+    const adminSession = await getAuthSession();
 
-function generateSlug(text: string): string {
-    return text
-        .toLowerCase()
-        .trim()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/[\s_]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-}
-
-export const getGalleryAlbums = cache(async (): Promise<GalleryAlbumType[]> => {
-    const albumSnapshot = await db.collection("gallery").get();
-    const albumList = await Promise.all(albumSnapshot.docs.map(async (doc) => {
-        const album = doc.data() as GalleryAlbumType;
-        album.timestamp = timestampToDate(album.timestamp);
-        
-        const imagesSnapshot = await doc.ref.collection("images").count().get();
-        album.imageCount = imagesSnapshot.data().count;
-        
-        return album;
-    }));
-
-    return albumList;
-});
-
-// Get album by slug (new function for slug-based routing)
-export const getAlbumBySlug = cache(async (albumSlug: string): Promise<GalleryAlbumType | null> => {
-    try {
-        const albumSnapshot = await db.collection("gallery")
-            .where("albumSlug", "==", albumSlug)
-            .limit(1)
-            .get();
-        
-        if (albumSnapshot.empty) {
-            return null;
-        }
-
-        const doc = albumSnapshot.docs[0];
-        const album = doc.data() as GalleryAlbumType;
-        album.timestamp = timestampToDate(album.timestamp);
-        
-        const imagesSnapshot = await doc.ref.collection("images").count().get();
-        album.imageCount = imagesSnapshot.data().count;
-        
-        return album;
-    } catch {
-        return null;
-    }
-});
-
-export const getGalleryAlbumsForSitemap = cache(async (): Promise<Array<{ id: string, albumSlug: string, name: string, timestamp: Date }>> => {
-    const albumSnapshot = await db.collection("gallery").get();
-    const albums = albumSnapshot.docs.map((doc) => {
-        const albumData = doc.data();
+    if (!adminSession) {
         return {
-            id: doc.id,
-            albumSlug: albumData.albumSlug || generateSlug(albumData.name || "untitled-album"),
-            name: albumData.name || "Untitled Album",
-            timestamp: timestampToDate(albumData.timestamp)
+            success: false,
+            message: "Error: Permission denied! Session not found."
         };
-    });
-
-    return albums;
-});
-
-export const getGalleryImagesForSitemap = cache(async (): Promise<Array<{
-    albumId: string,
-    albumSlug: string,
-    imageId: string,
-    imageSlug: string,
-    src: string,
-    title: string,
-    alt: string,
-    location?: string,
-    timestamp: Date
-}>> => {
-    const albumSnapshot = await db.collection("gallery").get();
-    const images: Array<{
-        albumId: string,
-        albumSlug: string,
-        imageId: string,
-        imageSlug: string,
-        src: string,
-        title: string,
-        alt: string,
-        location?: string,
-        timestamp: Date
-    }> = [];
-
-    for (const albumDoc of albumSnapshot.docs) {
-        const albumData = albumDoc.data();
-        const albumSlug = albumData.albumSlug || generateSlug(albumData.name || "untitled-album");
-        
-        const imagesSnapshot = await albumDoc.ref.collection("images").get();
-        
-        imagesSnapshot.docs.forEach((imageDoc) => {
-            const imageData = imageDoc.data();
-            images.push({
-                albumId: albumDoc.id,
-                albumSlug: albumSlug,
-                imageId: imageDoc.id,
-                imageSlug: imageData.imageSlug || generateSlug(imageData.title || "untitled-image"),
-                src: imageData.src || "",
-                title: imageData.title || "Untitled",
-                alt: imageData.alt || imageData.title || "Image",
-                location: imageData.location,
-                timestamp: timestampToDate(imageData.timestamp)
-            });
-        });
     }
 
-    return images;
-});
+    const collectionRef = db.collection("gallery-albums");
 
-export const createAlbum = async (albumName: string) => {
-    const docRef = db.collection("gallery").doc();
-    const albumSlug = generateSlug(albumName);
-    
+    const slug = generateSlug(albumName, { prefix: "alb" });
+
+    const existing = await collectionRef
+        .where("slug", "==", slug)
+        .limit(1)
+        .get();
+
+    if (!existing.empty) {
+        return {
+            success: false,
+            message: "Error: An album with this name already exists. Please choose another name."
+        };
+    }
+
+    const docRef = collectionRef.doc();
+
     const albumObject: GalleryAlbumType = {
         id: docRef.id,
-        albumSlug: albumSlug,
         name: albumName,
+        slug,
+        imageCount: 0,
+        previewImages: [],
         timestamp: new Date()
+    };
+
+    await docRef.create(albumObject);
+
+    revalidatePath("/about/gallery", "layout");
+    revalidatePath("/admin/gallery", "layout");
+
+    return {
+        success: true,
+        message: "Album successfully created!"
+    };
+};
+
+export const updateAlbum = async (
+    albumId: string,
+    newName: string
+): Promise<APIResponseType> => {
+    const adminSession = await getAuthSession();
+
+    if (!adminSession) {
+        return {
+            success: false,
+            message: "Error: Permission denied! Session not found."
+        };
     }
-    await docRef.set(albumObject);
-    revalidatePath("/admin/gallery");
-    revalidatePath("/about/gallery");
-    return { id: docRef.id, albumSlug };
+
+    const nextName = newName.trim();
+
+    if (!nextName) {
+        return {
+            success: false,
+            message: "Error: Album name cannot be empty."
+        };
+    }
+
+    const docRef = db.collection("gallery-albums").doc(albumId);
+    const docSnap = await docRef.get();
+
+    if (!docSnap.exists) {
+        return {
+            success: false,
+            message: "Error: Album doesn't exist!"
+        };
+    }
+
+    const newSlug = generateSlug(nextName, { prefix: "alb" });
+
+    const existingSlug = await db
+        .collection("gallery-albums")
+        .where("slug", "==", newSlug)
+        .limit(1)
+        .get();
+
+    if (!existingSlug.empty && existingSlug.docs[0].id !== albumId) {
+        return {
+            success: false,
+            message: "Error: Another album already uses this name."
+        };
+    }
+
+    await docRef.update({
+        name: nextName,
+        slug: newSlug
+    } as Partial<GalleryAlbumType>);
+
+    revalidatePath("/about/gallery", "layout");
+    revalidatePath("/admin/gallery", "layout");
+
+    return {
+        success: true,
+        message: "Album updated successfully."
+    };
 };
 
-export const updateAlbum = async (albumId: string, newName: string) => {
-    const newSlug = generateSlug(newName);
-    await db.collection("gallery").doc(albumId).set({ 
-        name: newName,
-        albumSlug: newSlug 
-    }, { merge: true });
-    revalidatePath("/admin/gallery");
-    revalidatePath("/about/gallery");
-};
+export const deleteAlbum = async (
+    albumId: string
+): Promise<APIResponseType> => {
+    const adminSession = await getAuthSession();
 
-export const deleteAlbum = async (albumId: string) => {
-    const docRef = db.collection("gallery").doc(albumId);
-    const collectionList = await docRef.listCollections();
+    if (!adminSession) {
+        return {
+            success: false,
+            message: "Error: Permission denied! Session not found."
+        };
+    }
 
-    for (const collection of collectionList) {
-        let snapshot;
-        do {
-            snapshot = await collection.limit(100).get();
-            if (snapshot.empty) {
-                break;
-            }
+    const albumsRef = db.collection("gallery-albums");
+    const imagesRef = db.collection("gallery-images");
 
+    const snapshot = await imagesRef
+        .where("albumId", "==", albumId)
+        .get();
+
+    if (!snapshot.empty) {
+        const docs = snapshot.docs;
+
+        for (let i = 0; i < docs.length; i += 500) {
             const batch = db.batch();
-            snapshot.docs.forEach(doc => {
-                batch.delete(doc.ref);
-            });
-            await batch.commit();
+            const chunk = docs.slice(i, i + 500);
 
-        } while (!snapshot.empty);
+            chunk.forEach((doc) => {
+                batch.update(doc.ref, {
+                    albumId: null,
+                });
+            });
+
+            await batch.commit();
+        }
     }
-    await docRef.delete();
-    revalidatePath("/admin/gallery");
-    revalidatePath("/about/gallery");
+
+    await albumsRef.doc(albumId).delete();
+
+    revalidatePath("/about/gallery", "layout");
+    revalidatePath("/admin/gallery", "layout");
+
+    return {
+        success: true,
+        message: "Album deleted successfully."
+    };
 };

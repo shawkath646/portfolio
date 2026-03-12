@@ -105,7 +105,7 @@ export default function OrderNowComponent() {
       >
         {/* Quick Direct Connect */}
         <motion.div
-          className="flex-1 bg-gradient-to-b from-blue-50 via-blue-100 to-blue-50 dark:from-blue-900/40 dark:via-blue-900/30 dark:to-blue-900/40 border border-blue-200 dark:border-blue-700 rounded-2xl shadow-lg p-6 flex flex-col items-center"
+          className="flex-1 bg-linear-to-b from-blue-50 via-blue-100 to-blue-50 dark:from-blue-900/40 dark:via-blue-900/30 dark:to-blue-900/40 border border-blue-200 dark:border-blue-700 rounded-2xl shadow-lg p-6 flex flex-col items-center"
           variants={fadeInUp}
           role="region"
           aria-labelledby="direct-connect-heading"
@@ -153,7 +153,7 @@ export default function OrderNowComponent() {
 
         {/* Trustable Platforms */}
         <motion.div
-          className="flex-1 bg-gradient-to-b from-green-50 via-green-100 to-green-50 dark:from-green-900/40 dark:via-green-900/30 dark:to-green-900/40 border border-green-200 dark:border-green-700 rounded-2xl shadow-lg p-6 flex flex-col items-center"
+          className="flex-1 bg-linear-to-b from-green-50 via-green-100 to-green-50 dark:from-green-900/40 dark:via-green-900/30 dark:to-green-900/40 border border-green-200 dark:border-green-700 rounded-2xl shadow-lg p-6 flex flex-col items-center"
           variants={fadeInUp}
           role="region"
           aria-labelledby="platforms-heading"

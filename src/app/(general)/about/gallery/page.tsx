@@ -1,68 +1,90 @@
 import { Metadata } from "next";
-import { getGalleryAlbums } from "@/actions/gallery/albumManagement";
-import { getEnv } from "@/utils/getEnv";
-import GalleryView from "./GalleryView";
+import { FiFolder } from "react-icons/fi";
+import { getAlbumPreviewImages, getAllAlbums } from "@/actions/gallery/getGalleryData";
+import NumberPagination from "@/components/navigation/NumberPagination";
+import appBaseUrl from "@/data/appBaseUrl";
+import AlbumsList from "./AlbumsList";
 
-const baseUrl = getEnv("NEXT_PUBLIC_APP_BASE_URL");
+const ALBUMS_PER_PAGE = 15;
 
-export const metadata: Metadata = {
-  title: "Photography Gallery - Captured Moments by Shawkat Hossain Maruf",
-  description: "Explore Shawkat Hossain Maruf's photography gallery showcasing captured moments, travel experiences, and creative work organized in albums. View stunning photos from various locations and events.",
-  keywords: [
-    "Photography Gallery",
-    "Shawkat Hossain Photos",
-    "Travel Photography",
-    "Photo Albums",
-    "Creative Photography",
-    "Captured Moments",
-    "Photography Portfolio",
-    "Image Gallery",
-  ],
-  alternates: {
-    canonical: `${baseUrl}/about/gallery`,
-  },
-  openGraph: {
-    title: "Photography Gallery - Captured Moments by Shawkat Hossain Maruf",
-    description: "Explore my photography gallery showcasing captured moments, travel experiences, and creative work organized in albums.",
-    url: `${baseUrl}/about/gallery`,
-    siteName: "Shawkat Hossain Maruf Portfolio",
-    locale: "en_US",
-    type: "website",
-    images: [
-      {
-        url: `${baseUrl}/profile.jpg`,
-        width: 1200,
-        height: 630,
-        alt: "Photography Gallery by Shawkat Hossain Maruf",
-      },
+export async function generateMetadata({ searchParams }: PageProps<'/about/gallery'>): Promise<Metadata> {
+
+  const requestedPage = Number((await searchParams).page) || 1;
+  const albumsResponse = await getAllAlbums({
+    page: requestedPage,
+    limit: ALBUMS_PER_PAGE,
+  });
+
+  const title = `Photography Gallery - Page ${albumsResponse.page}`;
+  const description = `Explore Shawkat Hossain Maruf's photography gallery showcasing captured moments, travel experiences, and creative work organized in albums. View stunning photos from various locations and events. Page ${albumsResponse.page} of ${albumsResponse.totalPages}.`;
+
+  const basePath = "/about/gallery";
+
+  const previous =
+    albumsResponse.page > 1
+      ? albumsResponse.page === 2
+        ? basePath
+        : `${basePath}?page=${albumsResponse.page - 1}`
+      : undefined;
+
+  const next =
+    albumsResponse.page < albumsResponse.totalPages
+      ? `${basePath}?page=${albumsResponse.page + 1}`
+      : undefined;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: albumsResponse.page > 1
+        ? `${appBaseUrl}/about/gallery?page=${albumsResponse.page}`
+        : `${appBaseUrl}/about/gallery`,
+    },
+    pagination: {
+      previous,
+      next
+    },
+    keywords: [
+      "Photography Gallery",
+      "Shawkat Hossain Photos",
+      "Travel Photography",
+      "Photo Albums",
+      "Creative Photography",
+      "Captured Moments",
+      "Photography Portfolio",
+      "Image Gallery",
     ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: "@shawkath646",
-    creator: "@shawkath646",
-    title: "Photography Gallery - Captured Moments by Shawkat Hossain Maruf",
-    description: "Explore my photography gallery showcasing captured moments and creative work.",
-    images: [`${baseUrl}/profile.jpg`],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    noimageindex: true,
-    googleBot: {
+    robots: {
       index: true,
       follow: true,
       noimageindex: true,
-      "max-image-preview": "none",
+      googleBot: {
+        index: true,
+        follow: true,
+        noimageindex: true,
+        "max-image-preview": "none",
+      },
     },
-  },
-};
+  };
+}
 
-export default async function GalleryPage() {
-  const albumList = await getGalleryAlbums();
+export default async function GalleryPage({ searchParams }: PageProps<'/about/gallery'>) {
+  const requestedPage = Number((await searchParams).page) || 1;
+  const albumsResponse = await getAllAlbums({
+    page: requestedPage,
+    limit: ALBUMS_PER_PAGE,
+  });
+
+  const previewImages = await getAlbumPreviewImages(albumsResponse.albums.flatMap(album => album.previewImages || []));
 
   return (
-    <main className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 pt-24 pb-16 px-3 sm:px-4 lg:px-6 relative overflow-hidden">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      role="main"
+      aria-label="Gallery page content"
+      className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 pt-24 pb-16 px-3 sm:px-4 lg:px-6 relative overflow-hidden"
+    >
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-4 -left-4 w-24 h-24 bg-blue-200 dark:bg-blue-900/30 rounded-full blur-xl opacity-60 animate-float"></div>
         <div className="absolute top-1/4 -right-8 w-32 h-32 bg-purple-200 dark:bg-purple-900/30 rounded-full blur-xl opacity-40 animate-float-reverse"></div>
@@ -73,14 +95,14 @@ export default async function GalleryPage() {
 
         <div className="absolute top-2/3 right-2/3 w-32 h-32 bg-linear-to-br from-indigo-200/30 to-fuchsia-200/20 dark:from-indigo-900/20 dark:to-fuchsia-900/10 opacity-40 animate-morph"></div>
 
-        <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-blue-300/20 to-transparent"></div>
-        <div className="absolute top-0 left-2/3 w-px h-full bg-gradient-to-b from-transparent via-cyan-300/20 to-transparent"></div>
-        <div className="absolute top-0 right-1/6 w-px h-2/3 bg-gradient-to-b from-transparent via-indigo-300/20 to-transparent"></div>
+        <div className="absolute top-0 left-1/4 w-px h-full bg-linear-to-b from-transparent via-blue-300/20 to-transparent"></div>
+        <div className="absolute top-0 left-2/3 w-px h-full bg-linear-to-b from-transparent via-cyan-300/20 to-transparent"></div>
+        <div className="absolute top-0 right-1/6 w-px h-2/3 bg-linear-to-b from-transparent via-indigo-300/20 to-transparent"></div>
 
         <div className="absolute top-1/3 left-1/5 w-8 h-8 border border-cyan-300/30 dark:border-cyan-500/20 rotate-45 animate-spin-slow"></div>
         <div className="absolute bottom-1/3 right-1/5 w-6 h-6 border border-blue-300/30 dark:border-blue-500/20 rotate-12 animate-pulse"></div>
-        <div className="absolute top-2/3 left-1/6 w-10 h-10 border-2 border-purple-300/30 dark:border-purple-500/20 rotate-[30deg] animate-spin-slow" style={{ animationDuration: '30s' }}></div>
-        <div className="absolute top-1/6 right-1/6 w-7 h-7 border border-emerald-300/30 dark:border-emerald-500/20 rotate-[15deg] animate-pulse" style={{ animationDuration: '5s' }}></div>
+        <div className="absolute top-2/3 left-1/6 w-10 h-10 border-2 border-purple-300/30 dark:border-purple-500/20 rotate-30 animate-spin-slow" style={{ animationDuration: '30s' }}></div>
+        <div className="absolute top-1/6 right-1/6 w-7 h-7 border border-emerald-300/30 dark:border-emerald-500/20 rotate-15 animate-pulse" style={{ animationDuration: '5s' }}></div>
 
         <div className="absolute top-[60%] left-[8%]">
           <div className="w-16 h-16 rounded-full border border-purple-300/20 dark:border-purple-500/15 animate-pulse-fade"></div>
@@ -88,8 +110,8 @@ export default async function GalleryPage() {
           <div className="absolute inset-6 rounded-full border border-purple-300/40 dark:border-purple-500/25 animate-pulse-fade" style={{ animationDelay: '1.4s' }}></div>
         </div>
 
-        <div className="absolute top-[15%] left-[35%] w-0 h-0 border-l-[10px] border-l-transparent border-b-[16px] border-b-pink-300/30 dark:border-b-pink-500/20 border-r-[10px] border-r-transparent animate-float" style={{ animationDuration: '20s', animationDelay: '2s' }}></div>
-        <div className="absolute top-[70%] left-[60%] w-0 h-0 border-l-[14px] border-l-transparent border-b-[20px] border-b-blue-300/30 dark:border-b-blue-500/20 border-r-[14px] border-r-transparent rotate-[30deg] animate-float-reverse" style={{ animationDuration: '15s', animationDelay: '1s' }}></div>
+        <div className="absolute top-[15%] left-[35%] w-0 h-0 border-l-10 border-l-transparent border-b-16 border-b-pink-300/30 dark:border-b-pink-500/20 border-r-10 border-r-transparent animate-float" style={{ animationDuration: '20s', animationDelay: '2s' }}></div>
+        <div className="absolute top-[70%] left-[60%] w-0 h-0 border-l-14 border-l-transparent border-b-20 border-b-blue-300/30 dark:border-b-blue-500/20 border-r-14 border-r-transparent rotate-30 animate-float-reverse" style={{ animationDuration: '15s', animationDelay: '1s' }}></div>
 
         <div className="absolute top-1/4 left-2/3 w-4 h-4 rounded-full border border-cyan-300/40 dark:border-cyan-500/25 animate-ping" style={{ animationDuration: '4s', animationDelay: '1s' }}></div>
         <div className="absolute top-3/4 left-1/3 w-4 h-4 rounded-full border border-indigo-300/40 dark:border-indigo-500/25 animate-ping" style={{ animationDuration: '5s', animationDelay: '0.5s' }}></div>
@@ -106,7 +128,31 @@ export default async function GalleryPage() {
         </div>
       </div>
 
-      <GalleryView albumList={albumList} />
+      <div className="max-w-7xl mx-auto relative z-10">
+        <header className="mb-8 text-center">
+          <div className="inline-flex items-center justify-center gap-3 mb-3">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+              <FiFolder className="text-2xl text-blue-600 dark:text-blue-400" />
+            </div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+              Photo Gallery
+            </h1>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            Explore my collection of captured moments, organized in albums
+          </p>
+        </header>
+
+        <AlbumsList albumList={albumsResponse.albums} previewImages={previewImages} />
+
+        <div className="w-full">
+          <NumberPagination
+            basePath="/about/gallery"
+            currentPage={albumsResponse.page}
+            totalPages={albumsResponse.totalPages}
+          />
+        </div>
+      </div>
     </main>
   );
 }

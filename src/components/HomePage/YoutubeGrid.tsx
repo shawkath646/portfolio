@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion, Variants } from "framer-motion";
+import { formatDateTime } from "@/utils/dateTime";
 
 const fadeUp: Variants = {
     hidden: { opacity: 0, y: 40 },
@@ -66,7 +67,7 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
                 </motion.p>
             </header>
 
-            <div className="flex flex-col md:flex-row gap-6 items-start">
+            <div className="flex flex-col md:flex-row gap-4 items-start">
                 {/* Channel Info Card */}
                 <motion.aside
                     className="bg-white dark:bg-gray-900 rounded-2xl shadow-md p-6 shrink-0 w-full md:w-80 text-center"
@@ -97,7 +98,7 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
 
                 {/* Horizontal Scrollable Video List */}
                 <motion.div
-                    className="w-full overflow-x-auto custom-scrollbar"
+                    className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar px-2"
                     variants={staggerContainer}
                     initial="hidden"
                     whileInView="visible"
@@ -111,7 +112,7 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
                                 key={video.videoId}
                                 variants={fadeUp}
                                 whileHover={{ scale: 1.05 }}
-                                className="w-[300px]"
+                                className="w-75 h-68"
                                 role="listitem"
                             >
                                 <Link
@@ -133,10 +134,10 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
                                             {video.title}
                                         </h4>
                                         <time 
-                                            className="text-xs text-gray-500 dark:text-gray-400 mt-1 block"
+                                            className="text-xs text-gray-500 dark:text-gray-400 mt-2 block"
                                             dateTime={video.publishedAt}
                                         >
-                                            {new Date(video.publishedAt).toLocaleDateString()}
+                                            {formatDateTime(new Date(video.publishedAt))}
                                         </time>
                                     </div>
                                 </Link>

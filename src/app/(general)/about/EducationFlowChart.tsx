@@ -151,7 +151,7 @@ export default function EducationFlowChart() {
             <div className="relative">
                 {/* Desktop center line - Animated */}
                 <motion.div 
-                    className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-indigo-300/0 via-indigo-500/50 to-indigo-300/0 dark:from-indigo-700/0 dark:via-indigo-400/30 dark:to-indigo-700/0 z-0 hidden md:block transform -translate-x-1/2 origin-top"
+                    className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-linear-to-b from-indigo-300/0 via-indigo-500/50 to-indigo-300/0 dark:from-indigo-700/0 dark:via-indigo-400/30 dark:to-indigo-700/0 z-0 hidden md:block transform -translate-x-1/2 origin-top"
                     variants={lineVariants}
                     initial="hidden"
                     animate={inView ? "visible" : "hidden"}
@@ -159,7 +159,7 @@ export default function EducationFlowChart() {
                 
                 {/* Mobile left line - Animated */}
                 <motion.div 
-                    className="absolute left-[11px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-indigo-300/0 via-indigo-500/50 to-indigo-300/0 dark:from-indigo-700/0 dark:via-indigo-400/30 dark:to-indigo-700/0 z-0 md:hidden origin-top"
+                    className="absolute left-[11px] top-0 bottom-0 w-0.5 bg-linear-to-b from-indigo-300/0 via-indigo-500/50 to-indigo-300/0 dark:from-indigo-700/0 dark:via-indigo-400/30 dark:to-indigo-700/0 z-0 md:hidden origin-top"
                     variants={lineVariants}
                     initial="hidden"
                     animate={inView ? "visible" : "hidden"}
