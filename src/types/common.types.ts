@@ -11,6 +11,11 @@ export interface APIResponseType {
   message: string;
 }
 
+export interface CursorPaginationOptions {
+  startAfter?: string;
+  limit?: number;
+}
+
 export interface AddressType {
   street: string;
   city: string;

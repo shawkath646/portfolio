@@ -6,6 +6,7 @@ import { FaMapMarkerAlt, FaCalendar } from "react-icons/fa";
 import { FiArrowLeft } from "react-icons/fi";
 import { getAlbumBySlug, getImageBySlug } from "@/actions/gallery/getGalleryData";
 import appBaseUrl from "@/data/appBaseUrl";
+import blurImagePlaceholder from "@/data/blurImagePlaceholder";
 import { formatDateTime } from "@/utils/dateTime";
 
 
@@ -171,15 +172,17 @@ export default async function ImagePage(
                         {/* Image Section - Takes 2 columns */}
                         <div className="lg:col-span-2">
                             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                                <div className="relative aspect-video lg:aspect-16/10 bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
+                                {/* Removed: aspect-video and lg:aspect-16/10 so the height can flow naturally */}
+                                <div className="relative bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 flex justify-center">
                                     <Image
                                         src={image.src}
                                         alt={image.alt || image.title}
-                                        fill
+                                        width={image.width}
+                                        height={image.height}
                                         sizes="(max-width: 1024px) 100vw, 66vw"
-                                        className="object-contain p-2 sm:p-4"
+                                        className="w-full h-auto object-contain max-h-[85vh] p-2 sm:p-4"
                                         placeholder="blur"
-                                        blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM2MzY2ZjEiIHN0b3Atb3BhY2l0eT0iMC4zIi8+PHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiMzYjgyZjYiIHN0b3Atb3BhY2l0eT0iMC4yIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMGVhNWU5IiBzdG9wLW9wYWNpdHk9IjAuMyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZykiLz48L3N2Zz4="
+                                        blurDataURL={blurImagePlaceholder}
                                         priority
                                     />
                                 </div>
@@ -238,8 +241,8 @@ export default async function ImagePage(
                                             <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
                                                 Date Captured
                                             </h2>
-                                            <time dateTime={image.timestamp.toISOString()} className="text-sm text-gray-900 dark:text-white">
-                                                {formatDateTime(image.timestamp)}
+                                            <time dateTime={image.timestamp.toISOString()} className="text-xs text-gray-900 dark:text-white">
+                                                {formatDateTime(image.createdAt, { showYear: true })}
                                             </time>
                                         </div>
 
@@ -247,8 +250,8 @@ export default async function ImagePage(
                                             <h2 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
                                                 Date Uploaded
                                             </h2>
-                                            <time dateTime={image.createdAt.toISOString()} className="text-sm text-gray-900 dark:text-white">
-                                                {formatDateTime(image.createdAt)}
+                                            <time dateTime={image.createdAt.toISOString()} className="text-xs text-gray-900 dark:text-white">
+                                                {formatDateTime(image.createdAt, { showYear: true })}
                                             </time>
                                         </div>
                                     </div>

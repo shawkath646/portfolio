@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { Analytics } from "@vercel/analytics/next";
 import NoJavaScript from "@/components/NoJavaScript";
+import { ToastProvider } from "@/components/Toast";
 import appBaseUrl from "@/data/appBaseUrl";
 import "./globals.css";
 
@@ -121,7 +122,9 @@ export default function RootLayout({
           Skip to main content
         </Link>
 
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
 
         <Analytics />
       </body>

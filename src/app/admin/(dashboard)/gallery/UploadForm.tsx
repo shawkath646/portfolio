@@ -1,13 +1,15 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { FaCloudUploadAlt, FaImage, FaTimes } from "react-icons/fa";
 import { requestImageUploadURL, saveGalleryImage } from "@/actions/gallery/imageManagement";
 import googleDriveLogo from "@/assets/google-drive-icon-512x512.png";
+import FileDragDrop from "@/components/FileDragDrop";
 import { GalleryAlbumType } from "@/types/gallery.types";
 import getImageMetadata from "@/utils/getImageMetadata";
+import { useToast } from "@/components/Toast";
 
 type UploadFormData = {
     title: string;
@@ -23,9 +25,9 @@ type UploadFormData = {
 
 export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[] }) {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const [isDragging, setIsDragging] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isPending, startTransition] = useTransition();
+    const toast = useToast();
 
     const {
         register,
@@ -50,7 +52,7 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
     const height = watch('height');
     const timestamp = watch('timestamp');
 
-    const validateImageFile = (file: File): string | null => {
+    const validateImageFile = useCallback((file: File): string | null => {
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
         if (!validTypes.includes(file.type)) {
             return 'Only image files are allowed (JPG, PNG, GIF, WebP, or SVG).';
@@ -62,35 +64,9 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
         }
 
         return null;
-    };
+    }, []);
 
-    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const validationError = validateImageFile(file);
-            if (validationError) {
-                setError("image", { type: "manual", message: validationError });
-                e.target.value = '';
-                return;
-            }
-
-            clearErrors("image");
-
-            const metadata = await getImageMetadata(file);
-
-            setValue('width', metadata.width ?? 0, { shouldValidate: true, shouldDirty: true });
-            setValue('height', metadata.height ?? 0, { shouldValidate: true, shouldDirty: true });
-            setValue('timestamp', metadata.timestamp || new Date(), { shouldValidate: true, shouldDirty: true });
-
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const handleFileDrop = async (file: File) => {
+    const handleImageSelect = useCallback(async (file: File) => {
         const validationError = validateImageFile(file);
         if (validationError) {
             setError("image", { type: "manual", message: validationError });
@@ -109,62 +85,36 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
         dataTransfer.items.add(file);
 
         const fileList = dataTransfer.files;
-        setValue('image', fileList as unknown as FileList, { shouldValidate: true });
+        setValue('image', fileList as unknown as FileList, { shouldValidate: true, shouldDirty: true });
 
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setImagePreview(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-    };
-
-    const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(true);
-    };
-
-    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(false);
-    };
-
-    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-    };
-
-    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(false);
-
-        const files = e.dataTransfer.files;
-        if (files && files.length > 0) {
-            handleFileDrop(files[0]);
-        }
-    };
+        setImagePreview((prev) => {
+            if (prev) {
+                URL.revokeObjectURL(prev);
+            }
+            return URL.createObjectURL(file);
+        });
+    }, [clearErrors, setError, setValue, validateImageFile]);
 
     // Clear image preview
-    const clearImage = () => {
-        setImagePreview(null);
-        clearErrors("image");
-        reset({
-            image: undefined as unknown as FileList,
-            width: 0,
-            height: 0,
-            timestamp: new Date()
+    const clearImage = useCallback(() => {
+        setImagePreview((prev) => {
+            if (prev) {
+                URL.revokeObjectURL(prev);
+            }
+            return null;
         });
-    };
-
-    const imageField = register("image", { required: "Please select an image" });
+        clearErrors("image");
+        setValue('image', undefined as unknown as FileList, { shouldValidate: true, shouldDirty: true });
+        setValue('width', 0, { shouldValidate: true, shouldDirty: true });
+        setValue('height', 0, { shouldValidate: true, shouldDirty: true });
+        setValue('timestamp', new Date(), { shouldValidate: true, shouldDirty: true });
+    }, [clearErrors, setValue]);
 
     const onSubmit = (data: UploadFormData) => startTransition(async () => {
         try {
             const file = data.image[0];
             if (!file) {
-                alert("Please select an image");
+                toast("Please select an image", "warning");
                 return;
             }
 
@@ -221,19 +171,24 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
                 throw new Error(saveResult.message || 'Failed to save image');
             }
 
-            alert("Image uploaded successfully!");
+            toast("Image uploaded successfully!", "success");
             reset();
-            setImagePreview(null);
+            setImagePreview((prev) => {
+                if (prev) {
+                    URL.revokeObjectURL(prev);
+                }
+                return null;
+            });
             setUploadProgress(0);
         } catch (error) {
             console.log(error);
             setUploadProgress(0);
-            alert("Failed to upload image");
+            toast("Failed to upload image", "error");
         }
     });
 
     const handleImportFromDrive = () => {
-        alert("Import from Google Drive - Coming soon!");
+        toast("Import from Google Drive - Coming soon!", "info");
     };
 
     const containerVariants = {
@@ -278,38 +233,22 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
                         {/* Upload Area */}
                         <div className="flex-1">
                             {!imagePreview ? (
-                                <div
-                                    className="relative h-full"
-                                    onDragEnter={handleDragEnter}
-                                    onDragLeave={handleDragLeave}
-                                    onDragOver={handleDragOver}
-                                    onDrop={handleDrop}
+                                <FileDragDrop
+                                    onFileSelected={handleImageSelect}
+                                    accept="image/*"
+                                    disabled={isPending}
+                                    className="w-full h-48 mb-0 rounded-lg"
+                                    idleClassName="border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 hover:bg-gray-100 dark:hover:bg-gray-900 hover:border-blue-400 dark:hover:border-blue-500"
+                                    draggingClassName="border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/30"
+                                    inputAriaLabel="Image upload input"
                                 >
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        {...imageField}
-                                        onChange={(e) => {
-                                            imageField.onChange(e);
-                                            handleImageChange(e);
-                                        }}
-                                        className="hidden"
-                                        id="image-upload"
-                                    />
-                                    <label
-                                        htmlFor="image-upload"
-                                        className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer transition-colors group ${isDragging
-                                            ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/30'
-                                            : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 hover:bg-gray-100 dark:hover:bg-gray-900'
-                                            }`}
-                                    >
+                                    {({ isDragging }) => (
                                         <motion.div
-                                            className="flex flex-col items-center justify-center pt-4 pb-4 pointer-events-none"
+                                            className="flex flex-col items-center justify-center pt-4 pb-4"
                                             whileHover={{ scale: 1.05 }}
                                             transition={{ type: "spring", stiffness: 300 }}
                                         >
-                                            <FaCloudUploadAlt className={`w-10 h-10 mb-2 transition-colors ${isDragging ? 'text-blue-500' : 'text-gray-400 group-hover:text-blue-500'
-                                                }`} />
+                                            <FaCloudUploadAlt className={`w-10 h-10 mb-2 transition-colors ${isDragging ? 'text-blue-500' : 'text-gray-400 group-hover:text-blue-500'}`} />
                                             <p className="mb-1 text-xs text-gray-500 dark:text-gray-400">
                                                 <span className="font-semibold">Click to upload</span> or drag and drop
                                             </p>
@@ -317,8 +256,8 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
                                                 PNG, JPG, GIF, WebP, SVG up to 10MB
                                             </p>
                                         </motion.div>
-                                    </label>
-                                </div>
+                                    )}
+                                </FileDragDrop>
                             ) : (
                                 <div className="relative w-full h-48 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900 group">
                                     <Image
@@ -337,6 +276,11 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
                                 </div>
                             )}
                         </div>
+
+                        <input
+                            type="hidden"
+                            {...register("image", { required: "Please select an image" })}
+                        />
 
                         {/* Import from Drive Button */}
                         <motion.button

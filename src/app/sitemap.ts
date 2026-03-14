@@ -58,7 +58,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.6,
         },
         {
-            url: new URL("/share", appBaseUrl).toString(),
+            url: new URL("/contact/share-files", appBaseUrl).toString(),
             lastModified: new Date(),
             changeFrequency: "monthly",
             priority: 0.5,

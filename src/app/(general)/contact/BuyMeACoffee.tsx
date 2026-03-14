@@ -32,7 +32,7 @@ const donationOptions = [
 export default function BuyMeACoffee() {
   return (
     <section 
-      className="flex flex-col items-center mt-32" 
+      className="flex flex-col items-center" 
       aria-labelledby="support-heading"
     >
       <motion.h2

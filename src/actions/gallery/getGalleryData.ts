@@ -70,8 +70,14 @@ export const getAllAlbums = cache(
             return album;
         });
 
+
+
         if (!hasMore) {
-            albums.push(await getUnknownAlbum());
+            const unknownAlbum = await getUnknownAlbum();
+
+            if (unknownAlbum.imageCount > 0) {
+                albums.push();
+            }
         }
 
         return {
@@ -85,7 +91,7 @@ export const getAllAlbums = cache(
     }
 );
 
-export const getAdminAlbumsList = cache(async (): Promise<GalleryAlbumType[]> => {
+export const getAdminAlbumsList = async (): Promise<GalleryAlbumType[]> => {
     const albumSnapshot = await db.collection("gallery-albums").orderBy("timestamp", "desc").get();
 
     const albums: GalleryAlbumType[] = albumSnapshot.docs.map(doc => {
@@ -98,7 +104,7 @@ export const getAdminAlbumsList = cache(async (): Promise<GalleryAlbumType[]> =>
     albums.push(await getUnknownAlbum());
 
     return albums;
-});
+};
 
 export const getAlbumById = cache(
     async (albumId: string): Promise<GalleryAlbumType | null> => {

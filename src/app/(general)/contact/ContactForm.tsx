@@ -28,7 +28,7 @@ export default function ContactForm() {
 
     return (
         <motion.section
-            className="w-full space-y-6 mt-32 px-4 md:px-0 container mx-auto"
+            className="w-full space-y-6 px-4 md:px-0 container mx-auto"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, type: "spring" }}
@@ -176,7 +176,7 @@ export default function ContactForm() {
                         </label>
                         <textarea
                             id="message"
-                            className={`w-full px-4 py-2 rounded-lg border min-h-[100px] resize-y ${errors.message
+                            className={`w-full px-4 py-2 rounded-lg border min-h-25 resize-y ${errors.message
                                 ? "border-red-400"
                                 : "border-gray-300 dark:border-gray-600"
                                 } bg-white dark:bg-[#1a243a] text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400`}

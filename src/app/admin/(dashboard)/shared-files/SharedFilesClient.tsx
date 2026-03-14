@@ -1,68 +1,45 @@
 "use client";
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiFile, FiDownload, FiTrash2, FiClock, FiFileText, FiAlertCircle } from "react-icons/fi";
-import { deleteSharedFile } from "@/actions/storage/deleteSharedFile";
-import { SharedFileUpload } from "@/actions/storage/getAllSharedFiles";
+import { FiFile, FiDownload, FiTrash2, FiClock, FiFileText } from "react-icons/fi";
+import { getSharedFileDownloadURL } from "@/actions/share/getSharedFiles";
+import { deleteSharedFile } from "@/actions/share/sharedFileManagement";
+import { SharedFileType } from "@/types/share.types";
+import { formatRelativeTime } from "@/utils/dateTime";
+import { formatFileSize } from "@/utils/string";
+import { useToast } from "@/components/Toast";
 
-interface SharedFilesClientProps {
-    initialFiles: SharedFileUpload[];
-    error?: string;
-}
 
-export default function SharedFilesClient({ initialFiles, error }: SharedFilesClientProps) {
-    const [files, setFiles] = useState(initialFiles);
+export default function SharedFilesClient({ sharedFiles }: { sharedFiles: SharedFileType[] }) {
     const [isPending, startTransition] = useTransition();
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const toast = useToast();
 
-    const formatFileSize = (bytes: number): string => {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
-    };
-
-    const formatDate = (dateString: string): string => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-
-        if (diffInHours < 1) {
-            const minutes = Math.floor(diffInHours * 60);
-            return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
-        } else if (diffInHours < 24) {
-            const hours = Math.floor(diffInHours);
-            return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
-        } else if (diffInHours < 48) {
-            return 'Yesterday';
-        } else {
-            return date.toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric', 
-                year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined 
-            });
-        }
-    };
-
-    const handleDelete = (fileId: string, storagePath: string, fileName: string) => {
+    const handleDelete = (fileId: string, fileName: string) => {
         if (!confirm(`Are you sure you want to delete "${fileName}"? This action cannot be undone.`)) {
             return;
         }
 
         setDeletingId(fileId);
         startTransition(async () => {
-            const result = await deleteSharedFile(fileId, storagePath);
-            
-            if (result.success) {
-                setFiles(prev => prev.filter(f => f.id !== fileId));
-            } else {
-                alert(`Failed to delete file: ${result.error}`);
-            }
+            const result = await deleteSharedFile(fileId);
+
+            toast(result.message, result.success ? 'success' : 'error');
             setDeletingId(null);
         });
     };
+
+    const handleFileDownload = async (fileId: string) => {
+        if (!!deletingId) return;
+
+        const response = await getSharedFileDownloadURL(fileId);
+
+        if (!response.success || !response.signedUrl) {
+            toast(response.message, 'error');
+        }
+
+        window.open(response.signedUrl, '_blank', 'noopener,noreferrer');
+    }
 
     return (
         <>
@@ -94,7 +71,7 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Files</p>
-                            <p className="text-2xl font-bold text-gray-900 dark:text-white">{files.length}</p>
+                            <p className="text-2xl font-bold text-gray-900 dark:text-white">{sharedFiles.length}</p>
                         </div>
                         <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                             <FiFile className="text-xl text-blue-600 dark:text-blue-400" />
@@ -107,7 +84,7 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
                         <div>
                             <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Total Size</p>
                             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                {formatFileSize(files.reduce((sum, f) => sum + f.fileSize, 0))}
+                                {formatFileSize(sharedFiles.reduce((sum, f) => sum + f.size, 0))}
                             </p>
                         </div>
                         <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
@@ -121,7 +98,7 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
                         <div>
                             <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Reviewed</p>
                             <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                {files.filter(f => f.reviewed).length}
+                                {sharedFiles.filter(f => f.reviewed).length}
                             </p>
                         </div>
                         <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
@@ -131,27 +108,8 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
                 </div>
             </motion.div>
 
-            {/* Error State */}
-            {error && (
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6"
-                >
-                    <div className="flex items-start gap-3">
-                        <FiAlertCircle className="text-xl text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
-                        <div>
-                            <h3 className="text-base font-semibold text-red-900 dark:text-red-200 mb-1">
-                                Error Loading Files
-                            </h3>
-                            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-                        </div>
-                    </div>
-                </motion.div>
-            )}
-
             {/* Empty State */}
-            {!error && files.length === 0 && (
+            {sharedFiles.length === 0 && (
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -169,7 +127,7 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
             )}
 
             {/* Files List */}
-            {!error && files.length > 0 && (
+            {sharedFiles.length > 0 && (
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -178,7 +136,7 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
                 >
                     <div className="divide-y divide-gray-200 dark:divide-gray-700">
                         <AnimatePresence mode="popLayout">
-                            {files.map((file, index) => (
+                            {sharedFiles.map((file, index) => (
                                 <motion.div
                                     key={file.id}
                                     initial={{ opacity: 0, x: -20 }}
@@ -195,23 +153,31 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
 
                                         {/* File Info */}
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate mb-1">
-                                                {file.fileName}
-                                            </h3>
-                                            
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                                                    {file.fileName}
+                                                </h3>
+
+                                                {!file.reviewed && (
+                                                    <span className="shrink-0 px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase rounded-full bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border border-green-200 dark:border-green-500/30">
+                                                        New
+                                                    </span>
+                                                )}
+                                            </div>
+
                                             <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                                                <span>{formatFileSize(file.fileSize)}</span>
+                                                <span>{formatFileSize(file.size)}</span>
                                                 <span className="flex items-center gap-1">
                                                     <FiClock className="text-xs" />
-                                                    {formatDate(file.uploadedAt)}
+                                                    {formatRelativeTime(file.timestamp)}
                                                 </span>
                                             </div>
 
-                                            {file.userNote && (
+                                            {file.note && (
                                                 <div className="mt-2 flex items-start gap-2 text-xs">
                                                     <FiFileText className="text-gray-400 shrink-0 mt-0.5" />
                                                     <p className="text-gray-600 dark:text-gray-400 italic">
-                                                        {file.userNote}
+                                                        {file.note}
                                                     </p>
                                                 </div>
                                             )}
@@ -219,20 +185,19 @@ export default function SharedFilesClient({ initialFiles, error }: SharedFilesCl
 
                                         {/* Actions */}
                                         <div className="flex items-center gap-2 w-full sm:w-auto">
-                                            <Link
-                                                href={file.downloadURL}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                download
+                                            <button
+                                                role="button"
+                                                disabled={!!deletingId}
+                                                onClick={() => handleFileDownload(file.id)}
                                                 className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
                                                 aria-label={`Download ${file.fileName}`}
                                             >
                                                 <FiDownload className="text-base" />
                                                 <span className="font-medium">Download</span>
-                                            </Link>
+                                            </button>
 
                                             <button
-                                                onClick={() => handleDelete(file.id, file.storagePath, file.fileName)}
+                                                onClick={() => handleDelete(file.id, file.fileName)}
                                                 disabled={isPending && deletingId === file.id}
                                                 className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white rounded-lg transition-colors disabled:cursor-not-allowed text-sm"
                                                 aria-label={`Delete ${file.fileName}`}

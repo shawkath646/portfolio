@@ -1,32 +1,36 @@
 import { Metadata } from "next";
-// import { FiUpload, FiLock, FiUser } from "react-icons/fi";
+import { FiLock, FiUser, FiShare2 } from "react-icons/fi";
+import { getSelfSharedFiles } from "@/actions/share/getSharedFiles";
 import appBaseUrl from "@/data/appBaseUrl";
-// import FileSubmission from "./FileSubmission";
-// import UserUploadsList from "./UserUploadsList";
+import FileSubmission from "./FileSubmission";
+import UserUploadsList from "./UserUploadsList";
+
 
 export const metadata: Metadata = {
-    title: "File Upload - Shawkat Hossain Maruf",
-    description: "Upload and share files securely. Submit documents, images, videos, and more with real-time progress tracking. Files are accessible from the admin panel.",
+    title: "Share Files Securely",
+    description: "Easily and securely share documents, images, and media directly with Shawkat Hossain Maruf. Fast, secure file transfer with real-time progress tracking.",
     keywords: [
-        "file upload",
-        "file sharing",
-        "upload files",
-        "share documents",
-        "cloud storage",
-        "file transfer",
-        "secure upload",
+        "secure file drop",
+        "share files",
+        "send documents",
+        "client file upload",
+        "cloud transfer",
+        "portfolio contact",
         "Shawkat Hossain Maruf"
     ],
     alternates: {
-        canonical: `${appBaseUrl}/share`,
+        canonical: `${appBaseUrl}/contact/share-files`,
     },
     robots: {
         index: true,
         follow: true
-    },
+    }
 };
 
-export default function SharePage() {
+export default async function SharePage() {
+
+    const selfSharedFiles = await getSelfSharedFiles();
+
     return (
         <main
             id="main-content"
@@ -42,22 +46,22 @@ export default function SharePage() {
                 <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-purple-300/20 dark:bg-purple-600/10 rounded-full blur-3xl" />
             </div>
 
-            {/* <div className="max-w-5xl mx-auto relative z-10">
+            <div className="container mx-auto relative z-10">
                 <header className="text-center mt-5 mb-8">
                     <div className="flex space-x-2 justify-center items-center mb-2">
                         <div className="inline-flex items-center gap-2 mb-3">
                             <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                                <FiUpload className="text-2xl text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                                <FiShare2 className="text-2xl text-blue-600 dark:text-blue-400" aria-hidden="true" />
                             </div>
                         </div>
 
                         <h1 id="page-title" className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-3">
-                            Upload Files
+                            Share Files
                         </h1>
                     </div>
 
                     <p className="text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
-                        Share documents, images, videos, and more. Upload multiple files with real-time progress tracking.
+                        Share documents, images, videos, and multimedia files with Shawkat Hossain Maruf.
                     </p>
 
                     <div className="flex flex-wrap gap-3 justify-center mb-6" role="list" aria-label="Upload features">
@@ -77,47 +81,18 @@ export default function SharePage() {
 
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-sm border border-gray-200 dark:border-gray-700" role="listitem">
                             <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                                100MB Max Per File
+                                500MB Max Per File
                             </span>
                         </div>
                     </div>
                 </header>
 
-                <UserUploadsList />
                 <FileSubmission />
 
-                <aside
-                    className="mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4"
-                    role="note"
-                    aria-label="Upload guidelines"
-                >
-                    <h2 className="text-sm font-bold text-blue-900 dark:text-blue-200 mb-2">
-                        Upload Guidelines
-                    </h2>
-                    <ul className="space-y-1.5 text-xs text-blue-800 dark:text-blue-300">
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-600 dark:text-blue-400 mt-0.5">•</span>
-                            <span>Upload multiple files simultaneously with drag-and-drop or file selection</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-600 dark:text-blue-400 mt-0.5">•</span>
-                            <span>Maximum file size is 100MB per file</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-600 dark:text-blue-400 mt-0.5">•</span>
-                            <span>Track real-time upload progress with speed and time remaining</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-600 dark:text-blue-400 mt-0.5">•</span>
-                            <span>Add optional notes to provide context for each file</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-600 dark:text-blue-400 mt-0.5">•</span>
-                            <span>Your uploads are tracked via cookies - you can see them anytime you return</span>
-                        </li>
-                    </ul>
-                </aside>
-            </div> */}
+                {selfSharedFiles.length && (
+                    <UserUploadsList sharedFiles={selfSharedFiles} />
+                )}
+            </div>
         </main>
     );
 }

@@ -17,10 +17,36 @@ export function timestampToDate(ts: FirebaseTimestamp | Date): Date {
     return new Date(ms);
 }
 
-export function formatDateTime(date: Date): string {
-    return new Date(date).toLocaleString("en-US", {
-        month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
+export interface FormatDateTimeOptions {
+    showYear?: boolean;
+    onlyDate?: boolean;
+    onlyTime?: boolean;
+}
+
+export interface FormatDateTimeOptions {
+    showYear?: boolean;
+    onlyDate?: boolean;
+    onlyTime?: boolean;
+}
+
+export function formatDateTime(date: Date | string | number, options: FormatDateTimeOptions = {}): string {
+    const d = new Date(date);
+
+    const datePart = d.toLocaleDateString("en-GB", {
+        day: "2-digit", 
+        month: "short",
+        year: options.showYear ? "numeric" : undefined,
     });
+
+    const timePart = d.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+
+    if (options.onlyDate) return datePart;
+    if (options.onlyTime) return timePart;
+
+    return `${datePart}, ${timePart}`;
 }
 
 export function imageNameToDate(filename: string): Date | null {

@@ -9,7 +9,7 @@ import { RxCross2 } from "react-icons/rx";
 const navigation = [
     { name: "Home", href: "/", description: "Welcome to my portfolio" },
     { name: "About", href: "/about", description: "Learn about my background and experience" },
-    { name: "Projects", href: "/projects", description: "View my latest projects and work" },
+    { name: "Creations", href: "/creations", description: "View my latest projects, research and work" },
     { name: "Blog", href: "#", description: "Read my thoughts and tutorials" },
     { name: "Contact", href: "/contact", description: "Get in touch with me" },
 ];
@@ -46,7 +46,7 @@ const NavItem = ({
             {!isMobile && (
                 <span
                     className={`
-                        absolute left-1/2 bottom-1 h-[2px] bg-linear-to-r from-blue-500 via-cyan-400 to-blue-700 rounded-full 
+                        absolute left-1/2 bottom-1 h-0.5 bg-linear-to-r from-blue-500 via-cyan-400 to-blue-700 rounded-full 
                         transition-all duration-300 
                         ${isActive
                             ? 'w-3/5 group-hover:w-4/5'

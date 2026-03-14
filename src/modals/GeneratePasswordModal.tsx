@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { FiRefreshCw, FiCheck, FiX, FiKey, FiCopy } from 'react-icons/fi';
 import { generatePassword } from '@/actions/genericAuth/passwordManagement';
 import useLockBodyScroll from '@/hooks/useLockBodyScroll';
+import { useToast } from '@/components/Toast';
 import { AccessScopeLabel } from "@/types/genericAuth.types";
 
 
@@ -234,13 +235,15 @@ const GeneratePasswordModal = ({ open, onClose, onSuccess }: GeneratePasswordMod
         });
     };
 
+    const toast = useToast();
+
     const handleCopyPassword = async () => {
         if (generatedPassword) {
             try {
                 await navigator.clipboard.writeText(generatedPassword);
-                alert('Password copied to clipboard!');
+                toast('Password copied to clipboard!', 'success');
             } catch {
-                alert('Failed to copy password to clipboard');
+                toast('Failed to copy password to clipboard', 'error');
             }
         }
     };

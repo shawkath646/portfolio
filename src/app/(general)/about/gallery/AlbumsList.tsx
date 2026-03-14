@@ -3,6 +3,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaFolder, FaImage } from "react-icons/fa";
 import { GalleryAlbumType, GalleryImageType } from "@/types/gallery.types";
+import { formatDateTime } from "@/utils/dateTime";
 import AlbumPreview from "./AlbumPreview";
 
 interface AlbumsListProps {
@@ -92,13 +93,13 @@ export default function AlbumsList({ albumList, previewImages }: AlbumsListProps
                                     <h3 className="text-xs font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate mb-1">
                                         {album.name}
                                     </h3>
-                                    <div className="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-500">
-                                        <div className="flex items-center gap-1" aria-label={`${album.imageCount ?? 0} photos`}>
+                                    <div className="flex items-center justify-between text-[10px] text-gray-700 dark:text-gray-300">
+                                        <div className="flex items-center gap-1" aria-label={`${album.imageCount} photos`}>
                                             <FaImage className="text-[9px]" aria-hidden="true" />
-                                            <span>{album.imageCount ?? 0}</span>
+                                            <span>{album.imageCount}</span>
                                         </div>
-                                        <span className="font-medium text-blue-600 dark:text-blue-400" aria-hidden="true">
-                                            View →
+                                        <span className="font-medium" aria-hidden="true">
+                                            {formatDateTime(album.timestamp)}
                                         </span>
                                     </div>
                                 </div>

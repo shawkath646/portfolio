@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiUpload, FiFile, FiX, FiCheck, FiAlertCircle, FiLoader, FiClock, FiSend } from "react-icons/fi";
-import { requestSharedFileUploadURL } from "@/actions/share/sharedFileManagement";
+import { FiFile, FiX, FiCheck, FiAlertCircle, FiLoader, FiClock, FiSend } from "react-icons/fi";
+import { requestSharedFileUploadURL, saveSharedFile } from "@/actions/share/sharedFileManagement";
+import FileDragDrop from "@/components/FileDragDrop";
 import getErrorMessage from "@/utils/getErrorMessage";
+import { formatFileSize } from "@/utils/string";
+import { useToast } from "@/components/Toast";
 
 interface FileWithMetadata {
     tempId: string;
@@ -24,26 +27,14 @@ interface UploadProgress {
     controller?: AbortController;
 }
 
-const MAX_FILE_SIZE = 250 * 1024 * 1024;
+const MAX_FILE_SIZE_MB = 500;
 
 export default function FileSubmission() {
     const [files, setFiles] = useState<FileWithMetadata[]>([]);
     const [uploadProgress, setUploadProgress] = useState<Map<string, UploadProgress>>(new Map());
-    const [isDragging, setIsDragging] = useState(false);
     const [allCompleted, setAllCompleted] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const formatFileSize = (bytes: number): string => {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
-    };
-
-    const formatSpeed = (bytesPerSecond: number): string => {
-        return formatFileSize(bytesPerSecond) + '/s';
-    };
+    const [senderName, setSenderName] = useState("");
+    const toast = useToast();
 
     const formatTime = (seconds: number): string => {
         if (seconds < 60) return `${Math.round(seconds)}s`;
@@ -52,13 +43,12 @@ export default function FileSubmission() {
         return `${minutes}m ${remainingSeconds}s`;
     };
 
-    const handleFileSelect = useCallback((selectedFiles: FileList | File[]) => {
-        const fileArray = Array.from(selectedFiles);
+    const handleFileSelect = useCallback((selectedFiles: File[]) => {
         const validFiles: FileWithMetadata[] = [];
 
-        for (const file of fileArray) {
-            if (file.size > MAX_FILE_SIZE) {
-                alert(`${file.name} exceeds 100MB limit`);
+        for (const file of selectedFiles) {
+            if (file.size > (MAX_FILE_SIZE_MB * 1024 * 1024)) {
+                toast(`${file.name} exceeds ${MAX_FILE_SIZE_MB}MB limit`, 'warning');
                 continue;
             }
             validFiles.push({
@@ -68,36 +58,29 @@ export default function FileSubmission() {
             });
         }
 
-        setFiles(prev => [...prev, ...validFiles]);
+        setFiles(prev => {
+            const knownFiles = new Set(
+                prev.map(item => `${item.file.name}-${item.file.size}-${item.file.lastModified}`)
+            );
+
+            const uniqueIncoming = validFiles.filter(item => {
+                const signature = `${item.file.name}-${item.file.size}-${item.file.lastModified}`;
+                if (knownFiles.has(signature)) {
+                    return false;
+                }
+
+                knownFiles.add(signature);
+                return true;
+            });
+
+            return [...prev, ...uniqueIncoming];
+        });
         setAllCompleted(false);
     }, []);
 
-    const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        setIsDragging(false);
-        if (e.dataTransfer.files.length > 0) {
-            handleFileSelect(e.dataTransfer.files);
-        }
-    }, [handleFileSelect]);
-
-    const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        setIsDragging(true);
-    }, []);
-
-    const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        setIsDragging(false);
-    }, []);
-
-    const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            handleFileSelect(e.target.files);
-        }
-    }, [handleFileSelect]);
+    
 
     const removeFile = useCallback((tempId: string) => {
-        // Cancel upload if in progress
         const progress = uploadProgress.get(tempId);
         if (progress?.controller) {
             progress.controller.abort();
@@ -116,7 +99,7 @@ export default function FileSubmission() {
     }, []);
 
     const uploadFile = async (fileWithMetadata: FileWithMetadata): Promise<boolean> => {
-        const { file, tempId } = fileWithMetadata;
+        const { file, tempId, note } = fileWithMetadata;
         const controller = new AbortController();
 
         setUploadProgress(prev => new Map(prev).set(tempId, {
@@ -130,7 +113,6 @@ export default function FileSubmission() {
         }));
 
         try {
-            // Step 1: Generate signed upload URL
             const urlResult = await requestSharedFileUploadURL({
                 fileType: file.type,
                 fileSize: file.size
@@ -140,21 +122,18 @@ export default function FileSubmission() {
                 throw new Error(urlResult.message || 'Failed to generate upload URL');
             }
 
-            // Update status to uploading
             setUploadProgress(prev => new Map(prev).set(tempId, {
                 ...prev.get(tempId)!,
                 status: 'uploading',
                 uploadURL: urlResult.uploadURL,
             }));
 
-            // Step 2: Upload file directly to GCS using signed URL
             const startTime = Date.now();
             let lastLoaded = 0;
             let lastTime = startTime;
 
             const xhr = new XMLHttpRequest();
 
-            // Track upload progress
             xhr.upload.addEventListener('progress', (e) => {
                 if (e.lengthComputable) {
                     const currentTime = Date.now();
@@ -185,6 +164,7 @@ export default function FileSubmission() {
                     } else {
                         reject(new Error(`Upload failed with status ${xhr.status}`));
                     }
+                    console.log(xhr);
                 });
 
                 xhr.addEventListener('error', () => {
@@ -196,12 +176,14 @@ export default function FileSubmission() {
                 });
 
                 xhr.open('PUT', urlResult.uploadURL!);
-                xhr.send(file);
+                xhr.setRequestHeader('Content-Type', file.type); 
+                xhr.setRequestHeader('x-goog-content-length-range', `0,${file.size}`);
 
-                // Store XHR in controller for cancellation
                 controller.signal.addEventListener('abort', () => {
                     xhr.abort();
                 });
+
+                xhr.send(file);
             });
 
             // Step 3: Finalize - save metadata to Firestore
@@ -211,20 +193,19 @@ export default function FileSubmission() {
                 progress: 100
             }));
 
-            // const metadataResult = await saveSharedFileMetadata({
-            //     storagePath: urlResult.storagePath,
-            //     fileName: file.name,
-            //     fileSize: file.size,
-            //     fileType: file.type,
-            //     lastModified: file.lastModified,
-            //     userNote: note.trim() || undefined
-            // });
+            const metadataResult = await saveSharedFile({
+                id: urlResult.fileId,
+                fileName: file.name,
+                fileType: file.type,
+                size: file.size,
+                note: note.trim(),
+                sender: senderName.trim(),
+            });
 
-            // if (!metadataResult.success) {
-            //     throw new Error(metadataResult.error || 'Failed to save metadata');
-            // }
+            if (!metadataResult.success) {
+                throw new Error(metadataResult.message || 'Failed to save metadata');
+            }
 
-            // Step 4: Completed
             setUploadProgress(prev => new Map(prev).set(tempId, {
                 ...prev.get(tempId)!,
                 status: 'completed',
@@ -247,11 +228,13 @@ export default function FileSubmission() {
 
     const handleUploadAll = async () => {
         if (files.length === 0) return;
+        if (!senderName.trim()) {
+            toast("Please add sender name before uploading.", 'warning');
+            return;
+        }
 
-        // Upload all files in parallel and track results
         const results = await Promise.all(files.map(file => uploadFile(file)));
 
-        // Check if all completed successfully by checking the results
         const allSuccessful = results.every(result => result === true);
         setAllCompleted(allSuccessful);
     };
@@ -266,9 +249,7 @@ export default function FileSubmission() {
         setFiles([]);
         setUploadProgress(new Map());
         setAllCompleted(false);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-        }
+        setSenderName("");
     };
 
     const getStatusText = (status: UploadProgress['status']): string => {
@@ -358,34 +339,22 @@ export default function FileSubmission() {
                             exit={{ opacity: 0 }}
                         >
                             {/* File Drop Zone */}
-                            <div
-                                onDrop={handleDrop}
-                                onDragOver={handleDragOver}
-                                onDragLeave={handleDragLeave}
-                                onClick={() => !isUploading && fileInputRef.current?.click()}
-                                className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all mb-6 ${
-                                    isDragging
-                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                                        : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-gray-50 dark:hover:bg-gray-900/50'
-                                } ${isUploading ? 'cursor-not-allowed opacity-50' : ''}`}
-                            >
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    multiple
-                                    onChange={handleFileInputChange}
-                                    disabled={isUploading}
-                                    className="hidden"
-                                    aria-label="File upload input"
-                                />
+                            <FileDragDrop
+                                multiple
+                                disabled={isUploading}
+                                onFilesSelected={handleFileSelect}
+                                title="Drop files here or click to browse"
+                                description={`Upload multiple files • Maximum ${MAX_FILE_SIZE_MB}MB per file`}
+                            />
 
-                                <FiUpload className="text-5xl text-gray-400 dark:text-gray-600 mx-auto mb-4" />
-                                <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                    Drop files here or click to browse
-                                </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    Upload multiple files • Maximum 100MB per file
-                                </p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                                <input
+                                    type="text"
+                                    value={senderName}
+                                    onChange={(e) => setSenderName(e.target.value)}
+                                    placeholder="Sender name"
+                                    className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                />
                             </div>
 
                             {/* Files List */}
@@ -448,7 +417,7 @@ export default function FileSubmission() {
                                                             </span>
                                                             {progress.status === 'uploading' && (
                                                                 <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
-                                                                    <span>{formatSpeed(progress.speed)}</span>
+                                                                    <span>{formatFileSize(progress.speed)}/s</span>
                                                                     <span className="flex items-center gap-1">
                                                                         <FiClock className="text-xs" />
                                                                         {formatTime(progress.timeRemaining)}
@@ -505,7 +474,7 @@ export default function FileSubmission() {
                                         whileHover={!isUploading ? { scale: 1.02 } : {}}
                                         whileTap={!isUploading ? { scale: 0.98 } : {}}
                                         onClick={handleUploadAll}
-                                        disabled={isUploading}
+                                        disabled={isUploading || !senderName.trim()}
                                         className="flex-1 px-4 py-2.5 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-semibold text-sm shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
                                     >
                                         {isUploading ? (

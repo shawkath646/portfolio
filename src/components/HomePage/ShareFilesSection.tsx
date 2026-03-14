@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { FiShare2 } from "react-icons/fi";
 
 export default function ShareFilesSection() {
     return (
@@ -18,29 +19,17 @@ export default function ShareFilesSection() {
                     className="max-w-3xl mx-auto"
                 >
                     <Link
-                        href="/share"
+                        href="/contact/share-files"
                         className="block group relative overflow-hidden rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-6 shadow-lg hover:shadow-xl transition-all duration-300"
                     >
                         {/* Animated Gradient Border */}
                         <div className="absolute inset-0 rounded-xl bg-linear-to-r from-blue-500 via-cyan-500 to-blue-500 opacity-75 blur-sm animate-[spin_15s_linear_infinite]"></div>
-                        <div className="absolute inset-[2px] rounded-xl bg-white dark:bg-gray-800"></div>
+                        <div className="absolute inset-0.5 rounded-xl bg-white dark:bg-gray-800"></div>
                         
                         <div className="relative flex items-center gap-4">
                             {/* Icon */}
                             <div className="shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-800/40 transition-colors duration-300">
-                                <svg
-                                    className="w-6 h-6 text-blue-600 dark:text-blue-400"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                    />
-                                </svg>
+                                <FiShare2 size={22} className="text-blue-500" />
                             </div>
 
                             {/* Content */}

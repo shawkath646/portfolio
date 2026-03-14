@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { FaFolder, FaImage, FaCalendar } from "react-icons/fa";
+import { formatDateTime } from "@/utils/dateTime";
 
 interface GalleryHeaderProps {
     name: string;
@@ -46,13 +47,9 @@ export default function GalleryHeader({ name, timestamp, imageCount }: GalleryHe
                                 transition={{ delay: 0.4 }}
                                 className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400"
                             >
-                                <span className="flex items-center gap-1">
-                                    <FaCalendar className="text-[10px]" />
-                                    {timestamp.toLocaleDateString('en-US', { 
-                                        year: 'numeric', 
-                                        month: 'long', 
-                                        day: 'numeric' 
-                                    })}
+                                <span className="flex items-center gap-1 mt-1">
+                                    <FaCalendar className="text-[9px]" />
+                                    {formatDateTime(timestamp)}
                                 </span>
                             </motion.div>
                         </div>

@@ -95,19 +95,19 @@ export async function saveGalleryImage(
         return { success: false, message: "Image not uploaded." };
     }
 
-    const album = await getAlbumById(props.albumId);
-    if (!album) {
-        return { success: false, message: "Invalid album." };
-    }
-
-    const publicUrl = await generatePublicUrl(storagePath);
-
     const imageSlug = generateSlug(props.title, { prefix: "img" });
     const duplicateImage = await getImageBySlug(imageSlug);
 
     if (duplicateImage !== null) {
         return { success: false, message: "Error: Image with slug already exists!" };
     }
+
+    const album = await getAlbumById(props.albumId);
+    if (!album) {
+        return { success: false, message: "Invalid album." };
+    }
+
+    const publicUrl = await generatePublicUrl(storagePath);
 
     const imageObject: GalleryImageType = {
         ...props,

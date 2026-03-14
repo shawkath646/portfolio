@@ -6,7 +6,10 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { FaMapMarkerAlt, FaCalendar, FaSpinner, FaTrash } from "react-icons/fa";
 import { deleteImage } from "@/actions/gallery/imageManagement";
+import blurImagePlaceholder from "@/data/blurImagePlaceholder";
 import { GalleryImageType } from "@/types/gallery.types";
+import { formatDateTime } from "@/utils/dateTime";
+import { useToast } from "@/components/Toast";
 
 
 interface GalleryGridProps {
@@ -17,14 +20,14 @@ export default function GalleryGrid({ images }: GalleryGridProps) {
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
     const router = useRouter();
+    const toast = useToast();
 
     const handleDelete = async (imageId: string) => {
         if (!confirm("Are you sure you want to delete this image?")) return;
 
         setDeletingId(imageId);
         const result = await deleteImage(imageId);
-        alert(result.message);
-        alert("Failed to delete image");
+        toast(result.message, result.success ? 'success' : 'error');
         setDeletingId(null);
     };
 
@@ -65,7 +68,7 @@ export default function GalleryGrid({ images }: GalleryGridProps) {
                         className="group relative"
                     >
                         <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-200 dark:border-gray-700">
-                            {/* Image */}
+                            {/* Image Wrapper */}
                             <div
                                 className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-900 cursor-pointer"
                                 onClick={() => router.replace(`/admin/gallery/${image.albumId ?? "unknown-album"}?selected=${image.id}`)}
@@ -73,11 +76,16 @@ export default function GalleryGrid({ images }: GalleryGridProps) {
                                 <Image
                                     src={image.src}
                                     alt={image.alt || image.title}
-                                    fill
+
+                                    width={400}
+                                    height={400}
+
                                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
-                                    className="object-cover group-hover:scale-110 transition-transform duration-300"
+
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+
                                     placeholder="blur"
-                                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+                                    blurDataURL={blurImagePlaceholder}
                                 />
                                 <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                             </div>
@@ -102,11 +110,7 @@ export default function GalleryGrid({ images }: GalleryGridProps) {
                                     <div className="flex items-center gap-1">
                                         <FaCalendar className="text-blue-500 text-[9px]" />
                                         <span>
-                                            {image.timestamp.toLocaleDateString('en-US', {
-                                                year: 'numeric',
-                                                month: 'short',
-                                                day: 'numeric'
-                                            })}
+                                            {formatDateTime(image.timestamp)}
                                         </span>
                                     </div>
                                 </div>

@@ -2,14 +2,17 @@
 
 import { useState, useTransition, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { FaTimes, FaMapMarkerAlt, FaCalendar, FaSpinner, FaTrash, FaFolder } from "react-icons/fa";
 import { getAdminAlbumsList } from "@/actions/gallery/getGalleryData";
 import { deleteImage, updateImageAlbum } from "@/actions/gallery/imageManagement";
+import blurImagePlaceholder from "@/data/blurImagePlaceholder";
 import useLockBodyScroll from "@/hooks/useLockBodyScroll";
 import { GalleryAlbumType, GalleryImageType } from "@/types/gallery.types";
 import { formatDateTime } from "@/utils/dateTime";
+import { useToast } from "@/components/Toast";
 
 export default function ImageViewModal({ image }: { image: GalleryImageType }) {
     const [isDeleting, setDeleting] = useState(false);
@@ -20,6 +23,7 @@ export default function ImageViewModal({ image }: { image: GalleryImageType }) {
     const [isPending, startTransition] = useTransition();
 
     const router = useRouter();
+    const toast = useToast();
     useLockBodyScroll();
 
     useEffect(() => {
@@ -52,7 +56,7 @@ export default function ImageViewModal({ image }: { image: GalleryImageType }) {
 
         startTransition(async () => {
             const result = await updateImageAlbum(image.id, newAlbumId);
-            alert(result.message);
+            toast(result.message, result.success ? 'success' : 'error');
         });
     };
 
@@ -87,7 +91,7 @@ export default function ImageViewModal({ image }: { image: GalleryImageType }) {
                             sizes="100vw"
                             className="object-contain"
                             placeholder="blur"
-                            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+                            blurDataURL={blurImagePlaceholder}
                             priority
                         />
                     </div>
@@ -157,20 +161,39 @@ export default function ImageViewModal({ image }: { image: GalleryImageType }) {
                                         <FaMapMarkerAlt className="text-red-500 mt-0.75 shrink-0" />
                                         <div>
                                             <p className="text-xs text-zinc-500">Location</p>
-                                            <p className="text-zinc-300 wrap-break-word">{image.location}</p>
+                                            <Link
+                                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(image.location)}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-sm text-gray-900 dark:text-white hover:text-blue-500 transition-all"
+                                            >
+                                                {image.location}
+                                            </Link>
                                         </div>
                                     </div>
                                 )}
 
-                                <div className="flex items-start gap-3">
-                                    <FaCalendar className="text-blue-500 mt-0.75 shrink-0" />
+                                <div className="flex justify-between">
+                                    <div className="flex items-start gap-3">
+                                        <FaCalendar className="text-blue-500 mt-0.75 shrink-0" />
+                                        <div>
+                                            <p className="text-xs text-zinc-500">Date Captured</p>
+                                            <time
+                                                className="text-zinc-300 text-xs"
+                                                dateTime={image.timestamp.toISOString()}
+                                            >
+                                                {formatDateTime(image.timestamp, { showYear: true })}
+                                            </time>
+                                        </div>
+                                    </div>
+
                                     <div>
-                                        <p className="text-xs text-zinc-500">Date</p>
+                                        <p className="text-xs text-zinc-500">Date Uploaded</p>
                                         <time
-                                            className="text-zinc-300"
-                                            dateTime={image.timestamp.toISOString()}
+                                            className="text-zinc-300 text-xs"
+                                            dateTime={image.createdAt.toISOString()}
                                         >
-                                            {formatDateTime(image.timestamp)}
+                                            {formatDateTime(image.createdAt, { showYear: true })}
                                         </time>
                                     </div>
                                 </div>
@@ -204,7 +227,7 @@ export default function ImageViewModal({ image }: { image: GalleryImageType }) {
                                     e.stopPropagation();
                                     setDeleting(true);
                                     const response = await deleteImage(image.id);
-                                    alert(response.message);
+                                    toast(response.message, response.success ? 'success' : 'error');
                                     router.back();
                                     setDeleting(false);
                                 }}

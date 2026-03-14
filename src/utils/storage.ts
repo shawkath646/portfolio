@@ -1,16 +1,9 @@
 "use server";
 import { bucket } from "@/lib/firebase";
-import { sanitizeStr } from "./string";
 
-const SIGNED_URL_EXPIRY_DAYS = 7;
-const DEFAULT_UPLOAD_URL_EXPIRY_MS = 900000;
+const DEFAULT_DOWNLOAD_URL_EXPIRY_MS = 1 * 60 * 60 * 1000; // 1hour
+const DEFAULT_UPLOAD_URL_EXPIRY_MS = 5 * 60 * 1000; // 5min
 
-
-export async function generateStoragePath(prefix: string, fileName: string): Promise<string> {
-    const timestamp = Date.now();
-    const sanitized = sanitizeStr(fileName);
-    return `${prefix}/${timestamp}_${sanitized}`;
-}
 
 interface GenerateSignedUploadURLProps {
     storagePath: string;
@@ -43,13 +36,13 @@ export async function generateSignedUploadURL({
 
 export async function generateSignedDownloadURL(
     storagePath: string,
-    expiryDays: number = SIGNED_URL_EXPIRY_DAYS
+    { expireIn = DEFAULT_DOWNLOAD_URL_EXPIRY_MS }: { expireIn?: number }
 ): Promise<string> {
     const file = bucket.file(storagePath);
     const [downloadURL] = await file.getSignedUrl({
         version: 'v4',
         action: 'read',
-        expires: Date.now() + expiryDays * 24 * 60 * 60 * 1000,
+        expires: Date.now() + expireIn,
     });
 
     return downloadURL;
