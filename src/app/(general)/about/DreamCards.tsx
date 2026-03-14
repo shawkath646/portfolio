@@ -90,7 +90,7 @@ export default function DreamCards() {
     return (
         <section 
             ref={ref} 
-            className="container mx-auto py-16 px-4 relative z-10"
+            className="container mx-auto py-16 mt-15 px-4 relative z-10"
             aria-labelledby="dreams-heading"
         >
             <div className="mb-10 text-center">

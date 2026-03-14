@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiFile, FiX, FiCheck, FiAlertCircle, FiLoader, FiClock, FiSend } from "react-icons/fi";
 import { requestSharedFileUploadURL, saveSharedFile } from "@/actions/share/sharedFileManagement";
 import FileDragDrop from "@/components/FileDragDrop";
+import { useToast } from "@/components/Toast";
 import getErrorMessage from "@/utils/getErrorMessage";
 import { formatFileSize } from "@/utils/string";
-import { useToast } from "@/components/Toast";
 
 interface FileWithMetadata {
     tempId: string;
@@ -76,7 +76,7 @@ export default function FileSubmission() {
             return [...prev, ...uniqueIncoming];
         });
         setAllCompleted(false);
-    }, []);
+    }, [toast]);
 
     
 

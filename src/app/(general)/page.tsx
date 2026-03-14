@@ -1,9 +1,11 @@
 import { Metadata } from 'next';
+import { getLifeMilestones } from '@/actions/dataFetch/getLifeMilestones';
 import { getLatestGalleryImages } from '@/actions/gallery/getGalleryData';
 import fetchYouTubeVideos from "@/actions/googleServices/fetchYoutubeVideos";
 import CompanyIntro from "@/components/HomePage/CompanyIntro";
 import GallerySnapshot from "@/components/HomePage/GallerySnapshot";
 import LandingComponent from "@/components/HomePage/LandingComponent";
+import LifeTimeline from '@/components/HomePage/LifeTimeline';
 import OrderNowComponent from "@/components/HomePage/OrderNowComponent";
 import ShareFilesSection from "@/components/HomePage/ShareFilesSection";
 import SkillsComponent from "@/components/HomePage/SkillsComponent";
@@ -44,9 +46,10 @@ export const metadata: Metadata = {
 
 export default async function Home() {
 
-  const [youtubeData, galleryImages] = await Promise.all([
+  const [youtubeData, galleryImages, lifeEvents] = await Promise.all([
     fetchYouTubeVideos(),
-    getLatestGalleryImages()
+    getLatestGalleryImages(),
+    getLifeMilestones()
   ]);
 
   return (
@@ -195,6 +198,7 @@ export default async function Home() {
 
           <ShareFilesSection />
 
+          <LifeTimeline lifeEvents={lifeEvents} />
 
         </div>
 

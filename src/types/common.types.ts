@@ -32,4 +32,9 @@ export interface PhoneNumberType {
   number: string;
 }
 
-
+export interface LifeEvent {
+  id: string;
+  title: string;
+  desc: string;
+  timestamp: Date;
+}

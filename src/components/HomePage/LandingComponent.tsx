@@ -1,283 +1,244 @@
 "use client";
 
-import React from "react";
+import { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, Variants, useAnimation } from "framer-motion";
+import { motion, useAnimation, Variants } from "framer-motion";
 import {
     FaCode,
     FaAndroid,
     FaBriefcase,
     FaProjectDiagram,
     FaGlobe,
-    FaChevronDown,
+    FaCloudDownloadAlt,
     FaUserGraduate,
-    FaMapMarkerAlt,
-    FaCloudDownloadAlt
+    FaMapMarkerAlt
 } from "react-icons/fa";
-import { IoIosArrowForward } from "react-icons/io";
-import useReducedMotion from "@/hooks/useReducedMotion";
-import AnimatedHeading from "./AnimatedHeading";
+import { IoIosArrowForward, IoIosArrowDown } from "react-icons/io";
 
-// Animation Variants with performance optimizations
-const containerVariants: Variants = {
-    hidden: { opacity: 0 },
+// --- Premium "Mask Reveal" Text Animation ---
+const revealWrapper: Variants = {
+    hidden: { opacity: 1 },
     visible: {
         opacity: 1,
-        transition: {
-            staggerChildren: 0.15,
-            delayChildren: 0.05,
-            when: "beforeChildren",
-        },
+        transition: { staggerChildren: 0.08, delayChildren: 0.2 },
     },
 };
 
-const fadeUp: Variants = {
-    hidden: { 
-        opacity: 0, 
-        y: 20,
-        transition: { duration: 0.2 } 
-    },
+const revealWord: Variants = {
+    hidden: { y: "120%", opacity: 0, rotateZ: 5 },
     visible: {
+        y: "0%",
         opacity: 1,
-        y: 0,
-        transition: {
-            duration: 0.5,
-            ease: [0.25, 0.1, 0.25, 1],
-        },
+        rotateZ: 0,
+        transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }, // Apple-style easing
     },
 };
 
-const delayedFade: Variants = {
-    hidden: { 
-        opacity: 0, 
-        y: 20,
-        transition: { duration: 0.2 }
-    },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: { 
-            delay: 0.8, 
-            duration: 0.5,
-            ease: "easeOut"
-        },
-    },
-};
-
-// Profile image component
-function ProfileImage() {
-    return (
-        <Image
-            src="/profile.jpg"
-            width={512}
-            height={512}
-            alt="Shawkath Hossain Maruf - Software Developer"
-            className="rounded-full shadow-lg border-4 border-white dark:border-gray-800 h-[128px] w-[128px]"
-            priority
-            fetchPriority="high"
-            sizes="(max-width: 768px) 128px, 128px"
-        />
-    );
-}
-
-// Animated background component with blue theme
-function AnimatedBackground() {
-    return (
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-            {/* Main gradient background - Lighter for light mode, darker for dark mode */}
-            <div className="absolute inset-0 bg-linear-to-br from-blue-400 via-cyan-400 to-blue-300 dark:from-slate-900/50 dark:via-blue-900/50 dark:to-slate-800/50" />
-            
-            {/* Overlay gradients for depth */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-300/40 via-transparent to-cyan-300/30 dark:from-blue-800/50 dark:via-transparent dark:to-cyan-800/30" />
-            <div className="absolute inset-0 bg-linear-to-bl from-transparent via-cyan-300/20 to-blue-400/30 dark:from-transparent dark:via-blue-700/20 dark:to-slate-900/40" />
-            
-            {/* Animated gradient orbs */}
-            <div className="absolute top-0 left-0 w-96 h-96 bg-cyan-300/30 dark:bg-cyan-400/20 rounded-full blur-3xl animate-float" />
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-300/30 dark:bg-blue-500/20 rounded-full blur-3xl animate-float-reverse" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-200/20 dark:bg-blue-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
-            
-            {/* Geometric shapes */}
-            <div className="absolute top-20 right-20 w-32 h-32 border-2 border-blue-500/30 dark:border-cyan-300/20 rounded-lg rotate-12 animate-spin-slow" />
-            <div className="absolute bottom-40 left-40 w-24 h-24 border-2 border-cyan-500/30 dark:border-blue-300/20 rounded-full animate-pulse" style={{ animationDuration: '6s' }} />
-            <div className="absolute top-1/3 right-1/4 w-16 h-16 border-2 border-blue-400/40 dark:border-cyan-400/30 rotate-45 animate-bounce-gentle" style={{ animationDuration: '10s' }} />
-            
-            {/* Dot pattern overlay */}
-            <div className="absolute inset-0 opacity-[0.15] dark:opacity-10" style={{
-                backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)',
-                backgroundSize: '30px 30px'
-            }} />
-            
-            {/* Light rays effect */}
-            <div className="absolute inset-0 bg-linear-to-b from-white/10 via-transparent to-transparent dark:from-white/5 dark:via-transparent dark:to-transparent" />
-        </div>
-    );
-}
-
-// Skill item component
-function SkillItem({ icon, text, index }: { icon: React.ReactNode; text: string; index: number }) {
-    return (
-        <motion.li
-            custom={index}
-            variants={{
-                hidden: { opacity: 0, x: -10, transition: { duration: 0.2 } },
-                visible: (i: number) => ({
-                    opacity: 1,
-                    x: 0,
-                    transition: { duration: 0.3, delay: 0.05 * i }
-                })
-            }}
-            className="inline-flex items-center gap-1 bg-blue-100 dark:bg-cyan-900 text-blue-700 dark:text-cyan-200 px-3 py-1 rounded-full text-sm font-medium shadow-md"
-            role="listitem"
-        >
-            <span className="flex items-center justify-center" aria-hidden="true">
-                {icon}
-            </span>
-            <span>{text}</span>
-        </motion.li>
-    );
-}
-
-export default function LandingComponent() {
-    // Set up intersection observer for lazy loading
+export default function EnhancedLanding() {
     const controls = useAnimation();
-    const [ref, inView] = useInView({
-        triggerOnce: true,
-        threshold: 0.1,
-        rootMargin: "50px 0px"
-    });
-    
-    // Track scroll state to hide scroll hint
-    const [isScrolled, setIsScrolled] = React.useState(false);
-    
-    // Use reduced motion preference
-    const prefersReducedMotion = useReducedMotion(controls);
+    const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-    React.useEffect(() => {
-        if (inView && !prefersReducedMotion) {
-            controls.start("visible");
-        }
-    }, [controls, inView, prefersReducedMotion]);
-    
-    // Hide scroll hint when user scrolls
-    React.useEffect(() => {
-        const handleScroll = () => {
-            if (window.scrollY > 50) {
-                setIsScrolled(true);
-            }
+    // Track mouse for the spotlight effect
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            setMousePos({ x: e.clientX, y: e.clientY });
         };
-        
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
+        window.addEventListener("mousemove", handleMouseMove);
+        return () => window.removeEventListener("mousemove", handleMouseMove);
     }, []);
-    
+
+    useEffect(() => {
+        if (inView) controls.start("visible");
+    }, [controls, inView]);
+
+    const titleWords = "Shawkat Hossain Maruf".split(" ");
+
+    // Skill tags with different floating offsets
+    const floatingItems = [
+        { icon: <FaCode />, text: "Full Stack", delay: 0 },
+        { icon: <FaAndroid />, text: "Android Dev", delay: 1.5 },
+        { icon: <FaBriefcase />, text: "4+ Years Exp", delay: 0.5 },
+        { icon: <FaProjectDiagram />, text: "10+ Projects", delay: 2 },
+        { icon: <FaGlobe />, text: "Remote Ready", delay: 1 },
+    ];
+
     return (
-        <section aria-labelledby="hero-title" className="relative min-h-screen flex justify-center pt-20 sm:pt-18 md:pt-0">
-            
-            <AnimatedBackground />
+        <section
+            ref={ref}
+            className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden bg-slate-50 dark:bg-[#050B14]"
+        >
+            {/* Interactive Mouse Spotlight Background */}
+            <div
+                className="absolute inset-0 z-0 pointer-events-none transition-opacity duration-300"
+                style={{
+                    background: `radial-gradient(800px circle at ${mousePos.x}px ${mousePos.y}px, rgba(56, 189, 248, 0.08), transparent 40%)`
+                }}
+            />
 
-            {/* Main content */}
-            <motion.div
-                ref={ref}
-                className="relative z-20 px-4 sm:px-6 md:px-16 md:py-20 w-full items-start max-w-7xl mt-6 sm:mt-10 md:mt-20 h-fit"
-                initial="hidden"
-                animate={controls}
-                variants={containerVariants}
-                aria-label="Developer introduction"
-            >
-                <AnimatedHeading />
+            {/* Ambient Base Gradients */}
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-40 dark:opacity-20">
+                <div className="absolute top-[-10%] left-[-10%] w-125 h-125 rounded-full bg-blue-400 blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-150 h-150 rounded-full bg-cyan-300 blur-[150px]" />
+            </div>
 
-                <div className="mt-6 md:mt-4 flex flex-col md:flex-row items-center gap-4 md:gap-6">
-                    <ProfileImage />
-                    <motion.p
-                        className="text-white dark:text-gray-300 bg-white/20 py-1 px-2 rounded-full text-xs sm:text-sm w-fit text-center md:text-left"
-                        variants={fadeUp}
-                    >
-                        <span className="font-medium tracking-widest">@shawkath646:</span> Tech-minded, outdoor lover, and wants to explore everything!
-                    </motion.p>
-                </div>
+            <div className="relative z-10 w-full max-w-5xl px-6 flex flex-col items-center text-center mt-12">
 
-
-                <motion.ul
-                    className="mt-6 flex flex-wrap gap-2 sm:gap-3 max-w-md"
-                    variants={fadeUp}
-                    role="list"
-                    aria-label="Developer skills and expertise"
-                >
-                    {[
-                        { icon: <FaCode className="text-blue-500 dark:text-cyan-300" />, text: "Full stack web developer" },
-                        { icon: <FaAndroid className="text-green-500 dark:text-green-300" />, text: "Android app developer" },
-                        { icon: <FaBriefcase className="text-blue-500 dark:text-cyan-300" />, text: "4 years+ experience" },
-                        { icon: <FaProjectDiagram className="text-purple-500 dark:text-purple-300" />, text: "10+ real life projects" },
-                        { icon: <FaGlobe className="text-blue-400 dark:text-cyan-200" />, text: "Working remotely" },
-                    ].map((item, i) => (
-                        <SkillItem 
-                            key={`skill-${i}`} 
-                            icon={item.icon} 
-                            text={item.text} 
-                            index={i}
-                        />
-                    ))}
-                </motion.ul>
-
+                {/* Profile Badge */}
                 <motion.div
-                    className="mt-6 sm:mt-8 flex flex-col items-start gap-2"
-                    variants={fadeUp}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="mb-8 relative group"
                 >
-                    <div 
-                        className="inline-flex items-center gap-2 text-white dark:text-gray-200 text-xs sm:text-sm font-medium bg-black/20 px-2 py-1 rounded-lg"
-                        aria-label="Education information"
-                    >
-                        <FaUserGraduate className="text-blue-500 dark:text-cyan-400" aria-hidden="true" />
-                        <span>Studying CSE in Sejong University</span>
-                    </div>
-                    <div 
-                        className="inline-flex items-center gap-2 text-white dark:text-gray-200 text-xs sm:text-sm font-medium bg-black/20 px-2 py-1 rounded-lg"
-                        aria-label="Location information"
-                    >
-                        <FaMapMarkerAlt className="text-red-500 dark:text-red-400" aria-hidden="true" />
-                        <span>Lives in Seoul, South Korea</span>
+                    <div className="absolute inset-0 rounded-full bg-linear-to-r from-blue-500 to-cyan-400 blur-xl opacity-40 group-hover:opacity-60 transition duration-500" />
+                    <Image
+                        src="/profile.jpg"
+                        width={120}
+                        height={120}
+                        alt="Shawkath Hossain Maruf"
+                        className="relative rounded-full border border-white/20 dark:border-white/10 shadow-2xl z-10"
+                        priority
+                    />
+                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white/80 dark:bg-black/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-blue-900 dark:text-cyan-100 border border-white/30 dark:border-white/10 z-20 shadow-sm">
+                        @shawkath646
                     </div>
                 </motion.div>
 
-                <motion.nav
-                    className="mt-8 sm:mt-10 w-full flex items-center justify-center md:justify-start gap-3 sm:gap-4 flex-wrap"
-                    variants={fadeUp}
-                    aria-label="Primary call-to-action links"
+                {/* Staggered Word Reveal Heading */}
+                <motion.h1
+                    className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white flex flex-wrap justify-center gap-x-4 gap-y-2 mb-6"
+                    variants={revealWrapper}
+                    initial="hidden"
+                    animate={controls}
+                >
+                    {titleWords.map((word, index) => {
+                        const isLastWord = index === titleWords.length - 1;
+
+                        return (
+                            <span key={index} className="overflow-hidden pb-2">
+                                <motion.span className="inline-block origin-bottom-left" variants={revealWord}>
+                                    {isLastWord ? (
+                                        <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-500 dark:from-cyan-400 dark:to-blue-500">
+                                            {word}
+                                        </span>
+                                    ) : (
+                                        `${word} `
+                                    )}
+                                </motion.span>
+                            </span>
+                        );
+                    })}
+                </motion.h1>
+
+                {/* Bio & Status - Scannable List */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8, duration: 0.6 }}
+                    className="max-w-3xl mx-auto w-full"
+                >
+                    <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 text-sm sm:text-base text-slate-600 dark:text-slate-400 font-medium">
+                        <div className="flex items-center gap-2">
+                            <span className="text-blue-500 dark:text-cyan-400">✨</span>
+                            <span>Tech-minded explorer</span>
+                        </div>
+
+                        <span className="hidden sm:inline text-slate-300 dark:text-slate-700">|</span>
+
+                        <div className="flex items-center gap-2">
+                            <span className="text-green-500 dark:text-green-400">🌲</span>
+                            <span>Outdoor lover</span>
+                        </div>
+
+                        {/* On smaller screens, force a wrap here so the education/location stay grouped */}
+                        <span className="hidden md:inline text-slate-300 dark:text-slate-700">|</span>
+                        <div className="w-full md:w-auto h-0 md:h-auto" />
+
+                        <div className="flex items-center gap-2">
+                            <FaUserGraduate className="text-purple-500 dark:text-purple-400" />
+                            <span>CSE @ Sejong University</span>
+                        </div>
+
+                        <span className="hidden sm:inline text-slate-300 dark:text-slate-700">|</span>
+
+                        <div className="flex items-center gap-2">
+                            <FaMapMarkerAlt className="text-rose-500 dark:text-rose-400" />
+                            <span>Seoul, South Korea</span>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Floating "Ecosystem" Tags */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1, duration: 1 }}
+                    className="flex flex-wrap justify-center gap-3 mt-10 max-w-3xl"
+                >
+                    {floatingItems.map((item, i) => (
+                        <motion.div
+                            key={i}
+                            animate={{ y: [0, -8, 0] }}
+                            transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: item.delay // Creates a randomized breathing effect
+                            }}
+                            className="flex items-center gap-2 px-4 py-2 bg-white/60 dark:bg-white/5 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 text-sm font-medium shadow-sm hover:scale-105 transition-transform cursor-default"
+                        >
+                            <span className="text-blue-500 dark:text-cyan-400">{item.icon}</span>
+                            {item.text}
+                        </motion.div>
+                    ))}
+                </motion.div>
+
+                {/* Premium CTA Buttons */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.2, duration: 0.6 }}
+                    className="mt-12 flex flex-col sm:flex-row items-center gap-4"
                 >
                     <Link
                         href="/contact"
-                        className="inline-flex items-center gap-2 px-4 py-2 text-sm sm:px-6 sm:py-2.5 sm:text-base md:text-lg rounded-lg font-bold shadow-xl bg-blue-600 dark:bg-cyan-400 text-white dark:text-[#0a192f] hover:bg-blue-700 dark:hover:bg-cyan-300 transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-                        aria-label="Download CV document"
+                        className="group relative inline-flex items-center gap-2 px-8 py-3.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full font-bold text-sm sm:text-base overflow-hidden transition-all hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/30"
                     >
-                        <FaCloudDownloadAlt className="text-base sm:text-lg md:text-xl" aria-hidden="true" /> 
-                        <span>Download CV</span>
+                        <span className="absolute inset-0 bg-linear-to-r from-blue-600 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <FaCloudDownloadAlt className="relative z-10 text-lg group-hover:text-white" />
+                        <span className="relative z-10 group-hover:text-white transition-colors duration-300">Download CV</span>
                     </Link>
+
                     <Link
                         href="/projects"
-                        className="inline-flex items-center gap-2 px-4 py-2 text-sm sm:px-6 sm:py-2.5 sm:text-base md:text-lg rounded-lg font-bold shadow-xl bg-blue-100 dark:bg-cyan-900 text-blue-700 dark:text-cyan-200 hover:bg-blue-200 dark:hover:bg-cyan-800 transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
-                        aria-label="View portfolio projects"
+                        className="group inline-flex items-center gap-2 px-8 py-3.5 bg-white/50 dark:bg-transparent text-slate-900 dark:text-white rounded-full font-bold text-sm sm:text-base border border-slate-300 dark:border-white/20 transition-all hover:border-blue-500 dark:hover:border-cyan-400 hover:bg-white dark:hover:bg-white/5"
                     >
-                        <span>View my works</span> 
-                        <IoIosArrowForward className="text-base sm:text-lg md:text-xl" aria-hidden="true" />
+                        <span>View my works</span>
+                        <IoIosArrowForward className="group-hover:translate-x-1 transition-transform" />
                     </Link>
-                </motion.nav>
+                </motion.div>
+
+            </div>
+
+            {/* Scroll Indicator */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 2, duration: 1 }}
+                className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 hover:opacity-100 transition-opacity"
+            >
+                <span className="text-[10px] uppercase tracking-widest font-semibold text-slate-500 dark:text-slate-400">Scroll</span>
+                <motion.div
+                    animate={{ y: [0, 8, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                >
+                    <IoIosArrowDown className="text-slate-500 dark:text-slate-400" />
+                </motion.div>
             </motion.div>
 
-            {/* Scroll down hint */}
-            <motion.div
-                className="animate-bounce flex items-center gap-3 sm:gap-5 w-fit px-4 justify-center absolute left-1/2 -translate-x-1/2 bottom-10 sm:bottom-15 z-30"
-                variants={delayedFade}
-                initial="hidden"
-                animate={isScrolled ? "hidden" : controls}
-                aria-hidden="true"
-            >
-                <span className="uppercase tracking-widest font-semibold text-white dark:text-gray-300 text-xs sm:text-sm text-center leading-none">
-                    Scroll down
-                </span>
-                <FaChevronDown className="text-blue-500 dark:text-cyan-300 text-lg sm:text-xl" />
-            </motion.div>
         </section>
     );
 }

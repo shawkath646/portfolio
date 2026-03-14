@@ -89,7 +89,7 @@ export default async function SharePage() {
 
                 <FileSubmission />
 
-                {selfSharedFiles.length && (
+                {selfSharedFiles.length > 0 && (
                     <UserUploadsList sharedFiles={selfSharedFiles} />
                 )}
             </div>
