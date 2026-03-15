@@ -5,6 +5,7 @@ import Achievements from "./Achievements";
 import DreamCards from "./DreamCards";
 import EducationFlowChart from "./EducationFlowChart";
 import GalleryNavigation from "./GalleryNavigation";
+import LifeNavigation from './LifeNavigvation';
 import PersonalLifeSection from "./PersonalLifeSection";
 import WorkExperience from "./WorkExperience";
 
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
   },
   pagination: {
     previous: appBaseUrl,
-    next: new URL("/projects", appBaseUrl)
+    next: new URL("/creations", appBaseUrl)
   }
 };
 
@@ -49,6 +50,7 @@ export default function About() {
       <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-linear-to-tl from-blue-200/20 to-indigo-300/20 dark:from-blue-900/10 dark:to-indigo-800/10 rounded-full blur-3xl translate-x-1/4 translate-y-1/4 z-0"></div>
 
       {/* Content with updated order */}
+      <LifeNavigation />
       <DreamCards />
       <EducationFlowChart />
       <WorkExperience />

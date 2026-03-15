@@ -1,38 +1,38 @@
 import { Metadata } from "next";
-import { FiBook } from "react-icons/fi";
+import { FiUsers } from "react-icons/fi";
 import { getGenericAuthSession } from "@/actions/genericAuth/authActions";
 import RestrictedPageLogin from "@/components/RestrictedPageLogin";
 import appBaseUrl from "@/data/appBaseUrl";
 
 export const metadata: Metadata = {
-    title: 'Personal Life',
-    description: 'A private window into my routines, mindset, and the everyday choices that shape my life beyond code.',
-    keywords: ['personal life', 'daily routine', 'self growth', 'mindset', 'life reflections'],
+    title: 'Friends Corner',
+    description: 'Memories, gratitude, and lessons from the friendships that helped shape my life and character.',
+    keywords: ['friends corner', 'friendship', 'memories', 'gratitude', 'relationships'],
     alternates: {
-        canonical: `${appBaseUrl}/about/personal-life`,
+        canonical: `${appBaseUrl}/about/friends-corner`,
     },
     openGraph: {
-        title: 'Personal Life - Shawkat Hossain Maruf',
-        description: 'A private window into my routines, mindset, and the everyday choices that shape my life beyond code.',
+        title: 'Friends Corner - Shawkat Hossain Maruf',
+        description: 'Memories, gratitude, and lessons from the friendships that helped shape my life and character.',
         type: 'website',
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Personal Life - Shawkat Hossain Maruf',
-        description: 'A private window into my routines, mindset, and the everyday choices that shape my life beyond code.',
+        title: 'Friends Corner - Shawkat Hossain Maruf',
+        description: 'Memories, gratitude, and lessons from the friendships that helped shape my life and character.',
     },
 };
 
-export default async function PersonalLifePage() {
+export default async function FriendsCornerPage() {
 
-    const genericSession = await getGenericAuthSession("personal_life");
+    const genericSession = await getGenericAuthSession("friends_corner");
     if (!genericSession) {
         return (
             <RestrictedPageLogin
-                accessScope="personal_life"
-                title="Personal Life"
-                description="Enter the password to view my private reflections"
-                icon={<FiBook className="text-2xl text-white" />}
+                accessScope="friends_corner"
+                title="Friends Corner"
+                description="Enter the password to view my friendship stories"
+                icon={<FiUsers className="text-2xl text-white" />}
             />
         );
     }
@@ -42,20 +42,20 @@ export default async function PersonalLifePage() {
             id="main-content"
             tabIndex={-1}
             role="main"
-            aria-label="Personal life page content"
-            className="min-h-screen bg-linear-to-br from-indigo-900 via-purple-900 to-pink-900 py-20 px-4"
+            aria-label="Friends corner page content"
+            className="min-h-screen bg-linear-to-br from-sky-900 via-blue-900 to-cyan-900 py-20 px-4"
         >
             <div className="max-w-4xl mx-auto">
                 {/* Header Section */}
                 <header className="text-center mb-16">
-                    <div className="inline-flex items-center justify-center w-20 h-20 bg-linear-to-r from-indigo-500 to-purple-500 rounded-full mb-6">
-                        <FiBook className="text-3xl text-white" />
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-linear-to-r from-sky-500 to-cyan-500 rounded-full mb-6">
+                        <FiUsers className="text-3xl text-white" />
                     </div>
                     <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                        Personal Life
+                        Friends Corner
                     </h1>
                     <p className="text-xl text-gray-300">
-                        The daily rhythm behind who I am
+                        Loyalty, laughter, and the people who stood by me
                     </p>
                 </header>
 
@@ -63,80 +63,81 @@ export default async function PersonalLifePage() {
                 <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-8 md:p-12 space-y-8">
                     <section>
                         <h2 className="text-2xl font-bold text-white mb-4">
-                            Beyond The Screen
+                            The Circle That Built Me
                         </h2>
                         <p className="text-gray-300 leading-relaxed">
-                            Outside projects and deadlines, life is made of habits, relationships, and perspective. This page
-                            shares the quieter side of my journey: how I reset, what keeps me grounded, and the mindset I try
-                            to carry through both progress and setbacks.
+                            Behind every milestone in my life, there are friends who offered perspective, challenged me with
+                            honesty, and celebrated wins as if they were their own. This space is my quiet tribute to those
+                            bonds that made difficult seasons lighter and good seasons unforgettable.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold text-white mb-4">
-                            Everyday Rhythm
+                            What Friendship Looks Like Here
                         </h2>
                         <p className="text-gray-300 leading-relaxed mb-4">
-                            Most real progress comes from consistent days, not dramatic moments. The little choices I make in
-                            morning, work blocks, rest, and reflection create the foundation for everything bigger.
+                            Real friendship is not loud all the time. Sometimes it is a short check-in message, a shared meal,
+                            a late call after a rough day, or someone reminding you of your strength when you forget it.
                         </p>
-                        <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-6">
-                            <h3 className="font-semibold text-white mb-3">Small Anchors I Value</h3>
+                        <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-6">
+                            <h3 className="font-semibold text-white mb-3">Moments I Cherish Most</h3>
                             <ul className="space-y-2 text-gray-300">
-                                <li>Quiet mornings before the world gets noisy</li>
-                                <li>Focused work sessions with minimal distractions</li>
-                                <li>Short walks that reset mental clarity</li>
-                                <li>Reading that expands how I think</li>
-                                <li>Honest conversations that keep me grounded</li>
+                                <li>Unfiltered conversations with no need to pretend</li>
+                                <li>Friends who show up without being asked</li>
+                                <li>Laughing over stories we have told a hundred times</li>
+                                <li>Hard feedback given with care and respect</li>
+                                <li>The comfort of being understood in silence</li>
                             </ul>
                         </div>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold text-white mb-4">
-                            Reflection And Growth
+                            Lessons I Learned Through Friends
                         </h2>
                         <p className="text-gray-300 leading-relaxed">
-                            Growth, for me, means staying teachable. Some lessons come from success, but the strongest ones
-                            come from mistakes I take responsibility for. I try to improve through consistency, not pressure.
+                            Friendship taught me that growth is not a solo project. The right people reflect your blind spots,
+                            protect your dignity when you are vulnerable, and remind you that progress matters more than
+                            perfection.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold text-white mb-4">
-                            Principles I Try To Live By
+                            Values I Try To Bring Into Every Friendship
                         </h2>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="bg-white/5 rounded-lg p-5">
                                 <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
-                                    Authenticity
+                                    Reliability
                                 </h3>
                                 <p className="text-sm text-gray-300">
-                                    Staying honest with myself even when truth is uncomfortable.
+                                    Being available in both calm days and crisis moments.
                                 </p>
                             </div>
                             <div className="bg-white/5 rounded-lg p-5">
                                 <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
-                                    Curiosity
+                                    Respect
                                 </h3>
                                 <p className="text-sm text-gray-300">
-                                    Continuing to learn, question, and adapt over time.
+                                    Protecting differences in opinion, pace, and personality.
                                 </p>
                             </div>
                             <div className="bg-white/5 rounded-lg p-5">
                                 <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
-                                    Empathy
+                                    Honesty
                                 </h3>
                                 <p className="text-sm text-gray-300">
-                                    Listening with intention before making assumptions.
+                                    Saying what matters with empathy instead of silence.
                                 </p>
                             </div>
                             <div className="bg-white/5 rounded-lg p-5">
                                 <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
-                                    Resilience
+                                    Gratitude
                                 </h3>
                                 <p className="text-sm text-gray-300">
-                                    Recovering from setbacks without losing direction.
+                                    Never treating meaningful people as ordinary.
                                 </p>
                             </div>
                         </div>
@@ -144,19 +145,19 @@ export default async function PersonalLifePage() {
 
                     <section>
                         <h2 className="text-2xl font-bold text-white mb-4">
-                            Personal Philosophy
+                            Friendship Philosophy
                         </h2>
-                        <div className="bg-linear-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 rounded-lg p-6">
+                        <div className="bg-linear-to-r from-sky-500/20 to-cyan-500/20 border border-sky-500/30 rounded-lg p-6">
                             <p className="text-gray-200 text-lg leading-relaxed italic">
-                                &quot;A meaningful life is built quietly: one disciplined day, one repaired mistake, and one kind
-                                decision at a time.&quot;
+                                &quot;A good friend does not walk ahead or behind. They walk beside you, long enough for you to
+                                become the strongest version of yourself.&quot;
                             </p>
                         </div>
                     </section>
 
                     <section className="pt-4">
                         <p className="text-center text-gray-400 text-sm">
-                            This corner is a reminder that who we become is shaped by what we do repeatedly.
+                            Every memory here is a thank you to the people who made life richer than I could have planned.
                         </p>
                     </section>
                 </div>

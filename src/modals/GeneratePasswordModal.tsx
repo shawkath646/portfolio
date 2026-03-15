@@ -4,8 +4,8 @@ import { Dialog, DialogTitle, Description, Transition, Radio, RadioGroup } from 
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { FiRefreshCw, FiCheck, FiX, FiKey, FiCopy } from 'react-icons/fi';
 import { generatePassword } from '@/actions/genericAuth/passwordManagement';
-import useLockBodyScroll from '@/hooks/useLockBodyScroll';
 import { useToast } from '@/components/Toast';
+import useLockBodyScroll from '@/hooks/useLockBodyScroll';
 import { AccessScopeLabel } from "@/types/genericAuth.types";
 
 
