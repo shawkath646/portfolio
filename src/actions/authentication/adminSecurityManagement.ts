@@ -1,8 +1,9 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { Query } from "firebase-admin/firestore";
 import { getAuthSession } from "@/actions/authentication/authActions";
 import { db } from "@/lib/firebase";
-import { AuthSessionRecord, LoginFailureRecord, AdminCredentialsRecord } from "@/types/auth.types";
+import { AuthSessionRecord, AdminCredentialsRecord, LoginAttemptRecord } from "@/types/auth.types";
 import { APIResponseType, PartialBy } from "@/types/common.types";
 import { timestampToDate } from "@/utils/dateTime";
 
@@ -11,14 +12,10 @@ export interface AuthSessionResType extends PartialBy<AuthSessionRecord, "tokens
     accessTokenExpiresAt: Date;
 }
 
-interface GetSessionsResponse extends APIResponseType {
-    sessions?: AuthSessionResType[];
-}
-
-export async function getActiveSessions(): Promise<GetSessionsResponse> {
+export async function getActiveSessions(): Promise<AuthSessionResType[]> {
     const currentSession = await getAuthSession();
     if (!currentSession) {
-        return { success: false, message: "Error: Permission denied! Session not found." };
+        throw new Error("Error: Permission denied! Session not found.");
     }
 
     const snapshot = await db.collection("auth-sessions").get();
@@ -47,7 +44,7 @@ export async function getActiveSessions(): Promise<GetSessionsResponse> {
 
     sessions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    return { success: true, message: `${sessions.length} active session(s)`, sessions };
+    return sessions;
 }
 
 export async function revokeSession(sessionId: string): Promise<APIResponseType> {
@@ -118,152 +115,34 @@ export async function revokeAllSessions(): Promise<APIResponseType> {
     return { success: true, message: `All ${snapshot.size} session(s) terminated. You will be logged out.` };
 }
 
+type GetLoginAttemptsResponse = (LoginAttemptRecord & { isExpired: boolean })[];
 
-// ─── Login Failure Records (rate-limited / blocked devices) ────
-
-export interface FailureRecordInfo {
-    id: string;
-    ipAddress: string;
-    failedAttemptCount: number;
-    lastFailedAt: string;
-    timestamp: string;
-    isBlocked: boolean;
-}
-
-interface GetFailureRecordsResponse extends APIResponseType {
-    records: FailureRecordInfo[];
-}
-
-const MAX_FAILED_LOGIN_ATTEMPTS = 3;
-const LOGIN_LOCK_DURATION_MS = 60 * 60 * 1000;
-
-export async function getFailureRecords(): Promise<GetFailureRecordsResponse> {
-    const session = await getAuthSession();
-    if (!session) {
-        return { success: false, message: "Unauthorized", records: [] };
-    }
-
-    const snapshot = await db.collection("login-failure-records").get();
-    const now = Date.now();
-
-    const records: FailureRecordInfo[] = snapshot.docs.map((doc) => {
-        const data = doc.data() as LoginFailureRecord;
-        const lastFailed = timestampToDate(data.lastFailedAt);
-        const timestamp = timestampToDate(data.timestamp);
-
-        const isBlocked =
-            data.failedAttemptCount >= MAX_FAILED_LOGIN_ATTEMPTS &&
-            lastFailed.getTime() + LOGIN_LOCK_DURATION_MS > now;
-
-        return {
-            id: doc.id,
-            ipAddress: doc.id,
-            failedAttemptCount: data.failedAttemptCount,
-            lastFailedAt: lastFailed.toISOString(),
-            timestamp: timestamp.toISOString(),
-            isBlocked,
-        };
-    });
-
-    records.sort((a, b) => new Date(b.lastFailedAt).getTime() - new Date(a.lastFailedAt).getTime());
-
-    return { success: true, message: `${records.length} record(s)`, records };
-}
-
-export async function clearFailureRecord(ipAddress: string): Promise<APIResponseType> {
-    const session = await getAuthSession();
-    if (!session) {
-        return { success: false, message: "Unauthorized" };
-    }
-
-    const ref = db.collection("login-failure-records").doc(ipAddress);
-    const snap = await ref.get();
-
-    if (!snap.exists) {
-        return { success: false, message: "Record not found" };
-    }
-
-    await ref.delete();
-    return { success: true, message: "Failure record cleared" };
-}
-
-export async function clearAllFailureRecords(): Promise<APIResponseType> {
-    const session = await getAuthSession();
-    if (!session) {
-        return { success: false, message: "Unauthorized" };
-    }
-
-    const snapshot = await db.collection("login-failure-records").get();
-    const batch = db.batch();
-
-    for (const doc of snapshot.docs) {
-        batch.delete(doc.ref);
-    }
-
-    if (snapshot.size > 0) {
-        await batch.commit();
-    }
-
-    return { success: true, message: `${snapshot.size} record(s) cleared` };
-}
-
-
-// ─── Login Attempts (pending/incomplete 2FA attempts) ──────────
-
-export interface LoginAttemptInfo {
-    id: string;
-    ipAddress: string;
-    userAgent: string;
-    platform: string;
-    address: {
-        city?: string;
-        country?: string;
-        region?: string;
-    } | null;
-    createdAt: string;
-    expiresAt: string;
-    verified: boolean;
-    isExpired: boolean;
-}
-
-interface GetLoginAttemptsResponse extends APIResponseType {
-    attempts: LoginAttemptInfo[];
-}
 
 export async function getLoginAttempts(): Promise<GetLoginAttemptsResponse> {
     const session = await getAuthSession();
     if (!session) {
-        return { success: false, message: "Unauthorized", attempts: [] };
+        throw new Error("Error: Session not found.");
     }
 
     const snapshot = await db.collection("login-attempts").get();
     const now = Date.now();
+    const EXPIRY_MS = 5 * 60 * 1000;
 
-    const attempts: LoginAttemptInfo[] = snapshot.docs.map((doc) => {
-        const data = doc.data();
-        const createdAt = timestampToDate(data.createdAt);
-        const expiresAt = timestampToDate(data.expiresAt);
+    const attempts: GetLoginAttemptsResponse =
+        snapshot.docs.map((doc) => {
+            const data = doc.data() as LoginAttemptRecord;
+            const timestamp = timestampToDate(data.timestamp);
 
-        return {
-            id: doc.id,
-            ipAddress: data.ipAddress,
-            userAgent: data.userAgent,
-            platform: data.platform,
-            address: data.address ? {
-                city: data.address?.city,
-                country: data.address?.country,
-                region: data.address?.region,
-            } : null,
-            createdAt: createdAt.toISOString(),
-            expiresAt: expiresAt.toISOString(),
-            verified: data.verified ?? false,
-            isExpired: expiresAt.getTime() < now,
-        };
-    });
+            const isExpired = timestamp.getTime() + EXPIRY_MS < now;
 
-    attempts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            return {
+                ...data,
+                timestamp,
+                isExpired,
+            };
+        });
 
-    return { success: true, message: `${attempts.length} attempt(s)`, attempts };
+    return attempts;
 }
 
 export async function clearLoginAttempt(attemptId: string): Promise<APIResponseType> {
@@ -285,13 +164,21 @@ export async function clearLoginAttempt(attemptId: string): Promise<APIResponseT
     return { success: true, message: "Login attempt cleared" };
 }
 
-export async function clearAllLoginAttempts(): Promise<APIResponseType> {
+export async function clearAllLoginAttempts(
+    category?: LoginAttemptRecord["status"]
+): Promise<APIResponseType> {
     const session = await getAuthSession();
     if (!session) {
-        return { success: false, message: "Unauthorized" };
+        return { success: false, message: "Error: Session not found!" };
     }
 
-    const snapshot = await db.collection("login-attempts").get();
+    let query: Query = db.collection("login-attempts");
+
+    if (category) {
+        query = query.where("status", "==", category);
+    }
+
+    const snapshot = await query.get();
     const batch = db.batch();
 
     for (const doc of snapshot.docs) {
@@ -304,7 +191,11 @@ export async function clearAllLoginAttempts(): Promise<APIResponseType> {
 
     revalidatePath("/admin/security");
 
-    return { success: true, message: `${snapshot.size} attempt(s) cleared` };
+    return {
+        success: true,
+        message: `${snapshot.size} attempt(s) cleared${category ? ` (status: ${category})` : ""
+            }`,
+    };
 }
 
 

@@ -19,6 +19,7 @@ export default function SimplePagination({
         <nav
             aria-label="Page navigation"
             className={`container mx-auto flex items-center justify-between gap-4 py-5 border-t border-gray-200/40 dark:border-gray-700/40 ${className}`}
+            role="navigation"
         >
             {/* Previous */}
             {prevPage ? (

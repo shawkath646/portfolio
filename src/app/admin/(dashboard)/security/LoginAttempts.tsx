@@ -3,69 +3,66 @@ import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
     FiAlertCircle, FiTrash2, FiCheck, FiAlertTriangle,
-    FiClock, FiGlobe, FiShield, FiXCircle,
+    FiClock, FiGlobe, FiXCircle,
 } from "react-icons/fi";
 import {
     clearLoginAttempt, clearAllLoginAttempts,
-    clearFailureRecord, clearAllFailureRecords,
-    type LoginAttemptInfo, type FailureRecordInfo,
 } from "@/actions/authentication/adminSecurityManagement";
-
-function formatRelativeTime(iso: string): string {
-    const diff = Date.now() - new Date(iso).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "Just now";
-    if (mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
-    const days = Math.floor(hrs / 24);
-    return `${days}d ago`;
-}
+import { useToast } from "@/components/Toast";
+import { LoginAttemptRecord } from "@/types/auth.types";
+import { formatRelativeTime } from "@/utils/dateTime";
 
 interface LoginAttemptsProps {
-    initialAttempts: LoginAttemptInfo[];
-    initialFailures: FailureRecordInfo[];
+    attempts: LoginAttemptRecord[];
 }
 
-export default function LoginAttempts({ initialAttempts, initialFailures }: LoginAttemptsProps) {
-    const [isPending, startTransition] = useTransition();
-    const [tab, setTab] = useState<"attempts" | "failures">("attempts");
-    const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
+type StatusType = "success" | "failed" | "expired" | "waiting" | "locked" | "all";
 
-    const showToast = (type: "success" | "error", message: string) => {
-        setToast({ type, message });
-        setTimeout(() => setToast(null), 3000);
+const STATUS_CONFIG: Record<Exclude<StatusType, "all">, { label: string; icon: typeof FiCheck; color: string; bgColor: string }> = {
+    waiting: { label: "Waiting", icon: FiClock, color: "text-amber-500", bgColor: "bg-amber-100 dark:bg-amber-900/30" },
+    success: { label: "Verified", icon: FiCheck, color: "text-green-500", bgColor: "bg-green-100 dark:bg-green-900/30" },
+    failed: { label: "Failed", icon: FiAlertTriangle, color: "text-orange-500", bgColor: "bg-orange-100 dark:bg-orange-900/30" },
+    expired: { label: "Expired", icon: FiXCircle, color: "text-red-500", bgColor: "bg-red-100 dark:bg-red-900/30" },
+    locked: { label: "Locked", icon: FiXCircle, color: "text-red-600", bgColor: "bg-red-100 dark:bg-red-900/30" },
+};
+
+export default function LoginAttempts({ attempts }: LoginAttemptsProps) {
+    const [isPending, startTransition] = useTransition();
+    const [tab, setTab] = useState<StatusType>("all");
+    const toast = useToast();
+
+    const attemptsByStatus = (attempts: LoginAttemptRecord[]) => {
+        return (Object.keys(STATUS_CONFIG) as Exclude<StatusType, "all">[]).reduce(
+            (acc, status) => {
+                acc[status] = attempts.filter((a) => a.status === status);
+                return acc;
+            },
+            {} as Record<Exclude<StatusType, "all">, LoginAttemptRecord[]>
+        );
     };
+
+    const grouped = attemptsByStatus(attempts);
+    const statusTabs = (Object.keys(STATUS_CONFIG) as Exclude<StatusType, "all">[]).filter(
+        (status) => grouped[status].length > 0 || tab === status
+    );
+
+    const currentTabAttempts = tab === "all" ? attempts : grouped[tab as Exclude<StatusType, "all">];
 
     const handleClearAttempt = (id: string) => {
         startTransition(async () => {
             const res = await clearLoginAttempt(id);
-            showToast(res.success ? "success" : "error", res.message);
+            toast(res.message, res.success ? "success" : "error");
         });
     };
 
     const handleClearAllAttempts = () => {
+        const statusToClear = tab === "all" ? undefined : (tab as Exclude<StatusType, "all">);
+
         startTransition(async () => {
-            const res = await clearAllLoginAttempts();
-            showToast(res.success ? "success" : "error", res.message);
+            const res = await clearAllLoginAttempts(statusToClear);
+            toast(res.message, res.success ? "success" : "error");
         });
     };
-
-    const handleClearFailure = (ip: string) => {
-        startTransition(async () => {
-            const res = await clearFailureRecord(ip);
-            showToast(res.success ? "success" : "error", res.message);
-        });
-    };
-
-    const handleClearAllFailures = () => {
-        startTransition(async () => {
-            const res = await clearAllFailureRecords();
-            showToast(res.success ? "success" : "error", res.message);
-        });
-    };
-
-    const blockedCount = initialFailures.filter((f) => f.isBlocked).length;
 
     return (
         <motion.section
@@ -76,7 +73,7 @@ export default function LoginAttempts({ initialAttempts, initialFailures }: Logi
             aria-labelledby="attempts-title"
         >
             {/* Header */}
-            <header className="flex items-center justify-between gap-3 mb-4">
+            <header className="flex items-center justify-between gap-3 mb-6">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-linear-to-br from-amber-500 to-orange-600 rounded-xl shadow-md" aria-hidden="true">
                         <FiAlertCircle className="text-white text-lg" />
@@ -86,204 +83,158 @@ export default function LoginAttempts({ initialAttempts, initialFailures }: Logi
                             Login Activity
                         </h2>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {`${initialAttempts.length} pending · ${initialFailures.length} failed (${blockedCount} blocked)`}
+                            {`${attempts.length} total record${attempts.length !== 1 ? "s" : ""}`}
                         </p>
                     </div>
                 </div>
             </header>
 
-            {/* Toast */}
-            <AnimatePresence>
-                {toast && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className={`mb-4 p-3 rounded-lg border text-sm flex items-center gap-2 ${toast.type === "success"
-                            ? "bg-green-100/80 dark:bg-green-900/20 border-green-200/50 dark:border-green-700/30 text-green-700 dark:text-green-300"
-                            : "bg-red-100/80 dark:bg-red-900/20 border-red-200/50 dark:border-red-700/30 text-red-700 dark:text-red-300"
-                            }`}
-                    >
-                        {toast.type === "success" ? <FiCheck className="shrink-0" /> : <FiAlertTriangle className="shrink-0" />}
-                        {toast.message}
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
             {/* Tabs */}
-            <div className="flex gap-1 mb-4 bg-gray-100 dark:bg-gray-700/30 rounded-lg p-1">
-                <button
-                    onClick={() => setTab("attempts")}
-                    className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${tab === "attempts"
-                        ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
-                        : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                        }`}
-                >
-                    Pending Attempts ({initialAttempts.length})
-                </button>
-                <button
-                    onClick={() => setTab("failures")}
-                    className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${tab === "failures"
-                        ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
-                        : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                        }`}
-                >
-                    Failed / Blocked ({initialFailures.length})
-                </button>
-            </div>
-
-            <AnimatePresence mode="wait">
-                {/* Pending Attempts */}
-                {tab === "attempts" && (
-                    <motion.div
-                        key="attempts"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                    >
-                        {initialAttempts.length > 0 && (
-                            <div className="flex justify-end mb-2">
+            {attempts.length > 0 && (
+                <div className="flex items-center gap-2 mb-4">
+                    <div className="flex-1 min-w-0 flex gap-1 bg-gray-100 dark:bg-gray-700/30 rounded-lg p-1 overflow-x-auto custom-scrollbar">
+                        <button
+                            onClick={() => setTab("all")}
+                            className={`px-3 py-2 text-xs font-medium rounded-md transition-all whitespace-nowrap ${
+                                tab === "all"
+                                    ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
+                                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                            }`}
+                        >
+                            All ({attempts.length})
+                        </button>
+                        {statusTabs.map((status) => {
+                            const count = grouped[status].length;
+                            return (
                                 <button
-                                    onClick={handleClearAllAttempts}
-                                    disabled={isPending}
-                                    className="px-2.5 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors disabled:opacity-50"
+                                    key={status}
+                                    onClick={() => setTab(status)}
+                                    className={`px-3 py-2 text-xs font-medium rounded-md transition-all whitespace-nowrap ${
+                                        tab === status
+                                            ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
+                                            : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                                    }`}
                                 >
-                                    Clear All
+                                    {STATUS_CONFIG[status].label} ({count})
                                 </button>
-                            </div>
-                        )}
-                        {initialAttempts.length === 0 ? (
-                            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-6">No pending login attempts</p>
-                        ) : (
-                            <div className="space-y-2">
-                                {initialAttempts.map((attempt) => {
-                                    const location = attempt.address
-                                        ? [attempt.address.city, attempt.address.country].filter(Boolean).join(", ")
-                                        : null;
-                                    return (
-                                        <div
-                                            key={attempt.id}
-                                            className={`flex items-center gap-3 p-3 rounded-lg border ${attempt.isExpired
+                            );
+                        })}
+                    </div>
+
+                    {/* Clear All Button */}
+                    {currentTabAttempts.length > 0 && (
+                        <button
+                            onClick={handleClearAllAttempts}
+                            disabled={isPending}
+                            className="px-3 py-1.5 w-28 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                        >
+                            Clear {tab === "all" ? "All" : STATUS_CONFIG[tab as Exclude<StatusType, "all">].label}
+                        </button>
+                    )}
+                </div>
+            )}
+
+            {/* Content */}
+            <div className="h-104 overflow-y-auto custom-scrollbar pr-1">
+                <AnimatePresence mode="wait">
+                    {currentTabAttempts.length === 0 ? (
+                        <motion.div
+                            key="empty"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="h-full text-center flex items-center justify-center"
+                        >
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                No {tab === "all" ? "login records" : `${STATUS_CONFIG[tab as Exclude<StatusType, "all">].label.toLowerCase()} records`}
+                            </p>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key={`tab-${tab}`}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="space-y-2"
+                        >
+                            {currentTabAttempts.map((attempt) => {
+                                const location = attempt.address
+                                    ? [attempt.address.city, attempt.address.country]
+                                        .filter(Boolean)
+                                        .join(", ")
+                                    : null;
+
+                                const statusConfig = STATUS_CONFIG[attempt.status as Exclude<StatusType, "all">];
+                                const Icon = statusConfig.icon;
+
+                                return (
+                                    <motion.div
+                                        key={attempt.id}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -10 }}
+                                        className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+                                            attempt.status === "expired"
                                                 ? "bg-red-50/40 dark:bg-red-900/10 border-red-100 dark:border-red-900/20"
+                                                : attempt.status === "success"
+                                                ? "bg-green-50/40 dark:bg-green-900/10 border-green-100 dark:border-green-900/20"
+                                                : attempt.status === "failed"
+                                                ? "bg-orange-50/40 dark:bg-orange-900/10 border-orange-100 dark:border-orange-900/20"
                                                 : "bg-gray-50/60 dark:bg-gray-700/20 border-gray-100 dark:border-gray-700/30"
-                                                }`}
-                                        >
-                                            <div className={`p-2 rounded-lg shrink-0 ${attempt.isExpired
-                                                ? "bg-red-100 dark:bg-red-900/30 text-red-500"
-                                                : attempt.verified
-                                                    ? "bg-green-100 dark:bg-green-900/30 text-green-500"
-                                                    : "bg-amber-100 dark:bg-amber-900/30 text-amber-500"
-                                                }`}>
-                                                {attempt.isExpired ? <FiXCircle /> : attempt.verified ? <FiCheck /> : <FiClock />}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2 flex-wrap">
-                                                    <span className="text-sm font-medium text-gray-900 dark:text-white">
-                                                        {attempt.platform}
-                                                    </span>
-                                                    <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded ${attempt.isExpired
-                                                        ? "bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400"
-                                                        : attempt.verified
-                                                            ? "bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400"
-                                                            : "bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400"
-                                                        }`}>
-                                                        {attempt.isExpired ? "Expired" : attempt.verified ? "Verified" : "Pending"}
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                                    <span className="flex items-center gap-1">
-                                                        <FiGlobe className="text-[10px]" /> {attempt.ipAddress}
-                                                    </span>
-                                                    {location && <span>{location}</span>}
-                                                    <span className="flex items-center gap-1">
-                                                        <FiClock className="text-[10px]" /> {formatRelativeTime(attempt.createdAt)}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <button
-                                                onClick={() => handleClearAttempt(attempt.id)}
-                                                disabled={isPending}
-                                                className="p-2 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors disabled:opacity-50 shrink-0"
-                                                title="Clear attempt"
-                                            >
-                                                <FiTrash2 />
-                                            </button>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </motion.div>
-                )}
-
-                {/* Failed / Blocked */}
-                {tab === "failures" && (
-                    <motion.div
-                        key="failures"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                    >
-                        {initialFailures.length > 0 && (
-                            <div className="flex justify-end mb-2">
-                                <button
-                                    onClick={handleClearAllFailures}
-                                    disabled={isPending}
-                                    className="px-2.5 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors disabled:opacity-50"
-                                >
-                                    Clear All
-                                </button>
-                            </div>
-                        )}
-                        {initialFailures.length === 0 ? (
-                            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-6">No failed login records</p>
-                        ) : (
-                            <div className="space-y-2">
-                                {initialFailures.map((record) => (
-                                    <div
-                                        key={record.id}
-                                        className={`flex items-center gap-3 p-3 rounded-lg border ${record.isBlocked
-                                            ? "bg-red-50/50 dark:bg-red-900/15 border-red-200/50 dark:border-red-800/30"
-                                            : "bg-gray-50/60 dark:bg-gray-700/20 border-gray-100 dark:border-gray-700/30"
-                                            }`}
+                                        }`}
                                     >
-                                        <div className={`p-2 rounded-lg shrink-0 ${record.isBlocked
-                                            ? "bg-red-100 dark:bg-red-900/30 text-red-500"
-                                            : "bg-amber-100 dark:bg-amber-900/30 text-amber-500"
-                                            }`}>
-                                            {record.isBlocked ? <FiShield /> : <FiAlertTriangle />}
+                                        <div className={`p-2 rounded-lg shrink-0 ${statusConfig.bgColor} ${statusConfig.color}`}>
+                                            <Icon className="text-base" />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 flex-wrap">
-                                                <span className="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-1">
-                                                    <FiGlobe className="text-xs" /> {record.ipAddress}
+                                                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                                    {attempt.platform || "Unknown"}
                                                 </span>
-                                                <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded ${record.isBlocked
-                                                    ? "bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400"
-                                                    : "bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400"
-                                                    }`}>
-                                                    {record.isBlocked ? "Blocked" : `${record.failedAttemptCount} fail(s)`}
+                                                <span
+                                                    className={`px-2 py-0.5 text-[10px] font-semibold rounded ${
+                                                        attempt.status === "expired"
+                                                            ? "bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400"
+                                                            : attempt.status === "success"
+                                                            ? "bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400"
+                                                            : attempt.status === "failed"
+                                                            ? "bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400"
+                                                            : "bg-gray-100 dark:bg-gray-700/40 text-gray-600 dark:text-gray-400"
+                                                    }`}
+                                                >
+                                                    {statusConfig.label}
                                                 </span>
                                             </div>
-                                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                                {record.failedAttemptCount} failed attempt(s) · Last: {formatRelativeTime(record.lastFailedAt)}
+                                            <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mt-1 flex-wrap">
+                                                <span className="flex items-center gap-1">
+                                                    <FiGlobe className="text-[10px] shrink-0" /> {attempt.ipAddress}
+                                                </span>
+                                                {location && <span>{location}</span>}
+                                                <time
+                                                    dateTime={new Date(attempt.timestamp).toISOString()}
+                                                    className="flex items-center gap-1"
+                                                >
+                                                    <FiClock className="text-[10px] shrink-0" />{" "}
+                                                    {formatRelativeTime(attempt.timestamp)}
+                                                </time>
                                             </div>
                                         </div>
                                         <button
-                                            onClick={() => handleClearFailure(record.ipAddress)}
+                                            onClick={() => handleClearAttempt(attempt.id)}
                                             disabled={isPending}
-                                            className="p-2 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors disabled:opacity-50 shrink-0"
-                                            title="Clear record"
+                                            className="p-2 text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                                            title="Delete record"
+                                            aria-label="Delete record"
                                         >
                                             <FiTrash2 />
                                         </button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                                    </motion.div>
+                                );
+                            })}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
         </motion.section>
     );
 }

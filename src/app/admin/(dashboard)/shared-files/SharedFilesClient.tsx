@@ -4,10 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiFile, FiDownload, FiTrash2, FiClock, FiFileText } from "react-icons/fi";
 import { getSharedFileDownloadURL } from "@/actions/share/getSharedFiles";
 import { deleteSharedFile } from "@/actions/share/sharedFileManagement";
+import { useToast } from "@/components/Toast";
 import { SharedFileType } from "@/types/share.types";
 import { formatRelativeTime } from "@/utils/dateTime";
 import { formatFileSize } from "@/utils/string";
-import { useToast } from "@/components/Toast";
 
 
 export default function SharedFilesClient({ sharedFiles }: { sharedFiles: SharedFileType[] }) {
@@ -167,10 +167,10 @@ export default function SharedFilesClient({ sharedFiles }: { sharedFiles: Shared
 
                                             <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                                                 <span>{formatFileSize(file.size)}</span>
-                                                <span className="flex items-center gap-1">
+                                                <time dateTime={file.timestamp.toISOString()} className="flex items-center gap-1">
                                                     <FiClock className="text-xs" />
                                                     {formatRelativeTime(file.timestamp)}
-                                                </span>
+                                                </time>
                                             </div>
 
                                             {file.note && (

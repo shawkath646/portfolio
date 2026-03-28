@@ -164,7 +164,6 @@ export default function FileSubmission() {
                     } else {
                         reject(new Error(`Upload failed with status ${xhr.status}`));
                     }
-                    console.log(xhr);
                 });
 
                 xhr.addEventListener('error', () => {

@@ -1,157 +1,128 @@
 "use client";
 import { memo, useEffect, useRef } from "react";
-import { motion, useAnimation , useInView } from "framer-motion";
+import Image from "next/image";
+import { motion, useAnimation, useInView, Variants } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import GradientLink from "../GradientLink";
 
 
 const CompanyIntro = memo(function CompanyIntro() {
-    // Animation controls
     const controls = useAnimation();
     const prefersReducedMotion = useReducedMotion(controls);
     const ref = useRef(null);
-    const isInView = useInView(ref, { 
-        once: true, 
-        margin: "-100px" 
+    const isInView = useInView(ref, {
+        once: true,
+        margin: "-100px"
     });
 
-    // Trigger animations when element comes into view using useEffect
     useEffect(() => {
-        if (isInView && !prefersReducedMotion) {
-            controls.start({ opacity: 1, y: 0 });
+        if (isInView) {
+            controls.start("visible");
         }
-    }, [isInView, prefersReducedMotion, controls]);
-    
+    }, [isInView, controls]);
+
+    const containerVariants: Variants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.15,
+                delayChildren: 0.1,
+            }
+        }
+    };
+
+    const itemVariants: Variants = {
+        hidden: prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.8, ease: "easeInOut" }
+        }
+    };
+
     return (
-        <article 
+        <article
             aria-labelledby="company-intro-heading"
-            className="text-gray-800 dark:text-gray-200 py-6 lg:py-10"
+            className="py-12 lg:py-20 px-4 sm:px-6"
             ref={ref}
         >
-            <motion.div 
-                className="relative p-[2px] rounded-2xl overflow-hidden max-w-3xl mx-auto shadow-xl"
-                initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+            <motion.div
+                className="relative max-w-4xl mx-auto rounded-4xl border border-gray-200/50 dark:border-white/10 overflow-hidden"
+                initial="hidden"
                 animate={controls}
-                transition={{ duration: 0.7, ease: "easeOut" }}
-                whileHover={prefersReducedMotion ? {} : { scale: 1.02, y: -5 }}
+                variants={containerVariants}
             >
-                {/* Animated Gradient Border */}
-                <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-blue-500 via-cyan-400 to-purple-500">
-                    <motion.div
-                        className="absolute inset-0 rounded-2xl bg-[conic-gradient(at_top_left,_#3b82f6,_#06b6d4,_#8b5cf6)] blur-md"
-                        animate={{ 
-                            rotate: [0, 360],
-                            scale: [1, 1.05, 1]
-                        }}
-                        transition={{ 
-                            duration: 15, 
-                            ease: "linear", 
-                            repeat: Infinity,
-                            repeatType: "loop"
-                        }}
-                        aria-hidden="true"
-                    />
-                </div>
+                {/* Subtle Ambient Background Glows */}
+                <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" aria-hidden="true" />
+                <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" aria-hidden="true" />
 
-                {/* Content Box */}
-                <div className="relative z-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-2xl p-6 md:p-8">
-                    <div className="space-y-6">
-                        {/* Header with Logo and Title */}
-                        <header className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4">
-                            {/* Logo Section */}
-                            <motion.figure 
-                                className="shrink-0"
-                                initial={prefersReducedMotion ? { scale: 1, opacity: 1 } : { scale: 0.5, opacity: 0, rotate: -180 }}
-                                animate={controls}
-                                transition={{ delay: 0.3, duration: 0.8, type: "spring", bounce: 0.5 }}
-                                whileHover={prefersReducedMotion ? {} : { rotate: 360, scale: 1.1 }}
-                                aria-label="Cloudburst Lab logo"
+                <div className="relative z-10 p-8 md:p-12">
+
+                    {/* Content Section */}
+                    <div className="flex-1 space-y-6">
+
+                        <div className="space-y-3">
+                            <motion.span
+                                variants={itemVariants}
+                                className="text-sm font-semibold tracking-wider uppercase text-blue-600 dark:text-cyan-400 block"
                             >
-                                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-linear-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg overflow-hidden relative">
-                                    <motion.span 
-                                        className="text-white font-bold text-lg sm:text-xl relative z-10" 
-                                        aria-hidden="true"
-                                        animate={{ 
-                                            textShadow: [
-                                                "0 0 8px rgba(255,255,255,0.5)",
-                                                "0 0 12px rgba(255,255,255,0.8)",
-                                                "0 0 8px rgba(255,255,255,0.5)"
-                                            ]
-                                        }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                    >
-                                        CL
-                                    </motion.span>
-                                    <motion.div
-                                        className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent"
-                                        animate={{ 
-                                            x: [-100, 100],
-                                        }}
-                                        transition={{ 
-                                            duration: 3,
-                                            repeat: Infinity,
-                                            repeatDelay: 1
-                                        }}
-                                    />
-                                </div>
-                            </motion.figure>
-                            
-                            {/* Heading */}
-                            <motion.h2 
+                                The Vision
+                            </motion.span>
+
+                            {/* Heading with Inline Logo */}
+                            <motion.h2
                                 id="company-intro-heading"
-                                className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400 sm:self-center"
-                                initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                                animate={controls}
-                                transition={{ delay: 0.4, duration: 0.6 }}
-                                whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
+                                className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white flex flex-wrap items-center gap-x-3 gap-y-2"
+                                variants={itemVariants}
                             >
-                                Meet my brand &quot;Cloudburst Lab&quot;
+                                <Image
+                                    src="https://cloudburstlab.vercel.app/api/branding/logo?variant=transparent"
+                                    height={32}
+                                    width={80}
+                                    alt="Cloudburst Lab Logo"
+                                    className="object-contain"
+                                    priority
+                                />
+                                Meet
+
+                                <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600 dark:from-cyan-400 dark:to-purple-400">
+                                    Cloudburst Lab
+                                </span>
                             </motion.h2>
-                        </header>
-                        
-                        {/* Content Container */}
-                        <div className="text-left space-y-4">
-
-                            <motion.p 
-                                className="text-base leading-relaxed"
-                                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, x: -20 }}
-                                animate={controls}
-                                transition={{ delay: 0.5, duration: 0.7 }}
-                                whileHover={prefersReducedMotion ? {} : { x: 5 }}
-                            >
-                                Cloudburst Lab is the identity of my dream to build a software startup.
-                                I envision branding my developed software products under this name as a mark of innovation and trust.
-                                In the near future, this dream will grow into a team-driven company focusing on developing cutting-edge,
-                                AI-powered software solutions that shape tomorrow&apos;s digital experience.
-                            </motion.p>
-
-                            {/* Buttons */}
-                            <motion.nav 
-                                className="flex flex-col sm:flex-row gap-3 pt-2"
-                                initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-                                animate={controls}
-                                transition={{ delay: 0.6, duration: 0.5 }}
-                                aria-label="Cloudburst Lab links"
-                            >
-                                <motion.div whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -2 }} whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}>
-                                    <GradientLink 
-                                        href="https://cloudburstlab.vercel.app" 
-                                        target="_blank"
-                                    >
-                                        Visit Cloudburst Lab
-                                    </GradientLink>
-                                </motion.div>
-                                <motion.div whileHover={prefersReducedMotion ? {} : { scale: 1.05, y: -2 }} whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}>
-                                    <GradientLink
-                                        href="https://cloudburstlab.vercel.app/goals"
-                                        target="_blank"
-                                        variant="purple"
-                                    >
-                                        Explore My Vision
-                                    </GradientLink>
-                                </motion.div>
-                            </motion.nav>
                         </div>
+
+                        <motion.p
+                            className="text-base leading-relaxed text-slate-600 dark:text-slate-300 max-w-3xl"
+                            variants={itemVariants}
+                        >
+                            This is the identity of my dream to build a software startup.
+                            I envision branding my developed software products under this name as a mark of innovation and trust.
+                            In the near future, this will grow into a team-driven company focused on developing cutting-edge,
+                            AI-powered solutions that shape tomorrow&apos;s digital experience.
+                        </motion.p>
+
+                        {/* Interactive Navigation */}
+                        <motion.nav
+                            className="flex flex-col sm:flex-row gap-4 pt-4"
+                            variants={itemVariants}
+                            aria-label="Cloudburst Lab external links"
+                        >
+                            <GradientLink
+                                href="https://cloudburstlab.vercel.app"
+                                target="_blank"
+                            >
+                                Visit Cloudburst Lab
+                            </GradientLink>
+
+                            <GradientLink
+                                href="https://cloudburstlab.vercel.app/goals"
+                                target="_blank"
+                                variant="purple"
+                            >
+                                Explore My Vision
+                            </GradientLink>
+                        </motion.nav>
                     </div>
                 </div>
             </motion.div>

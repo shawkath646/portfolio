@@ -65,7 +65,7 @@ export default async function Home() {
       {/* Main Content Area */}
       <div className="bg-linear-to-br from-blue-50 via-cyan-50 to-purple-100 dark:from-[#0a192f] dark:via-[#1e293b] dark:to-[#0f172a] transition-all duration-700 pt-10 px-4 md:px-0 relative overflow-hidden">
         {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none">
           {/* Floating Orbs */}
           <div className="absolute -top-4 -left-4 w-24 h-24 bg-blue-200 dark:bg-blue-900/30 rounded-full blur-xl opacity-60 animate-float"></div>
           <div className="absolute top-1/4 -right-8 w-32 h-32 bg-purple-200 dark:bg-purple-900/30 rounded-full blur-xl opacity-40 animate-float-reverse"></div>
@@ -157,33 +157,26 @@ export default async function Home() {
           <SkillsComponent />
           <OrderNowComponent />
 
-          {/* Company Info and Tasks Section */}
-          <section
-            aria-labelledby="company-info-title"
-            className="mb-20 py-8 md:py-12"
-            role="region"
-          >
+          {/* Company Info and Tasks Layout Container */}
+          <div className="mb-20 py-8 md:py-12">
             <div className="container mx-auto px-4 sm:px-6">
-              <h2
-                id="company-info-title"
-                className="sr-only"
-              >
-                Company Information and Current Projects
-              </h2>
 
               <div
                 className="flex flex-col lg:flex-row items-start gap-8 lg:gap-12 xl:gap-16 min-h-[50vh]"
                 data-testid="company-tasks-container"
               >
+                {/* Left Column: Company Intro */}
                 <div className="w-full lg:w-3/5 xl:w-[60%]">
                   <CompanyIntro />
                 </div>
+
+                {/* Right Column: Tasks Board */}
                 <div className="w-full lg:w-2/5 xl:w-[40%] lg:mt-12">
                   <TasksBoard />
                 </div>
               </div>
             </div>
-          </section>
+          </div>
 
           {youtubeData.channel && (
             <YoutubeGrid

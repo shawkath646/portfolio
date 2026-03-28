@@ -3,17 +3,20 @@ import crypto from "node:crypto";
 import { headers, cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
+import { FieldValue } from "firebase-admin/firestore";
 import { verifySync } from "otplib";
 import { clearAuthSession, createAuthSession, resolveSession } from "@/actions/authentication/authSession";
 import { db } from "@/lib/firebase";
 import { AdminCredentialsRecord, AuthSessionRecord, LoginAttemptRecord } from "@/types/auth.types";
 import { APIResponseType } from "@/types/common.types";
-import { getAddressFromIP, getClientIP } from "@/utils/ipAddress";
 import { getClientPlatform } from "@/utils/clientPlatform";
-import { isLoginAllowed, recordFailedLoginAttempt, clearLoginFailureRecord } from "./loginRateLimit";
+import { timestampToDate } from "@/utils/dateTime";
+import { getAddressFromIP, getClientIP } from "@/utils/ipAddress";
+import { isLoginAllowed } from "./loginRateLimit";
 
 
 const LOGIN_ATTEMPT_TTL_MINUTES = 5;
+const MAX_2FA_ATTEMPTS = 3;
 
 
 interface PasswordCheckResponse extends APIResponseType {
@@ -35,10 +38,6 @@ export const performLogin = async (
         return { success: false, message: "Too many attempts. Try later." };
     }
 
-    const userAgent = requestHeaders.get("user-agent") ?? "unknown";
-    const platform = getClientPlatform(requestHeaders);
-    const clientAddress = await getAddressFromIP(ipAddress);
-
     const adminPasswordDoc = await db.collection("site-config").doc("admin-pass").get();
     if (!adminPasswordDoc.exists) {
         return { success: false, message: "Authentication unavailable" };
@@ -50,43 +49,36 @@ export const performLogin = async (
         return { success: false, message: "Access denied." };
     }
 
-    const passwordMatches = await bcrypt.compare(
-        plainPassword,
-        adminPasswordRecord.password
-    );
+    const [passwordMatches, clientAddress] = await Promise.all([
+        bcrypt.compare(plainPassword, adminPasswordRecord.password),
+        getAddressFromIP(ipAddress)
+    ]);
 
-    if (!passwordMatches) {
-        await recordFailedLoginAttempt({
-            id: crypto.randomUUID(),
-            ipAddress,
-            userAgent,
-            platform,
-            occurredAt: new Date(),
-            address: clientAddress,
-            failureReason: "INVALID_PASSWORD",
-        });
-
-        return { success: false, message: "Invalid credentials! Please check your password." };
-    }
-
-    await clearLoginFailureRecord(ipAddress);
-
+    const userAgent = requestHeaders.get("user-agent") ?? "unknown";
+    const platform = getClientPlatform(requestHeaders);
     const attemptId = crypto.randomUUID();
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + LOGIN_ATTEMPT_TTL_MINUTES * 60 * 1000);
-
+    
     const attemptRecord: LoginAttemptRecord = {
         id: attemptId,
         ipAddress,
         userAgent,
         platform,
         address: clientAddress,
-        createdAt: now,
-        expiresAt,
-        verified: false,
+        status: passwordMatches ? "waiting" : "failed",
+        shouldCount: true,
+        type: "admin",
+        attemptCount2FA: 0,
+        timestamp: new Date() 
     };
 
     await db.collection("login-attempts").doc(attemptId).set(attemptRecord);
+
+    if (!passwordMatches) {
+        return { 
+            success: false, 
+            message: "Invalid credentials! Please check your password." 
+        };
+    }
 
     return {
         success: true,
@@ -100,47 +92,56 @@ export const verify2FA = async (
     attemptId: string,
     code: string
 ): Promise<APIResponseType> => {
-    const responseCookies = await cookies();
-
     const attemptRef = db.collection("login-attempts").doc(attemptId);
-    const attemptSnap = await attemptRef.get();
+
+    const [attemptSnap, adminPasswordDoc] = await Promise.all([
+        attemptRef.get(),
+        db.collection("site-config").doc("admin-pass").get()
+    ]);
 
     if (!attemptSnap.exists) {
-        return { success: false, message: "Login session expired. Please start over." };
+        return { success: false, message: "Login session not found." };
     }
 
     const attempt = attemptSnap.data() as LoginAttemptRecord;
 
-    if (attempt.verified) {
-        return { success: false, message: "This login attempt has already been used." };
+    if (attempt.status !== "waiting") {
+        return { success: false, message: `This attempt is invalid (Status: ${attempt.status}).` };
     }
 
-    if (new Date(attempt.expiresAt).getTime() < Date.now()) {
-        await attemptRef.delete();
+    if (attempt.attemptCount2FA >= MAX_2FA_ATTEMPTS) {
+        await attemptRef.update({ status: "locked" });
+        return { success: false, message: "Maximum verification attempts exceeded. Please log in again." };
+    }
+
+    const expirationTime = timestampToDate(attempt.timestamp).getTime() + (LOGIN_ATTEMPT_TTL_MINUTES * 60 * 1000);
+    if (Date.now() > expirationTime) {
+        await attemptRef.update({ status: "expired" });
         return { success: false, message: "Login session expired. Please start over." };
     }
 
-    // Verify TOTP code
-    const adminPasswordDoc = await db.collection("site-config").doc("admin-pass").get();
     if (!adminPasswordDoc.exists) {
         return { success: false, message: "Authentication unavailable" };
     }
 
     const adminPasswordRecord = adminPasswordDoc.data() as AdminCredentialsRecord;
-
     if (!adminPasswordRecord.totpSecret) {
         return { success: false, message: "Authenticator app is not configured." };
     }
 
     const result = verifySync({ token: code, secret: adminPasswordRecord.totpSecret });
     if (!result.valid) {
-        return { success: false, message: "Invalid verification code." };
+        await attemptRef.update({ 
+            attemptCount2FA: FieldValue.increment(1) 
+        });
+        
+        const attemptsLeft = MAX_2FA_ATTEMPTS - (attempt.attemptCount2FA + 1);
+        return { 
+            success: false, 
+            message: `Invalid verification code. ${attemptsLeft} attempts remaining.` 
+        };
     }
 
-    // Mark attempt as consumed
-    await attemptRef.update({ verified: true });
-
-    // Create the actual auth session and issue tokens
     const session = await createAuthSession({
         ipAddress: attempt.ipAddress,
         userAgent: attempt.userAgent,
@@ -149,28 +150,31 @@ export const verify2FA = async (
     });
 
     if (attempt.platform === "web") {
-        responseCookies.set("access_token", session.accessToken, {
+        const responseCookies = await cookies();
+        const cookieOptions = {
             httpOnly: true,
-            secure: true,
-            sameSite: "strict",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict" as const,
             path: "/",
+        };
+
+        responseCookies.set("access_token", session.accessToken, {
+            ...cookieOptions,
             expires: session.accessTokenExpireAt,
         });
-
         responseCookies.set("refresh_token", session.refreshToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "strict",
-            path: "/",
+            ...cookieOptions,
             expires: session.refreshTokenExpireAt,
         });
     }
 
-    await attemptRef.delete();
+    await attemptRef.update({ 
+        status: "success",
+        attemptCount: FieldValue.increment(1)
+    });
 
     return { success: true, message: "Verification successful" };
 };
-
 
 
 export async function performLogout(): Promise<APIResponseType> {

@@ -49,7 +49,7 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
             viewport={{ once: true, amount: 0.3 }}
             variants={fadeUp}
         >
-            <header className="mb-12">
+            <div className="mb-12" data-nosnippet>
                 <motion.h2
                     id="youtube-title"
                     className="text-3xl font-bold mb-2 text-center"
@@ -65,7 +65,7 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
                     Curious about what I do in my leisure time? I share tutorials, dev logs, and cool experiments.
                     Visit & subscribe to stay updated!
                 </motion.p>
-            </header>
+            </div>
 
             <div className="flex flex-col md:flex-row gap-4 items-start">
                 {/* Channel Info Card */}

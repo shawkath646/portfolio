@@ -20,7 +20,7 @@ export interface GenericAuthSessionRecordType {
 export interface GenericAuthPasswordRecordType {
     id: string;
     accessScope: AccessScopeLabel[];
-    hashedPassword: string;
+    password: string;
     passwordHint: string;
     usableTimes: number | 'unlimited';
     createdAt: Date;

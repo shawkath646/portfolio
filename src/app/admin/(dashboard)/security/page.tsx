@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import getAdminCredentials from '@/actions/admin/getAdminCredentials';
 import {
     getActiveSessions, getLoginAttempts,
-    getFailureRecords,
 } from '@/actions/authentication/adminSecurityManagement';
 import { getAllPasswords } from '@/actions/genericAuth/passwordManagement';
 import ErrorFallback from '@/components/ErrorFallback';
@@ -25,13 +24,11 @@ export default async function Page() {
         adminCredentials,
         sessionsData,
         attemptsData,
-        failuresData,
         passwordsData,
     ] = await Promise.all([
         getAdminCredentials(),
         getActiveSessions(),
         getLoginAttempts(),
-        getFailureRecords(),
         getAllPasswords(),
     ]);
 
@@ -55,14 +52,9 @@ export default async function Page() {
                     <ErrorFallback message={passwordsData.message} />
                 )}
                 <TwoFAManagement isEnabled={!!adminCredentials.totpSecret} enabledOn={adminCredentials.totpCreatedOn} />
-                {sessionsData.sessions ? (
-                    <ActiveSessions sessionList={sessionsData.sessions} />
-                ) : (
-                    <ErrorFallback message={sessionsData.message} />
-                )}
+                <ActiveSessions sessionList={sessionsData} />
                 <LoginAttempts
-                    initialAttempts={attemptsData.attempts}
-                    initialFailures={failuresData.records}
+                    attempts={attemptsData}
                 />
                 <BlockedIPs ipList={adminCredentials.blockedIPs} />
             </div>

@@ -153,7 +153,7 @@ const TasksBoard = () => {
         transition={{ duration: 5, repeat: Infinity, delay: 1 }}
       />
       
-      <header className="relative z-10 flex items-center justify-between mb-5">
+      <div className="relative z-10 flex items-center justify-between mb-5">
         <motion.h2 
           id="tasks-heading"
           className="text-2xl sm:text-3xl font-bold text-center mx-auto mb-2 underline decoration-wavy decoration-cyan-400/70 underline-offset-8"
@@ -168,7 +168,7 @@ const TasksBoard = () => {
         >
           NEXT TASKS
         </motion.h2>
-      </header>
+      </div>
       
       <ul 
         className="space-y-4 pl-3 relative z-10"

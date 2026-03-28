@@ -66,7 +66,8 @@ export default function EnhancedLanding() {
     ];
 
     return (
-        <section
+        <header
+            role="banner"
             ref={ref}
             className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden bg-slate-50 dark:bg-[#050B14]"
         >
@@ -84,8 +85,11 @@ export default function EnhancedLanding() {
                 <div className="absolute bottom-[-10%] right-[-10%] w-150 h-150 rounded-full bg-cyan-300 blur-[150px]" />
             </div>
 
-            <div className="relative z-10 w-full max-w-5xl px-6 flex flex-col items-center text-center mt-12">
-
+            <div
+                itemScope
+                itemType="https://schema.org/Person"
+                className="relative z-10 w-full max-w-5xl px-6 flex flex-col items-center text-center mt-12"
+            >
                 {/* Profile Badge */}
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
@@ -95,20 +99,26 @@ export default function EnhancedLanding() {
                 >
                     <div className="absolute inset-0 rounded-full bg-linear-to-r from-blue-500 to-cyan-400 blur-xl opacity-40 group-hover:opacity-60 transition duration-500" />
                     <Image
+                        itemProp="image"
                         src="/profile.jpg"
                         width={120}
                         height={120}
-                        alt="Shawkath Hossain Maruf"
+                        alt="Shawkat Hossain Maruf"
                         className="relative rounded-full border border-white/20 dark:border-white/10 shadow-2xl z-10"
                         priority
                     />
-                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white/80 dark:bg-black/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-blue-900 dark:text-cyan-100 border border-white/30 dark:border-white/10 z-20 shadow-sm">
+                    <p
+                        itemProp="alternateName"
+                        className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white/80 dark:bg-black/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-blue-900 dark:text-cyan-100 border border-white/30 dark:border-white/10 z-20 shadow-sm"
+                    >
                         @shawkath646
-                    </div>
+                    </p>
                 </motion.div>
 
                 {/* Staggered Word Reveal Heading */}
                 <motion.h1
+                    itemProp="name"
+                    aria-label="Shawkat Hossain Maruf"
                     className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white flex flex-wrap justify-center gap-x-4 gap-y-2 mb-6"
                     variants={revealWrapper}
                     initial="hidden"
@@ -140,63 +150,76 @@ export default function EnhancedLanding() {
                     transition={{ delay: 0.8, duration: 0.6 }}
                     className="max-w-3xl mx-auto w-full"
                 >
-                    <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 text-sm sm:text-base text-slate-600 dark:text-slate-400 font-medium">
-                        <div className="flex items-center gap-2">
-                            <span className="text-blue-500 dark:text-cyan-400">✨</span>
-                            <span>Tech-minded explorer</span>
-                        </div>
+                    {/* Changed to ul */}
+                    <ul className="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 text-sm sm:text-base text-slate-600 dark:text-slate-400 font-medium list-none p-0 m-0">
 
-                        <span className="hidden sm:inline text-slate-300 dark:text-slate-700">|</span>
+                        {/* Item 1 */}
+                        <li className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <span className="text-blue-500 dark:text-cyan-400">✨</span>
+                                <span>Tech-minded explorer</span>
+                            </div>
+                            {/* Separator moved INSIDE the li, hidden from screen readers */}
+                            <span className="hidden sm:inline text-slate-300 dark:text-slate-700" aria-hidden="true">|</span>
+                        </li>
 
-                        <div className="flex items-center gap-2">
-                            <span className="text-green-500 dark:text-green-400">🌲</span>
-                            <span>Outdoor lover</span>
-                        </div>
+                        {/* Item 2 */}
+                        <li className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <span className="text-green-500 dark:text-green-400">🌲</span>
+                                <span>Outdoor lover</span>
+                            </div>
+                            <span className="hidden md:inline text-slate-300 dark:text-slate-700" aria-hidden="true">|</span>
+                        </li>
 
-                        {/* On smaller screens, force a wrap here so the education/location stay grouped */}
-                        <span className="hidden md:inline text-slate-300 dark:text-slate-700">|</span>
-                        <div className="w-full md:w-auto h-0 md:h-auto" />
+                        {/* On smaller screens, force a wrap here. Changed to an empty li */}
+                        <li className="w-full md:w-auto h-0 md:h-auto" aria-hidden="true" />
 
-                        <div className="flex items-center gap-2">
-                            <FaUserGraduate className="text-purple-500 dark:text-purple-400" />
-                            <span>CSE @ Sejong University</span>
-                        </div>
+                        {/* Item 3 */}
+                        <li className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <FaUserGraduate className="text-purple-500 dark:text-purple-400" />
+                                <span>CSE @ Sejong University</span>
+                            </div>
+                            <span className="hidden sm:inline text-slate-300 dark:text-slate-700" aria-hidden="true">|</span>
+                        </li>
 
-                        <span className="hidden sm:inline text-slate-300 dark:text-slate-700">|</span>
-
-                        <div className="flex items-center gap-2">
+                        {/* Item 4 (No trailing separator needed) */}
+                        <li className="flex items-center gap-2">
                             <FaMapMarkerAlt className="text-rose-500 dark:text-rose-400" />
                             <span>Seoul, South Korea</span>
-                        </div>
-                    </div>
+                        </li>
+
+                    </ul>
                 </motion.div>
 
                 {/* Floating "Ecosystem" Tags */}
-                <motion.div
+                <motion.ul
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1, duration: 1 }}
-                    className="flex flex-wrap justify-center gap-3 mt-10 max-w-3xl"
+                    className="flex flex-wrap justify-center gap-3 mt-10 max-w-3xl list-none p-0 m-0"
                 >
                     {floatingItems.map((item, i) => (
-                        <motion.div
+                        <motion.li
                             key={i}
                             animate={{ y: [0, -8, 0] }}
                             transition={{
                                 duration: 4,
                                 repeat: Infinity,
                                 ease: "easeInOut",
-                                delay: item.delay // Creates a randomized breathing effect
+                                delay: item.delay
                             }}
                             className="flex items-center gap-2 px-4 py-2 bg-white/60 dark:bg-white/5 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 text-sm font-medium shadow-sm hover:scale-105 transition-transform cursor-default"
                         >
-                            <span className="text-blue-500 dark:text-cyan-400">{item.icon}</span>
+                            <span aria-hidden="true" className="text-blue-500 dark:text-cyan-400">
+                                {item.icon}
+                            </span>
                             {item.text}
-                        </motion.div>
+                        </motion.li>
                     ))}
-                </motion.div>
+                </motion.ul>
 
-                {/* Premium CTA Buttons */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -238,7 +261,6 @@ export default function EnhancedLanding() {
                     <IoIosArrowDown className="text-slate-500 dark:text-slate-400" />
                 </motion.div>
             </motion.div>
-
-        </section>
+        </header>
     );
 }

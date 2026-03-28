@@ -12,7 +12,6 @@ import { AccessScopeLabel } from "@/types/genericAuth.types";
 interface GeneratePasswordModalProps {
     open: boolean;
     onClose: () => void;
-    onSuccess?: () => void;
 }
 
 const siteOptions: AccessScopeLabel[] = [
@@ -188,8 +187,10 @@ const CharacterTypeCheckbox = ({
 );
 
 
-const GeneratePasswordModal = ({ open, onClose, onSuccess }: GeneratePasswordModalProps) => {
+const GeneratePasswordModal = ({ open, onClose }: GeneratePasswordModalProps) => {
+
     const shouldReduceMotion = useReducedMotion();
+    const toast = useToast();
     const [step, setStep] = useState<'config' | 'result'>('config');
     const [length, setLength] = useState(12);
     const [accessScope, setAccessScope] = useState<AccessScopeLabel>('personal_life');
@@ -199,7 +200,6 @@ const GeneratePasswordModal = ({ open, onClose, onSuccess }: GeneratePasswordMod
     const [includeLowercase, setIncludeLowercase] = useState(false);
     const [includeSpecial, setIncludeSpecial] = useState(false);
     const [generatedPassword, setGeneratedPassword] = useState('');
-    const [error, setError] = useState('');
     const [isPending, startTransition] = useTransition();
 
     const expireDays = expireOptions[expireIndex];
@@ -212,8 +212,6 @@ const GeneratePasswordModal = ({ open, onClose, onSuccess }: GeneratePasswordMod
     const stepVariants = createStepVariants(shouldReduceMotion ?? false);
 
     const handleGeneratePassword = () => {
-        setError('');
-
         startTransition(async () => {
             const result = await generatePassword({
                 scopeLabels: [accessScope],
@@ -226,16 +224,15 @@ const GeneratePasswordModal = ({ open, onClose, onSuccess }: GeneratePasswordMod
                 usableTimes
             });
 
+            toast(result.message, result.success ? "success" : "error");
+
             if (result.success && result.password) {
                 setGeneratedPassword(result.password);
                 setStep('result');
-            } else {
-                setError(result.message || 'Failed to generate password');
             }
         });
     };
 
-    const toast = useToast();
 
     const handleCopyPassword = async () => {
         if (generatedPassword) {
@@ -249,8 +246,6 @@ const GeneratePasswordModal = ({ open, onClose, onSuccess }: GeneratePasswordMod
     };
 
     const handleGotIt = () => {
-        if (onSuccess && generatedPassword) onSuccess();
-
         setStep('config');
         setGeneratedPassword('');
         setLength(12);
@@ -260,7 +255,6 @@ const GeneratePasswordModal = ({ open, onClose, onSuccess }: GeneratePasswordMod
         setIncludeUppercase(false);
         setIncludeLowercase(false);
         setIncludeSpecial(false);
-        setError('');
         onClose();
     };
 
@@ -392,18 +386,6 @@ const GeneratePasswordModal = ({ open, onClose, onSuccess }: GeneratePasswordMod
                                         exit="exit"
                                         className="p-6 lg:p-8"
                                     >
-                                        {/* Error Message */}
-                                        {error && (
-                                            <motion.div
-                                                initial={{ opacity: 0, scale: 0.95 }}
-                                                animate={{ opacity: 1, scale: 1 }}
-                                                transition={{ duration: shouldReduceMotion ? 0.1 : 0.3 }}
-                                                className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl"
-                                            >
-                                                <p className="text-red-600 dark:text-red-400 text-sm font-medium">{error}</p>
-                                            </motion.div>
-                                        )}
-
                                         {/* Grid Layout for larger screens */}
                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
                                             {/* Left Column - Password Configuration */}

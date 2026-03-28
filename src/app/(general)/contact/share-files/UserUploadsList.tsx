@@ -48,10 +48,10 @@ export default function UserUploadsList({ sharedFiles }: { sharedFiles: SharedFi
 
                                     <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-gray-600 dark:text-gray-400">
                                         <span>{formatFileSize(file.size)}</span>
-                                        <span className="flex items-center gap-1">
+                                        <time dateTime={file.timestamp.toISOString()} className="flex items-center gap-1" suppressHydrationWarning>
                                             <FiClock className="text-xs" />
                                             {formatRelativeTime(file.timestamp)}
-                                        </span>
+                                        </time>
                                     </div>
 
                                     {file.note && (

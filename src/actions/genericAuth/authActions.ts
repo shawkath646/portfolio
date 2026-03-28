@@ -1,11 +1,11 @@
 "use server";
 
 import { cookies, headers } from "next/headers";
-import bcrypt from "bcryptjs";
 import { db } from "@/lib/firebase";
 import verifyRecaptchaToken from "@/lib/GoogleRecaptchaV3/verifyRecaptchaToken";
 import { APIResponseType } from "@/types/common.types";
 import { AccessScopeLabel, GenericAuthPasswordRecordType, GenericAuthSessionRecordType } from "@/types/genericAuth.types";
+import getErrorMessage from "@/utils/getErrorMessage";
 import { getClientIP } from "@/utils/ipAddress";
 import { clearGenericAuthSession, createGenericAuthSession, resolveGenericAuthSession } from "./authSession";
 
@@ -27,8 +27,8 @@ export async function handleGenericLogin(
         return {
             success: false,
             message: "Error: Failed to determine user IP address!"
-        }
-    };
+        };
+    }
 
     const recaptchaResult = await verifyRecaptchaToken(recaptchaToken, "restricted_page_login");
     if (!recaptchaResult.success) {
@@ -36,82 +36,75 @@ export async function handleGenericLogin(
     }
 
     try {
-        const now = new Date();
-        const hint = password.slice(0, 4);
-
         const snapshot = await db
             .collection("generic-passwords")
+            .where("password", "==", password)
             .where("accessScope", "array-contains", accessScopeLabel)
-            .where("passwordHint", "==", hint)
-            .where("expiresAt", ">", now)
+            .limit(1)
             .get();
 
         if (snapshot.empty) {
             return { success: false, message: "Invalid password." };
         }
 
-        for (const doc of snapshot.docs) {
-            const data = doc.data() as GenericAuthPasswordRecordType;
+        const doc = snapshot.docs[0];
+        const ref = doc.ref;
+        let finalData: GenericAuthPasswordRecordType | null = null;
+
+        await db.runTransaction(async (tx) => {
+            const freshDoc = await tx.get(ref);
+            const freshData = freshDoc.data() as GenericAuthPasswordRecordType;
 
             if (
-                data.usableTimes !== "unlimited" &&
-                data.usedTimes >= data.usableTimes
+                freshData.usableTimes !== "unlimited" &&
+                freshData.usedTimes >= freshData.usableTimes
             ) {
-                continue;
+                throw new Error("LIMIT_EXCEEDED");
             }
 
-            const isMatch = await bcrypt.compare(
-                password,
-                data.hashedPassword
-            );
-
-            if (!isMatch) continue;
-
-            await db.runTransaction(async (tx) => {
-                const ref = doc.ref;
-                const freshDoc = await tx.get(ref);
-                const freshData = freshDoc.data() as GenericAuthPasswordRecordType;
-
-                if (
-                    freshData.usableTimes !== "unlimited" &&
-                    freshData.usedTimes >= freshData.usableTimes
-                ) {
-                    throw new Error("Password usage exceeded.");
-                }
-
-                tx.update(ref, {
-                    usedTimes: freshData.usedTimes + 1,
-                });
+            tx.update(ref, {
+                usedTimes: freshData.usedTimes + 1,
             });
 
-            const tokenObj = await createGenericAuthSession({
-                usedPasswordObj: data,
-                clientIp,
-                userAgent: headerStore.get("user-agent") ?? "unknown",
-                existingCookie: existingCookie?.value
-            });
+            finalData = freshData;
+        });
 
-            if (!tokenObj) return {
+        if (!finalData) {
+            return { success: false, message: "Error processing login." };
+        }
+
+        const tokenObj = await createGenericAuthSession({
+            usedPasswordObj: finalData,
+            clientIp,
+            userAgent: headerStore.get("user-agent") ?? "unknown",
+            existingCookie: existingCookie?.value
+        });
+
+        if (!tokenObj) {
+            return {
                 success: false,
                 message: "Error: Failed to generate user session!"
-            }
-
-            cookieStore.set(COOKIE_NAME, tokenObj.token, {
-                httpOnly: true,
-                secure: true,
-                sameSite: "lax",
-                expires: tokenObj.maxExpireAt,
-                path: "/",
-            });
-
-            return {
-                success: true,
-                message: "Access granted.",
             };
         }
 
-        return { success: false, message: "Invalid password." };
+        cookieStore.set(COOKIE_NAME, tokenObj.token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "lax",
+            expires: tokenObj.maxExpireAt,
+            path: "/",
+        });
+
+        return {
+            success: true,
+            message: "Access granted.",
+        };
+
     } catch (error) {
+        if (getErrorMessage(error) === "LIMIT_EXCEEDED") {
+            return { success: false, message: "This password has reached its usage limit." };
+        }
+        
         console.error("Generic login error:", error);
         return { success: false, message: "Login failed." };
     }

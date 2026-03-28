@@ -4,15 +4,16 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import {
     FiMonitor, FiGlobe, FiTrash2,
-    FiCheck, FiAlertTriangle, FiClock, FiMapPin, FiLogOut,
+    FiAlertTriangle, FiClock, FiMapPin, FiLogOut,
 } from "react-icons/fi";
 import {
     revokeSession, revokeAllOtherSessions,
     revokeAllSessions,
 } from "@/actions/authentication/adminSecurityManagement";
 import type { AuthSessionResType } from "@/actions/authentication/adminSecurityManagement";
-import { formatRelativeTime, formatDateTime } from "@/utils/dateTime";
+import { useToast } from "@/components/Toast";
 import { getPlatformIcon } from "@/utils/clientPlatform";
+import { formatRelativeTime, formatDateTime } from "@/utils/dateTime";
 import { parseOS, parseBrowser } from "@/utils/userAgent";
 
 
@@ -25,28 +26,23 @@ interface ActiveSessionsProps {
 export default function ActiveSessions({ sessionList }: ActiveSessionsProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
-    const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
     const [revoking, setRevoking] = useState<string | null>(null);
     const [showTerminateAll, setShowTerminateAll] = useState(false);
-
-    const showToast = (type: "success" | "error", message: string) => {
-        setToast({ type, message });
-        setTimeout(() => setToast(null), 3000);
-    };
+    const toast = useToast();
 
     const handleRevoke = (sessionId: string) => {
         setRevoking(sessionId);
         startTransition(async () => {
             const res = await revokeSession(sessionId);
             setRevoking(null);
-            showToast(res.success ? "success" : "error", res.message);
+            toast(res.message, res.success ? "success" : "error");
         });
     };
 
     const handleRevokeAllOther = () => {
         startTransition(async () => {
             const res = await revokeAllOtherSessions();
-            showToast(res.success ? "success" : "error", res.message);
+            toast(res.message, res.success ? "success" : "error");
         });
     };
 
@@ -57,7 +53,7 @@ export default function ActiveSessions({ sessionList }: ActiveSessionsProps) {
                 setShowTerminateAll(false);
                 router.push("/admin/login");
             } else {
-                showToast("error", res.message);
+                toast(res.message, "error");
             }
         });
     };
@@ -106,24 +102,6 @@ export default function ActiveSessions({ sessionList }: ActiveSessionsProps) {
                     </button>
                 </div>
             </header>
-
-            {/* Toast */}
-            <AnimatePresence>
-                {toast && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className={`mb-4 p-3 rounded-lg border text-sm flex items-center gap-2 ${toast.type === "success"
-                            ? "bg-green-100/80 dark:bg-green-900/20 border-green-200/50 dark:border-green-700/30 text-green-700 dark:text-green-300"
-                            : "bg-red-100/80 dark:bg-red-900/20 border-red-200/50 dark:border-red-700/30 text-red-700 dark:text-red-300"
-                            }`}
-                    >
-                        {toast.type === "success" ? <FiCheck className="shrink-0" /> : <FiAlertTriangle className="shrink-0" />}
-                        {toast.message}
-                    </motion.div>
-                )}
-            </AnimatePresence>
 
             {/* Session List */}
             {sessionList.length === 0 ? (
@@ -180,10 +158,10 @@ export default function ActiveSessions({ sessionList }: ActiveSessionsProps) {
                                                     {location}
                                                 </span>
                                             )}
-                                            <span className="flex items-center gap-1">
+                                            <time dateTime={session.createdAt.toISOString()} className="flex items-center gap-1" suppressHydrationWarning>
                                                 <FiClock className="text-[10px]" />
                                                 {formatRelativeTime(session.createdAt)}
-                                            </span>
+                                            </time>
                                         </div>
                                         {/* Extra details row */}
                                         <div className="flex items-center gap-3 text-[11px] text-gray-400 dark:text-gray-500 mt-1 flex-wrap">

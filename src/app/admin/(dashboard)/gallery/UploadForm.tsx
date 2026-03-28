@@ -7,9 +7,9 @@ import { FaCloudUploadAlt, FaImage, FaTimes } from "react-icons/fa";
 import { requestImageUploadURL, saveGalleryImage } from "@/actions/gallery/imageManagement";
 import googleDriveLogo from "@/assets/google-drive-icon-512x512.png";
 import FileDragDrop from "@/components/FileDragDrop";
+import { useToast } from "@/components/Toast";
 import { GalleryAlbumType } from "@/types/gallery.types";
 import getImageMetadata from "@/utils/getImageMetadata";
-import { useToast } from "@/components/Toast";
 
 type UploadFormData = {
     title: string;

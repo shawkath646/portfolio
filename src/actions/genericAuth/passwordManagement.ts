@@ -2,7 +2,6 @@
 
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
-import bcrypt from "bcryptjs";
 import { db } from "@/lib/firebase";
 import { APIResponseType } from "@/types/common.types";
 import {
@@ -10,7 +9,6 @@ import {
     GenericAuthPasswordRecordType,
 } from "@/types/genericAuth.types";
 import { timestampToDate } from "@/utils/dateTime";
-import { getEnv } from "@/utils/getEnv";
 import { getAuthSession } from "../authentication/authActions";
 
 interface GeneratePasswordPropsType {
@@ -28,7 +26,6 @@ interface GeneratePasswordResponseType extends APIResponseType {
     password?: string;
 }
 
-const PASSWORD_SALT_ROUND = parseInt(getEnv("GENERIC_PASSWORD_SALT_ROUND"));
 
 const CHARSETS = {
     LOWERCASE: "abcdefghijklmnopqrstuvwxyz",
@@ -36,6 +33,16 @@ const CHARSETS = {
     NUMBERS: "0123456789",
     SPECIAL: "!@#$%^&*()-_=+[]{}<>?",
 };
+
+// Cryptographically secure Fisher-Yates shuffle
+function secureShuffle(str: string): string {
+    const arr = str.split('');
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = crypto.randomInt(i + 1);
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.join('');
+}
 
 export async function generatePassword(
     props: GeneratePasswordPropsType
@@ -62,45 +69,54 @@ export async function generatePassword(
         } = props;
 
         if (length < 6) {
-            return {
-                success: false,
-                message: "Password length must be at least 6 characters.",
-            };
+            return { success: false, message: "Password length must be at least 6 characters." };
         }
 
-        let charset = "";
-        let password = "";
+        let isUnique = false;
+        let finalPassword = "";
 
-        if (includeLowercase) {
-            charset += CHARSETS.LOWERCASE;
-            password += CHARSETS.LOWERCASE[crypto.randomInt(CHARSETS.LOWERCASE.length)];
-        }
-        if (includeUppercase) {
-            charset += CHARSETS.UPPERCASE;
-            password += CHARSETS.UPPERCASE[crypto.randomInt(CHARSETS.UPPERCASE.length)];
-        }
-        if (includeNumbers) {
-            charset += CHARSETS.NUMBERS;
-            password += CHARSETS.NUMBERS[crypto.randomInt(CHARSETS.NUMBERS.length)];
-        }
-        if (includeSpecial) {
-            charset += CHARSETS.SPECIAL;
-            password += CHARSETS.SPECIAL[crypto.randomInt(CHARSETS.SPECIAL.length)];
-        }
+        while (!isUnique) {
+            let charset = "";
+            let password = "";
 
-        if (!charset) {
-            return {
-                success: false,
-                message: "At least one character type must be selected.",
-            };
-        }
+            if (includeLowercase) {
+                charset += CHARSETS.LOWERCASE;
+                password += CHARSETS.LOWERCASE[crypto.randomInt(CHARSETS.LOWERCASE.length)];
+            }
+            if (includeUppercase) {
+                charset += CHARSETS.UPPERCASE;
+                password += CHARSETS.UPPERCASE[crypto.randomInt(CHARSETS.UPPERCASE.length)];
+            }
+            if (includeNumbers) {
+                charset += CHARSETS.NUMBERS;
+                password += CHARSETS.NUMBERS[crypto.randomInt(CHARSETS.NUMBERS.length)];
+            }
+            if (includeSpecial) {
+                charset += CHARSETS.SPECIAL;
+                password += CHARSETS.SPECIAL[crypto.randomInt(CHARSETS.SPECIAL.length)];
+            }
 
-        const remainingLength = length - password.length;
-        for (let i = 0; i < remainingLength; i++) {
-            password += charset[crypto.randomInt(charset.length)];
-        }
+            if (!charset) {
+                return { success: false, message: "At least one character type must be selected." };
+            }
 
-        password = password.split('').sort(() => 0.5 - crypto.randomInt(100) / 100).join('');
+            const remainingLength = length - password.length;
+            for (let i = 0; i < remainingLength; i++) {
+                password += charset[crypto.randomInt(charset.length)];
+            }
+
+            password = secureShuffle(password);
+
+            const existingDoc = await db.collection("generic-passwords")
+                .where("password", "==", password)
+                .limit(1)
+                .get();
+
+            if (existingDoc.empty) {
+                isUnique = true;
+                finalPassword = password;
+            }
+        }
 
         const createdAt = new Date();
         const expiresAt = new Date();
@@ -111,8 +127,8 @@ export async function generatePassword(
         const record: GenericAuthPasswordRecordType = {
             id: docRef.id,
             accessScope: scopeLabels,
-            hashedPassword: await bcrypt.hash(password, PASSWORD_SALT_ROUND),
-            passwordHint: password.slice(0, 4),
+            password: finalPassword,
+            passwordHint: finalPassword.slice(0, 4),
             usableTimes,
             createdAt,
             expiresAt,
@@ -121,17 +137,16 @@ export async function generatePassword(
         };
 
         await docRef.set(record);
-
         revalidatePath("/admin/secure");
 
         return {
             success: true,
             message: "Password generated successfully.",
-            password
+            password: finalPassword
         };
+
     } catch (error) {
         console.error("Password generation error:", error);
-
         return {
             success: false,
             message: "Error: Something went wrong! Failed to generate password.",

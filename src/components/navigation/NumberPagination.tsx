@@ -57,6 +57,7 @@ export default function NumberPagination({
         <nav
             className="mt-8 flex w-full flex-wrap items-center justify-center gap-2 sm:gap-2.5"
             aria-label="Pagination Navigation"
+            role="navigation"
         >
             {/* Previous */}
             {safeCurrentPage > 1 && (

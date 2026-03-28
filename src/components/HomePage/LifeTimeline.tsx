@@ -141,7 +141,7 @@ export default function LifeTimelineCarousel({ lifeEvents }: LifeTimelineProps) 
             aria-labelledby="timeline-heading"
             className="w-full max-w-5xl mx-auto py-8 px-4 sm:px-6 font-sans relative"
         >
-            <header className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                     <div className="p-3 bg-linear-to-br from-blue-100 to-blue-50 dark:from-blue-900/60 dark:to-blue-950 rounded-2xl shadow-inner border border-blue-200/50 dark:border-blue-800/50 shrink-0">
                         <FaCompass className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -155,12 +155,12 @@ export default function LifeTimelineCarousel({ lifeEvents }: LifeTimelineProps) 
                             Milestones & Journey
                         </h2>
                         <p className="flex items-center gap-2 text-blue-700/80 dark:text-blue-300/80 mt-1 text-sm font-medium">
-                            <FaArrowsAltH className="w-3.5 h-3.5 opacity-60" />
+                            <FaArrowsAltH aria-hidden className="w-3.5 h-3.5 opacity-60" />
                             Swipe or scroll to explore
                         </p>
                     </div>
                 </div>
-            </header>
+            </div>
 
             <div className="relative w-full">
                 <ol

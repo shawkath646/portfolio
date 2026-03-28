@@ -1,31 +1,16 @@
 import { AddressType, PlatformType } from "@/types/common.types";
 
-export interface LoginFailureEvent {
-    id: string;
-    ipAddress: string;
-    userAgent: string;
-    platform: PlatformType;
-    occurredAt: Date;
-    address: AddressType | null;
-    failureReason: string;
-}
-
-export interface LoginFailureRecord {
-    id: string;
-    failedAttemptCount: number;
-    lastFailedAt: Date;
-    timestamp: Date;
-}
-
 export interface LoginAttemptRecord {
     id: string;
     ipAddress: string;
     userAgent: string;
     platform: PlatformType;
     address: AddressType | null;
-    createdAt: Date;
-    expiresAt: Date;
-    verified: boolean;
+    timestamp: Date;
+    status: "failed" | "waiting" | "success" | "locked" | "expired";
+    shouldCount: boolean;
+    type: "admin" | "generic";
+    attemptCount2FA: number;
 }
 
 export interface AuthSessionRecord {

@@ -47,14 +47,11 @@ const SkillBranchComponent = memo(({ branch }: { branch: SkillBranch }) => {
       className="bg-white/70 dark:bg-[#16213e]/70 rounded-2xl shadow-xl px-6 py-5 flex flex-col focus-within:ring-2 focus-within:ring-blue-400 focus-within:outline-none transition-all duration-300"
       tabIndex={0}
     >
-      <h3
-        className="flex items-center text-lg sm:text-xl font-bold gap-3 mb-2"
-        aria-label={branch.ariaLabel || branch.label}
-      >
-        <span className="flex items-center gap-2" aria-hidden="true">
+      <h3 className="flex items-center text-lg sm:text-xl font-bold gap-3 mb-2">
+        <span className="flex items-center justify-center" aria-hidden="true">
           {branch.icon}
-          {branch.label}
         </span>
+        <span>{branch.label}</span>
       </h3>
 
       <motion.ul

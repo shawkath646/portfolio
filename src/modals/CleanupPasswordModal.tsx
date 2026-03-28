@@ -4,13 +4,13 @@ import { Dialog, DialogTitle, Description, Transition } from '@headlessui/react'
 import { motion, useReducedMotion } from "motion/react";
 import { FiTrash2, FiX, FiCheck, FiAlertTriangle, FiLoader } from 'react-icons/fi';
 import { cleanupExpirePassword } from '@/actions/genericAuth/passwordManagement';
+import { useToast } from '@/components/Toast';
 import useLockBodyScroll from '@/hooks/useLockBodyScroll';
 import { APIResponseType } from '@/types/common.types';
 
 interface CleanupPasswordModalProps {
     open: boolean;
     onClose: () => void;
-    onSuccess?: (message: string) => void;
     expiredCount?: number;
 }
 
@@ -54,22 +54,20 @@ const createPanelVariants = (shouldReduceMotion: boolean) => ({
 });
 
 
-const CleanupPasswordModal = ({ open, onClose, onSuccess, expiredCount = 0 }: CleanupPasswordModalProps) => {
+const CleanupPasswordModal = ({ open, onClose, expiredCount = 0 }: CleanupPasswordModalProps) => {
     const shouldReduceMotion = useReducedMotion();
+    const toast = useToast();
     const [isPending, startTransition] = useTransition();
     const [result, setResult] = useState<APIResponseType | null>(null);
 
-    // Animation variants
     const backdropVariants = createBackdropVariants(shouldReduceMotion ?? false);
     const panelVariants = createPanelVariants(shouldReduceMotion ?? false);
 
     const handleCleanup = () => {
         startTransition(async () => {
-            const response = await cleanupExpirePassword();
-            setResult(response);
-            if (response.success && onSuccess) {
-                onSuccess(response.message);
-            }
+            const result = await cleanupExpirePassword();
+            setResult(result);
+            toast(result.message, result.success ? "success" : "error");
         });
     };
 
