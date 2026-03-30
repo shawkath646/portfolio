@@ -37,7 +37,7 @@ export async function generateMetadata(
             image.description ||
             `View ${image.title} from ${albumName} album.`,
         alternates: {
-            canonical: `${appBaseUrl}/about/gallery/${albumSlug}/${imageSlug}`,
+            canonical: new URL(`/about/gallery/${albumSlug}/${imageSlug}`, appBaseUrl),
         },
         robots: {
             index: true,

@@ -6,7 +6,6 @@ import DreamCards from "./DreamCards";
 import EducationFlowChart from "./EducationFlowChart";
 import GalleryNavigation from "./GalleryNavigation";
 import LifeNavigation from './LifeNavigvation';
-import PersonalLifeSection from "./PersonalLifeSection";
 import WorkExperience from "./WorkExperience";
 
 
@@ -27,7 +26,7 @@ export const metadata: Metadata = {
     "Software Development",
   ],
   alternates: {
-    canonical: `${appBaseUrl}/about`,
+    canonical: new URL('/about', appBaseUrl),
   },
   pagination: {
     previous: appBaseUrl,
@@ -56,7 +55,6 @@ export default function About() {
       <WorkExperience />
       <Achievements />
       <GalleryNavigation />
-      <PersonalLifeSection />
 
       <SimplePagination
         prevPage="/"

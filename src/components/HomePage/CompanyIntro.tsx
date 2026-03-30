@@ -1,9 +1,9 @@
 "use client";
 import { memo, useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion, useAnimation, useInView, Variants } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import GradientLink from "../GradientLink";
 
 
 const CompanyIntro = memo(function CompanyIntro() {
@@ -44,7 +44,6 @@ const CompanyIntro = memo(function CompanyIntro() {
     return (
         <article
             aria-labelledby="company-intro-heading"
-            className="py-12 lg:py-20 px-4 sm:px-6"
             ref={ref}
         >
             <motion.div
@@ -57,7 +56,7 @@ const CompanyIntro = memo(function CompanyIntro() {
                 <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" aria-hidden="true" />
                 <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" aria-hidden="true" />
 
-                <div className="relative z-10 p-8 md:p-12">
+                <div className="relative z-10 p-6 md:p-8">
 
                     {/* Content Section */}
                     <div className="flex-1 space-y-6">
@@ -103,26 +102,18 @@ const CompanyIntro = memo(function CompanyIntro() {
                         </motion.p>
 
                         {/* Interactive Navigation */}
-                        <motion.nav
-                            className="flex flex-col sm:flex-row gap-4 pt-4"
+                        <motion.div
+                            className="mt-2 text-end"
                             variants={itemVariants}
                             aria-label="Cloudburst Lab external links"
                         >
-                            <GradientLink
+                            <Link
                                 href="https://cloudburstlab.vercel.app"
-                                target="_blank"
+                                className="text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-500 transition-colors"
                             >
-                                Visit Cloudburst Lab
-                            </GradientLink>
-
-                            <GradientLink
-                                href="https://cloudburstlab.vercel.app/goals"
-                                target="_blank"
-                                variant="purple"
-                            >
-                                Explore My Vision
-                            </GradientLink>
-                        </motion.nav>
+                                Learn More
+                            </Link>
+                        </motion.div>
                     </div>
                 </div>
             </motion.div>

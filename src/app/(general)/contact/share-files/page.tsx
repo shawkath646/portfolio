@@ -19,7 +19,7 @@ export const metadata: Metadata = {
         "Shawkat Hossain Maruf"
     ],
     alternates: {
-        canonical: `${appBaseUrl}/contact/share-files`,
+        canonical: new URL("/contact/share-files", appBaseUrl),
     },
     robots: {
         index: true,

@@ -10,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
     },
     sitemap: [
       new URL("/sitemap.xml", appBaseUrl).toString(),
-      new URL("/gallery/sitemap.xml", appBaseUrl).toString()
+      new URL("/about/gallery/sitemap.xml", appBaseUrl).toString()
     ],
   }
 }

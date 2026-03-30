@@ -18,7 +18,7 @@ export const metadata: Metadata = {
         "Portfolio Projects",
     ],
     alternates: {
-        canonical: `${appBaseUrl}/creations`,
+        canonical: new URL("/creations", appBaseUrl),
     },
     pagination: {
         previous: new URL("/about", appBaseUrl),

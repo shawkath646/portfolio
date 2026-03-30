@@ -6,7 +6,7 @@ import Connections from "./Connections";
 import ContactForm from "./ContactForm";
 
 export const metadata: Metadata = {
-  title: "Contact and Get in Touch for Projects & Collaborations",
+  title: "Contact and Get in Touch",
   description: "Get in touch with Shawkat Hossain Maruf for web development projects, software engineering opportunities, collaborations, or networking. Available through LinkedIn, email, GitHub, and various messaging platforms.",
   keywords: [
     "Contact Shawkat Hossain",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     "Software Development Inquiry",
   ],
   alternates: {
-    canonical: `${appBaseUrl}/contact`
+    canonical: new URL('/contact', appBaseUrl)
   }
 };
 

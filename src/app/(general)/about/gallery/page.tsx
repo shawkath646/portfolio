@@ -37,8 +37,8 @@ export async function generateMetadata({ searchParams }: PageProps<'/about/galle
     description,
     alternates: {
       canonical: albumsResponse.page > 1
-        ? `${appBaseUrl}/about/gallery?page=${albumsResponse.page}`
-        : `${appBaseUrl}/about/gallery`,
+        ? new URL(`/about/gallery?page=${albumsResponse.page}`, appBaseUrl)
+        : new URL("/about/gallery", appBaseUrl),
     },
     pagination: {
       previous,

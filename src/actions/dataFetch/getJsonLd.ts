@@ -4,6 +4,7 @@ import appBaseUrl from "@/data/appBaseUrl";
 import { db } from "@/lib/firebase";
 import getSocialLinks from "./getSocialLinks";
 
+
 interface ImageObject {
   "@type": "ImageObject";
   url: string;
@@ -57,41 +58,82 @@ interface WebPage {
   "@id": string;
 }
 
-interface PersonSchema {
-  "@context": "https://schema.org";
+export interface PersonSchema {
   "@type": "Person";
   "@id"?: string;
   name: string;
-  alternateName: string[];
+  alternateName?: string[];
   url: string;
   email: string;
-  image: ImageObject;
-  sameAs: string[];
-  jobTitle: string[];
-  worksFor: WorksFor[];
-  alumniOf: AlumniOf[];
-  hasSkill: string[];
-  knowsLanguage: Language[];
-  description: string;
-  gender: string;
-  birthDate: string;
-  nationality: Country;
-  address: PostalAddress;
-  mainEntityOfPage: WebPage;
+  image: ImageObject | string;
+  sameAs?: string[];
+  jobTitle?: string[];
+  worksFor?: WorksFor[];
+  alumniOf?: AlumniOf[];
+  hasSkill?: string[];
+  knowsLanguage?: Language[];
+  description?: string;
+  gender?: string;
+  birthDate?: string;
+  nationality?: Country;
+  address?: PostalAddress;
+  mainEntityOfPage?: WebPage;
 }
 
-const getJsonLd = cache(async () => {
-  const socialLinks = await getSocialLinks();  
-  const socialLinksArray = Object.values(socialLinks)
-    .filter((link): link is string => typeof link === 'string' && link.trim() !== '');
+export interface WebSiteSchema {
+  "@type": "WebSite";
+  "@id": string;
+  url: string;
+  name: string;
+  publisher: {
+    "@id": string;
+  };
+}
 
-  const docRef = await db.collection("site-config").doc("jsonLd").get();
-  const jsonLd = docRef.data() as PersonSchema;
-  
-  jsonLd["@id"] = new URL("/#person", appBaseUrl).toString();
-  jsonLd.sameAs = [...(jsonLd.sameAs || []), ...socialLinksArray];
-  
-  return jsonLd;
+export interface GraphSchema {
+  "@context": "https://schema.org";
+  "@graph": [WebSiteSchema, PersonSchema];
+}
+
+
+const getJsonLd = cache(async (): Promise<GraphSchema | null> => {
+  try {
+    const socialLinks = await getSocialLinks();
+    const socialLinksArray = Object.values(socialLinks)
+      .filter((link): link is string => typeof link === 'string' && link.trim() !== '');
+
+    const docRef = await db.collection("site-config").doc("jsonLd").get();
+
+    if (!docRef.exists) return null;
+
+    const personData = docRef.data() as PersonSchema;
+
+    const personId = new URL("/#person", appBaseUrl).toString();
+    const websiteId = new URL("/#website", appBaseUrl).toString();
+
+    personData["@type"] = "Person";
+    personData["@id"] = personId;
+    personData.sameAs = [...(personData.sameAs || []), ...socialLinksArray];
+    personData.url = appBaseUrl.toString();
+
+    const websiteData: WebSiteSchema = {
+      "@type": "WebSite",
+      "@id": websiteId,
+      url: appBaseUrl.toString(),
+      name: personData.name,
+      publisher: {
+        "@id": personId
+      }
+    };
+
+    return {
+      "@context": "https://schema.org",
+      "@graph": [websiteData, personData]
+    };
+  } catch (error) {
+    console.error("Error fetching JSON-LD:", error);
+    return null;
+  }
 });
 
 export default getJsonLd;

@@ -72,8 +72,8 @@ export async function generateMetadata(
         alternates: {
             canonical:
                 page === 1
-                    ? `${appBaseUrl}${baseUrl}`
-                    : `${appBaseUrl}${baseUrl}?page=${page}`,
+                    ? new URL(baseUrl, appBaseUrl)
+                    : new URL(`${baseUrl}?page=${page}`, appBaseUrl),
         },
 
         keywords: [

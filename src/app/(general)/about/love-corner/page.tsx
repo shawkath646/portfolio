@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     description: 'A private space for reflections on love, commitment, and the gentle work of choosing care every day.',
     keywords: ['love corner', 'love', 'commitment', 'relationships', 'emotional growth'],
     alternates: {
-        canonical: `${appBaseUrl}/about/love-corner`,
+        canonical: new URL("/about/love-corner", appBaseUrl),
     },
     openGraph: {
         title: 'Love Corner - Shawkat Hossain Maruf',

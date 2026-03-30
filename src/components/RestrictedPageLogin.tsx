@@ -118,8 +118,8 @@ export default function RestrictedPageLogin({
         <main className="min-h-screen bg-gray-50 dark:bg-[#0f172a] flex items-center justify-center relative overflow-hidden px-4 font-sans transition-colors duration-300 [&_.grecaptcha-badge]:flex">
             {/* Ambient Background */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-400/20 dark:bg-blue-600/20 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-400/20 dark:bg-purple-600/20 rounded-full blur-[120px]" />
+                <div className="absolute top-[-10%] left-[-10%] w-125 h-125 bg-blue-400/20 dark:bg-blue-600/20 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-125 h-125 bg-purple-400/20 dark:bg-purple-600/20 rounded-full blur-[120px]" />
                 {/* Grid texture adapted for both modes */}
                 <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03] dark:opacity-10" />
             </div>
@@ -128,14 +128,14 @@ export default function RestrictedPageLogin({
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className="w-full max-w-[400px] relative z-10"
+                className="w-full max-w-100 relative z-10"
             >
                 {/* Main Card */}
                 <div className="bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl dark:shadow-2xl overflow-hidden transition-colors duration-300">
 
                     {/* Compact Header */}
                     <div className="p-6 pb-2 text-center">
-                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20 mb-4 text-white">
+                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-tr from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20 mb-4 text-white">
                             {icon || <FiLock className="text-xl" />}
                         </div>
                         <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight transition-colors">
@@ -214,7 +214,7 @@ export default function RestrictedPageLogin({
 
                         {/* Footer Links */}
                         <div className="pt-4 mt-2 flex items-center justify-between text-xs text-gray-400 dark:text-slate-500 border-t border-gray-100 dark:border-slate-800/50 transition-colors">
-                            <Link href="/contact" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1">
+                            <Link href="/contact#contact-me" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1">
                                 Request password
                             </Link>
                             <a href="https://cloudburstlab.vercel.app" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-gray-600 dark:hover:text-slate-300 transition-colors opacity-70">

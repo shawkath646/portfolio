@@ -224,7 +224,7 @@ export default function EnhancedLanding() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.2, duration: 0.6 }}
-                    className="mt-12 flex flex-col sm:flex-row items-center gap-4"
+                    className="mt-12 flex items-center gap-4"
                 >
                     <Link
                         href="/contact"

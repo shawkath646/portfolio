@@ -1,4 +1,5 @@
 import getJsonLd from "@/actions/dataFetch/getJsonLd";
+import BreadcrumbJsonLd from "@/components/BreadcrumbJsonLd";
 import Footer from "@/components/navigation/Footer";
 import Navbar from "@/components/navigation/Navbar";
 
@@ -17,6 +18,7 @@ export default async function GeneralLayout({
                     __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
                 }}
             />
+            <BreadcrumbJsonLd />
             <Navbar />
             {children}
             <Footer />

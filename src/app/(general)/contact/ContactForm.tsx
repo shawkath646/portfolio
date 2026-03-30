@@ -28,7 +28,8 @@ export default function ContactForm() {
 
     return (
         <motion.section
-            className="w-full space-y-6 px-4 md:px-0 container mx-auto"
+            id="contact-me"
+            className="w-full space-y-6 px-4 md:px-0 container mx-auto scroll-mt-24 md:scroll-mt-28"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, type: "spring" }}
@@ -66,8 +67,8 @@ export default function ContactForm() {
                             visible: { opacity: 1, y: 0 },
                         }}
                     >
-                        <label 
-                            htmlFor="fullName" 
+                        <label
+                            htmlFor="fullName"
                             className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
                         >
                             Full Name
@@ -99,8 +100,8 @@ export default function ContactForm() {
                             visible: { opacity: 1, y: 0 },
                         }}
                     >
-                        <label 
-                            htmlFor="email" 
+                        <label
+                            htmlFor="email"
                             className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
                         >
                             Email
@@ -134,8 +135,8 @@ export default function ContactForm() {
                             visible: { opacity: 1, y: 0 },
                         }}
                     >
-                        <label 
-                            htmlFor="subject" 
+                        <label
+                            htmlFor="subject"
                             className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
                         >
                             Subject
@@ -168,8 +169,8 @@ export default function ContactForm() {
                             visible: { opacity: 1, y: 0 },
                         }}
                     >
-                        <label 
-                            htmlFor="message" 
+                        <label
+                            htmlFor="message"
                             className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
                         >
                             Message

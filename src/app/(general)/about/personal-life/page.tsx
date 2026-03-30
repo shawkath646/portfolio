@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     description: 'A private window into my routines, mindset, and the everyday choices that shape my life beyond code.',
     keywords: ['personal life', 'daily routine', 'self growth', 'mindset', 'life reflections'],
     alternates: {
-        canonical: `${appBaseUrl}/about/personal-life`,
+        canonical: new URL("/about/personal-life", appBaseUrl),
     },
     openGraph: {
         title: 'Personal Life - Shawkat Hossain Maruf',

@@ -2,10 +2,10 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Shawkat Hossain Maruf - Full-Stack Developer & Software Engineer',
+    name: 'Admin Panel | Shawkat Hossain Maruf',
     short_name: 'shawkath646',
     description: 'Full-stack developer and Computer Science student at Sejong University specializing in React, Next.js, TypeScript, and Android development. Building modern web applications and mobile solutions with cutting-edge technologies.',
-    start_url: '/',
+    start_url: '/admin',
     display: 'standalone',
     background_color: '#0f172a',
     theme_color: '#3b82f6',

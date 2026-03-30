@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     description: 'Memories, gratitude, and lessons from the friendships that helped shape my life and character.',
     keywords: ['friends corner', 'friendship', 'memories', 'gratitude', 'relationships'],
     alternates: {
-        canonical: `${appBaseUrl}/about/friends-corner`,
+        canonical: new URL('/about/friends-corner', appBaseUrl),
     },
     openGraph: {
         title: 'Friends Corner - Shawkat Hossain Maruf',

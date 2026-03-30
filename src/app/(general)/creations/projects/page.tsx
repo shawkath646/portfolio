@@ -47,8 +47,8 @@ export async function generateMetadata(
     alternates: {
       canonical:
         page > 1
-          ? `${appBaseUrl}${baseUrl}?page=${page}`
-          : `${appBaseUrl}${baseUrl}`,
+          ? new URL(`${baseUrl}?page=${page}`, appBaseUrl)
+          : new URL(baseUrl, appBaseUrl),
     },
 
     pagination: {
