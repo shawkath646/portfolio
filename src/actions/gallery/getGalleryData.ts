@@ -1,7 +1,13 @@
 "use server";
 import { cache } from "react";
 import { db } from "@/lib/firebase";
-import { GalleryAlbumType, GalleryImageType, GetAlbumsResponse, GetImagesResponse } from "@/types/gallery.types";
+import {
+    GalleryAlbumType,
+    GalleryImageType,
+    GalleryImageItemType,
+    GetAlbumsResponse,
+    GetImagesResponse
+} from "@/types/gallery.types";
 import { timestampToDate } from "@/utils/dateTime";
 
 type GetAllAlbumsParams = {
@@ -92,7 +98,7 @@ export const getAllAlbums = cache(
 );
 
 export const getAdminAlbumsList = async (): Promise<GalleryAlbumType[]> => {
-    const albumSnapshot = await db.collection("gallery-albums").orderBy("timestamp", "desc").get();
+    const albumSnapshot = await db.collection("gallery-albums").orderBy("name", "asc").get();
 
     const albums: GalleryAlbumType[] = albumSnapshot.docs.map(doc => {
         const album = doc.data() as GalleryAlbumType;
@@ -170,19 +176,30 @@ export const getGallerySnapshot = cache(
         ]);
 
         const albums: GalleryAlbumType[] = albumSnapshot.docs.map((doc) => {
-            const data = doc.data() as GalleryAlbumType;
+            const data = doc.data() as Omit<GalleryAlbumType, "images">;
             data.timestamp = timestampToDate(data.timestamp);
 
             return data;
         });
 
-        const images: GalleryImageType[] = imageSnapshot.docs.map((doc) => {
-            const data = doc.data() as GalleryImageType;
-            data.timestamp = timestampToDate(data.timestamp);
-            data.createdAt = timestampToDate(data.createdAt);
+        const images: GalleryImageType[] = await Promise.all(
+            imageSnapshot.docs.map(async (doc) => {
+                const data = doc.data() as Omit<GalleryImageType, "images">;
 
-            return data;
-        });
+                data.timestamp = timestampToDate(data.timestamp);
+                data.createdAt = timestampToDate(data.createdAt);
+
+                const subDocsSnapshot = await doc.ref.collection("images").get();
+                const imageItems: GalleryImageItemType[] = subDocsSnapshot.docs.map(
+                    (subDoc) => subDoc.data() as GalleryImageItemType
+                );
+
+                return {
+                    ...data,
+                    images: imageItems,
+                } as GalleryImageType;
+            })
+        );
 
         albums.push(await getUnknownAlbum());
 
@@ -205,26 +222,47 @@ export const getImageBySlug = cache(
 
         if (imageSnapshot.empty) return null;
 
-        const imageDoc = imageSnapshot.docs[0];
-        const imageData = imageDoc.data() as GalleryImageType;
+        const doc = imageSnapshot.docs[0];
+
+        const imageData = doc.data() as Omit<GalleryImageType, "images">;
+
         imageData.timestamp = timestampToDate(imageData.timestamp);
         imageData.createdAt = timestampToDate(imageData.createdAt);
 
-        return imageData;
+        const subDocsSnapshot = await doc.ref.collection("images").get();
+        const imageItems: GalleryImageItemType[] = subDocsSnapshot.docs.map(
+            (subDoc) => subDoc.data() as GalleryImageItemType
+        );
+
+        return {
+            ...imageData,
+            images: imageItems,
+        } as GalleryImageType;
     }
 );
 
 export const getImageById = cache(
     async (imageId: string): Promise<GalleryImageType | null> => {
-        const docRef = await db.collection("gallery-images").doc(imageId).get();
+        const docSnapshot = await db.collection("gallery-images").doc(imageId).get();
 
-        if (!docRef.exists) return null;
-        const image = docRef.data() as GalleryImageType;
-        image.timestamp = timestampToDate(image.timestamp);
+        if (!docSnapshot.exists) return null;
 
-        return image;
+        const imageData = docSnapshot.data() as Omit<GalleryImageType, "images">;
+
+        imageData.timestamp = timestampToDate(imageData.timestamp);
+        imageData.createdAt = timestampToDate(imageData.createdAt);
+
+        const subDocsSnapshot = await docSnapshot.ref.collection("images").get();
+        const imageItems: GalleryImageItemType[] = subDocsSnapshot.docs.map(
+            (subDoc) => subDoc.data() as GalleryImageItemType
+        );
+
+        return {
+            ...imageData,
+            images: imageItems,
+        } as GalleryImageType;
     }
-)
+);
 
 export const getLatestGalleryImages = cache(
     async (): Promise<(GalleryImageType & { albumSlug: string })[]> => {
@@ -234,15 +272,23 @@ export const getLatestGalleryImages = cache(
             .limit(15)
             .get();
 
-        const latestImages = latestImagesSnapshot.docs.map((doc) => {
-            const data = doc.data() as GalleryImageType;
+        const latestImages = await Promise.all(
+            latestImagesSnapshot.docs.map(async (doc) => {
+                const data = doc.data() as Omit<GalleryImageType, "images">;
 
-            return {
-                ...data,
-                timestamp: timestampToDate(data.timestamp),
-                createdAt: timestampToDate(data.createdAt),
-            };
-        });
+                const subDocsSnapshot = await doc.ref.collection("images").get();
+                const imageItems: GalleryImageItemType[] = subDocsSnapshot.docs.map(
+                    (subDoc) => subDoc.data() as GalleryImageItemType
+                );
+
+                return {
+                    ...data,
+                    images: imageItems,
+                    timestamp: timestampToDate(data.timestamp),
+                    createdAt: timestampToDate(data.createdAt),
+                } as GalleryImageType;
+            })
+        );
 
         const albumIds = [
             ...new Set(
@@ -310,15 +356,23 @@ export const getImageFromAlbum = cache(
         const hasMore = snapshot.docs.length > limit;
         const docs = hasMore ? snapshot.docs.slice(0, limit) : snapshot.docs;
 
-        const images = docs.map((doc) => {
-            const image = doc.data() as GalleryImageType;
+        const images: GalleryImageType[] = await Promise.all(
+            docs.map(async (doc) => {
+                const data = doc.data() as Omit<GalleryImageType, "images">;
 
-            return {
-                ...image,
-                timestamp: timestampToDate(image.timestamp),
-                createdAt: timestampToDate(image.createdAt)
-            };
-        });
+                const subDocsSnapshot = await doc.ref.collection("images").get();
+                const imageItems: GalleryImageItemType[] = subDocsSnapshot.docs.map(
+                    (subDoc) => subDoc.data() as GalleryImageItemType
+                );
+
+                return {
+                    ...data,
+                    images: imageItems,
+                    timestamp: timestampToDate(data.timestamp),
+                    createdAt: timestampToDate(data.createdAt)
+                } as GalleryImageType;
+            })
+        );
 
         return {
             images,
@@ -334,7 +388,7 @@ export const getImageFromAlbum = cache(
 export const getAlbumPreviewImages = cache(
     async (previewIds: string[]): Promise<Map<string, GalleryImageType>> => {
 
-        if (!previewIds.length) return new Map();
+        if (!previewIds || !previewIds.length) return new Map();
 
         const refs = previewIds.map((id) =>
             db.collection("gallery-images").doc(id)
@@ -344,16 +398,27 @@ export const getAlbumPreviewImages = cache(
 
         const imageMap = new Map<string, GalleryImageType>();
 
-        snapshots.forEach((doc) => {
-            if (!doc.exists) return;
+        await Promise.all(
+            snapshots.map(async (doc) => {
+                if (!doc.exists) return;
 
-            const data = doc.data() as GalleryImageType;
-            data.timestamp = timestampToDate(data.timestamp);
-            data.createdAt = timestampToDate(data.createdAt);
+                const data = doc.data() as Omit<GalleryImageType, "images">;
 
+                const subDocsSnapshot = await doc.ref.collection("images").get();
+                const imageItems: GalleryImageItemType[] = subDocsSnapshot.docs.map(
+                    (subDoc) => subDoc.data() as GalleryImageItemType
+                );
 
-            imageMap.set(doc.id, data);
-        });
+                const fullImage: GalleryImageType = {
+                    ...data,
+                    images: imageItems,
+                    timestamp: timestampToDate(data.timestamp),
+                    createdAt: timestampToDate(data.createdAt),
+                };
+
+                imageMap.set(doc.id, fullImage);
+            })
+        );
 
         return imageMap;
     }

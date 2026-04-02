@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FiArrowRight, FiCamera } from "react-icons/fi";
+import blurImagePlaceholder from "@/data/blurImagePlaceholder";
 import { GalleryImageType } from "@/types/gallery.types";
 
 
@@ -104,7 +105,7 @@ export default function GallerySnapshot({ images }: GallerySnapshotProps) {
               >
                 <figure className="relative w-full h-full">
                   <Image
-                    src={image.src}
+                    src={image.images[0]?.src ?? blurImagePlaceholder}
                     alt={image.alt || image.title}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"

@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { FaMapMarkerAlt, FaCalendar, FaSpinner, FaTrash } from "react-icons/fa";
 import { deleteImage } from "@/actions/gallery/imageManagement";
+import { useToast } from "@/components/Toast";
 import blurImagePlaceholder from "@/data/blurImagePlaceholder";
 import { GalleryImageType } from "@/types/gallery.types";
 import { formatDateTime } from "@/utils/dateTime";
-import { useToast } from "@/components/Toast";
 
 
 interface GalleryGridProps {
@@ -74,7 +74,7 @@ export default function GalleryGrid({ images }: GalleryGridProps) {
                                 onClick={() => router.replace(`/admin/gallery/${image.albumId ?? "unknown-album"}?selected=${image.id}`)}
                             >
                                 <Image
-                                    src={image.src}
+                                    src={image.images[0]?.src ?? blurImagePlaceholder}
                                     alt={image.alt || image.title}
 
                                     width={400}

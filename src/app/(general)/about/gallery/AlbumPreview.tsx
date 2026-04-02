@@ -19,6 +19,7 @@ export default function AlbumPreview({ previewImages }: AlbumPreviewProps) {
     }
     
     const thumbSize = 400;
+    const previewSources = previewImages.map((image) => image.images[0]?.src ?? blurImagePlaceholder);
 
     return (
         <div className="aspect-square relative overflow-hidden">
@@ -26,7 +27,7 @@ export default function AlbumPreview({ previewImages }: AlbumPreviewProps) {
             {previewImages.length === 1 && (
                 <div className="absolute inset-0">
                     <Image
-                        src={previewImages[0].src}
+                        src={previewSources[0]}
                         alt={previewImages[0].alt || previewImages[0].title}
                         width={thumbSize}
                         height={thumbSize}
@@ -43,7 +44,7 @@ export default function AlbumPreview({ previewImages }: AlbumPreviewProps) {
                 <>
                     <div className="absolute inset-0 w-1/2">
                         <Image
-                            src={previewImages[0].src}
+                            src={previewSources[0]}
                             alt={previewImages[0].alt || previewImages[0].title}
                             width={thumbSize}
                             height={thumbSize}
@@ -55,7 +56,7 @@ export default function AlbumPreview({ previewImages }: AlbumPreviewProps) {
                     </div>
                     <div className="absolute inset-0 left-1/2">
                         <Image
-                            src={previewImages[1].src}
+                            src={previewSources[1]}
                             alt={previewImages[1].alt || previewImages[1].title}
                             width={thumbSize}
                             height={thumbSize}
@@ -74,7 +75,7 @@ export default function AlbumPreview({ previewImages }: AlbumPreviewProps) {
                 <>
                     <div className="absolute inset-0 w-1/2">
                         <Image
-                            src={previewImages[0].src}
+                            src={previewSources[0]}
                             alt={previewImages[0].alt || previewImages[0].title}
                             width={thumbSize}
                             height={thumbSize}
@@ -86,7 +87,7 @@ export default function AlbumPreview({ previewImages }: AlbumPreviewProps) {
                     </div>
                     <div className="absolute top-0 right-0 w-1/2 h-1/2">
                         <Image
-                            src={previewImages[1].src}
+                            src={previewSources[1]}
                             alt={previewImages[1].alt || previewImages[1].title}
                             width={thumbSize}
                             height={thumbSize}
@@ -98,7 +99,7 @@ export default function AlbumPreview({ previewImages }: AlbumPreviewProps) {
                     </div>
                     <div className="absolute bottom-0 right-0 w-1/2 h-1/2">
                         <Image
-                            src={previewImages[2].src}
+                            src={previewSources[2]}
                             alt={previewImages[2].alt || previewImages[2].title}
                             width={thumbSize}
                             height={thumbSize}
@@ -118,7 +119,7 @@ export default function AlbumPreview({ previewImages }: AlbumPreviewProps) {
                 <>
                     <div className="absolute top-0 left-0 w-1/2 h-1/2">
                         <Image
-                            src={previewImages[0].src}
+                            src={previewSources[0]}
                             alt={previewImages[0].alt || previewImages[0].title}
                             width={thumbSize}
                             height={thumbSize}
@@ -130,7 +131,7 @@ export default function AlbumPreview({ previewImages }: AlbumPreviewProps) {
                     </div>
                     <div className="absolute top-0 right-0 w-1/2 h-1/2">
                         <Image
-                            src={previewImages[1].src}
+                            src={previewSources[1]}
                             alt={previewImages[1].alt || previewImages[1].title}
                             width={thumbSize}
                             height={thumbSize}
@@ -142,7 +143,7 @@ export default function AlbumPreview({ previewImages }: AlbumPreviewProps) {
                     </div>
                     <div className="absolute bottom-0 left-0 w-1/2 h-1/2">
                         <Image
-                            src={previewImages[2].src}
+                            src={previewSources[2]}
                             alt={previewImages[2].alt || previewImages[2].title}
                             width={thumbSize}
                             height={thumbSize}
@@ -154,7 +155,7 @@ export default function AlbumPreview({ previewImages }: AlbumPreviewProps) {
                     </div>
                     <div className="absolute bottom-0 right-0 w-1/2 h-1/2">
                         <Image
-                            src={previewImages[3].src}
+                            src={previewSources[3]}
                             alt={previewImages[3].alt || previewImages[3].title}
                             width={thumbSize}
                             height={thumbSize}

@@ -38,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 lastModified: image.timestamp,
                 changeFrequency: "monthly",
                 priority: 0.4,
-                images: [image.src],
+                images: image.images.map((item) => item.src),
             };
         });
 

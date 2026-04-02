@@ -97,7 +97,9 @@ export default async function Image({ params }: PageProps<'/about/gallery/[album
         .filter((image): image is GalleryImageType => Boolean(image))
         .slice(0, 4);
 
-    const coverImage = previewImages[0]?.src;
+    const coverImage = previewImages[0]
+        ? previewImages[0].images[0]?.src ?? null
+        : null;
 
     return new ImageResponse(
         (

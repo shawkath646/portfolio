@@ -8,14 +8,15 @@ import { AnimatePresence, motion } from "motion/react";
 import { FaTimes, FaMapMarkerAlt, FaCalendar, FaSpinner, FaTrash, FaFolder } from "react-icons/fa";
 import { getAdminAlbumsList } from "@/actions/gallery/getGalleryData";
 import { deleteImage, updateImageAlbum } from "@/actions/gallery/imageManagement";
+import { useToast } from "@/components/Toast";
 import blurImagePlaceholder from "@/data/blurImagePlaceholder";
 import useLockBodyScroll from "@/hooks/useLockBodyScroll";
 import { GalleryAlbumType, GalleryImageType } from "@/types/gallery.types";
 import { formatDateTime } from "@/utils/dateTime";
-import { useToast } from "@/components/Toast";
 
 export default function ImageViewModal({ image }: { image: GalleryImageType }) {
     const [isDeleting, setDeleting] = useState(false);
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
 
     const [albumList, setAlbumList] = useState<GalleryAlbumType[]>([]);
     const [isFetchingAlbums, setIsFetchingAlbums] = useState(true);
@@ -25,6 +26,9 @@ export default function ImageViewModal({ image }: { image: GalleryImageType }) {
     const router = useRouter();
     const toast = useToast();
     useLockBodyScroll();
+
+    const activeImage = image.images[activeImageIndex] ?? image.images[0];
+    const activeImageSource = activeImage?.src ?? blurImagePlaceholder;
 
     useEffect(() => {
         let isMounted = true;
@@ -85,7 +89,7 @@ export default function ImageViewModal({ image }: { image: GalleryImageType }) {
                     {/* Image */}
                     <div className="flex-1 relative aspect-video lg:aspect-auto lg:h-[80vh] bg-gray-900 rounded-lg overflow-hidden">
                         <Image
-                            src={image.src}
+                            src={activeImageSource}
                             alt={image.alt || image.title}
                             fill
                             sizes="100vw"
@@ -94,6 +98,28 @@ export default function ImageViewModal({ image }: { image: GalleryImageType }) {
                             blurDataURL={blurImagePlaceholder}
                             priority
                         />
+
+                        {image.images.length > 1 && (
+                            <div className="absolute bottom-3 left-3 right-3 grid grid-cols-5 sm:grid-cols-8 gap-2 p-2 rounded-lg bg-black/50 backdrop-blur-md">
+                                {image.images.map((imageItem, index) => (
+                                    <button
+                                        key={imageItem.id}
+                                        type="button"
+                                        onClick={() => setActiveImageIndex(index)}
+                                        className={`relative aspect-square rounded overflow-hidden border ${activeImageIndex === index ? "border-blue-400" : "border-transparent"}`}
+                                        aria-label={`Show image ${index + 1}`}
+                                    >
+                                        <Image
+                                            src={imageItem.src}
+                                            alt={`${image.alt || image.title} thumbnail ${index + 1}`}
+                                            fill
+                                            sizes="80px"
+                                            className="object-cover"
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Details */}
@@ -203,7 +229,7 @@ export default function ImageViewModal({ image }: { image: GalleryImageType }) {
                                     <div>
                                         <p className="text-xs text-zinc-500">Dimensions</p>
                                         <p className="text-zinc-300">
-                                            {image.width} × {image.height} px
+                                            {activeImage?.width ?? 1} × {activeImage?.height ?? 1} px
                                         </p>
                                     </div>
                                 </div>

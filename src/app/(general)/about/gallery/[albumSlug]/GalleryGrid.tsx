@@ -53,7 +53,7 @@ export default function GalleryGrid({ albumName, albumSlug, images }: GalleryGri
                             {/* Image Wrapper */}
                             <div className="relative aspect-square overflow-hidden bg-gray-200 dark:bg-gray-700">
                                 <Image
-                                    src={image.src}
+                                    src={image.images[0]?.src ?? blurImagePlaceholder}
                                     alt={image.alt || image.title}
                                     width={400}
                                     height={400}

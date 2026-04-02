@@ -1,5 +1,5 @@
 "use client";
-import { useState, useTransition, useCallback } from "react";
+import { useState, useTransition, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -23,8 +23,15 @@ type UploadFormData = {
     timestamp: Date;
 };
 
+type SelectedImageMetadata = {
+    width: number;
+    height: number;
+};
+
 export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[] }) {
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+    const [selectedImageMetadata, setSelectedImageMetadata] = useState<SelectedImageMetadata[]>([]);
+    const [activePreviewIndex, setActivePreviewIndex] = useState(0);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isPending, startTransition] = useTransition();
     const toast = useToast();
@@ -52,6 +59,12 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
     const height = watch('height');
     const timestamp = watch('timestamp');
 
+    useEffect(() => {
+        return () => {
+            imagePreviews.forEach((previewUrl) => URL.revokeObjectURL(previewUrl));
+        };
+    }, [imagePreviews]);
+
     const validateImageFile = useCallback((file: File): string | null => {
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
         if (!validTypes.includes(file.type)) {
@@ -66,8 +79,21 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
         return null;
     }, []);
 
-    const handleImageSelect = useCallback(async (file: File) => {
-        const validationError = validateImageFile(file);
+    const handleImageSelect = useCallback(async (files: File[]) => {
+        if (files.length === 0) {
+            setError("image", { type: "manual", message: "Please select at least one image." });
+            return;
+        }
+
+        if (files.length > 20) {
+            setError("image", { type: "manual", message: "You can upload up to 20 images at once." });
+            return;
+        }
+
+        const validationError = files
+            .map((file) => validateImageFile(file))
+            .find((errorMessage): errorMessage is string => Boolean(errorMessage));
+
         if (validationError) {
             setError("image", { type: "manual", message: validationError });
             return;
@@ -75,34 +101,38 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
 
         clearErrors("image");
 
-        const metadata = await getImageMetadata(file);
+        const metadataList = await Promise.all(files.map((file) => getImageMetadata(file)));
+        const normalizedMetadata = metadataList.map((item) => ({
+            width: item.width && item.width > 0 ? item.width : 1,
+            height: item.height && item.height > 0 ? item.height : 1,
+        }));
+        const primaryMetadata = metadataList[0];
 
-        setValue('width', metadata.width ?? 0, { shouldValidate: true, shouldDirty: true });
-        setValue('height', metadata.height ?? 0, { shouldValidate: true, shouldDirty: true });
-        setValue('timestamp', metadata.timestamp || new Date(), { shouldValidate: true, shouldDirty: true });
+        setValue('width', primaryMetadata.width ?? 0, { shouldValidate: true, shouldDirty: true });
+        setValue('height', primaryMetadata.height ?? 0, { shouldValidate: true, shouldDirty: true });
+        setValue('timestamp', primaryMetadata.timestamp || new Date(), { shouldValidate: true, shouldDirty: true });
+        setSelectedImageMetadata(normalizedMetadata);
 
         const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
+        files.forEach((file) => dataTransfer.items.add(file));
+        setValue('image', dataTransfer.files as unknown as FileList, { shouldValidate: true, shouldDirty: true });
 
-        const fileList = dataTransfer.files;
-        setValue('image', fileList as unknown as FileList, { shouldValidate: true, shouldDirty: true });
-
-        setImagePreview((prev) => {
-            if (prev) {
-                URL.revokeObjectURL(prev);
-            }
-            return URL.createObjectURL(file);
+        setImagePreviews((previousPreviews) => {
+            previousPreviews.forEach((previewUrl) => URL.revokeObjectURL(previewUrl));
+            return files.map((file) => URL.createObjectURL(file));
         });
+
+        setActivePreviewIndex(0);
     }, [clearErrors, setError, setValue, validateImageFile]);
 
     // Clear image preview
     const clearImage = useCallback(() => {
-        setImagePreview((prev) => {
-            if (prev) {
-                URL.revokeObjectURL(prev);
-            }
-            return null;
+        setImagePreviews((previousPreviews) => {
+            previousPreviews.forEach((previewUrl) => URL.revokeObjectURL(previewUrl));
+            return [];
         });
+        setActivePreviewIndex(0);
+        setSelectedImageMetadata([]);
         clearErrors("image");
         setValue('image', undefined as unknown as FileList, { shouldValidate: true, shouldDirty: true });
         setValue('width', 0, { shouldValidate: true, shouldDirty: true });
@@ -110,75 +140,107 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
         setValue('timestamp', new Date(), { shouldValidate: true, shouldDirty: true });
     }, [clearErrors, setValue]);
 
+    const uploadFileWithProgress = useCallback(async (
+        file: File,
+        uploadURL: string,
+        onProgress: (loadedBytes: number) => void
+    ): Promise<void> => {
+        const xhr = new XMLHttpRequest();
+
+        await new Promise<void>((resolve, reject) => {
+            xhr.upload.addEventListener("progress", (event) => {
+                if (event.lengthComputable) {
+                    onProgress(event.loaded);
+                }
+            });
+
+            xhr.addEventListener('load', () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    onProgress(file.size);
+                    resolve();
+                } else {
+                    reject(new Error(`Upload failed with status ${xhr.status}`));
+                }
+            });
+
+            xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
+            xhr.open('PUT', uploadURL);
+            xhr.setRequestHeader('Content-Type', file.type);
+            xhr.setRequestHeader('x-goog-content-length-range', `0,${file.size}`);
+            xhr.send(file);
+        });
+    }, []);
+
     const onSubmit = (data: UploadFormData) => startTransition(async () => {
         try {
-            const file = data.image[0];
-            if (!file) {
-                toast("Please select an image", "warning");
+            const files = Array.from(data.image || []);
+            if (files.length === 0) {
+                toast("Please select at least one image", "warning");
                 return;
             }
 
             setUploadProgress(0);
 
-            const urlResult = await requestImageUploadURL({
-                fileType: file.type,
-                fileSize: file.size,
-            });
+            const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
+            let uploadedBytes = 0;
+            const sourceImageIds: string[] = [];
+            const uploadedImages: { id: string; src: string; width: number; height: number }[] = [];
 
-            if (!urlResult.success || !urlResult.imageId || !urlResult.uploadURL) {
-                throw new Error(urlResult.message || 'Failed to generate upload URL');
+            for (const [index, file] of files.entries()) {
+                const urlResult = await requestImageUploadURL({
+                    fileType: file.type,
+                    fileSize: file.size,
+                });
+
+                if (!urlResult.success || !urlResult.imageId || !urlResult.uploadURL) {
+                    throw new Error(urlResult.message || 'Failed to generate upload URL');
+                }
+
+                let currentFileLoadedBytes = 0;
+
+                await uploadFileWithProgress(file, urlResult.uploadURL, (loadedBytes) => {
+                    currentFileLoadedBytes = loadedBytes;
+                    const currentProgress = Math.round(
+                        ((uploadedBytes + currentFileLoadedBytes) / totalBytes) * 100
+                    );
+                    setUploadProgress(Math.min(currentProgress, 100));
+                });
+
+                uploadedBytes += file.size;
+                sourceImageIds.push(urlResult.imageId);
+                uploadedImages.push({
+                    id: urlResult.imageId,
+                    src: "",
+                    width: selectedImageMetadata[index]?.width ?? data.width,
+                    height: selectedImageMetadata[index]?.height ?? data.height,
+                });
+                setUploadProgress(Math.min(Math.round((uploadedBytes / totalBytes) * 100), 100));
             }
 
-            const xhr = new XMLHttpRequest();
+            if (sourceImageIds.length === 0) {
+                throw new Error("No uploaded image IDs found.");
+            }
 
-            await new Promise<void>((resolve, reject) => {
-                xhr.upload.addEventListener("progress", (event) => {
-                    if (event.lengthComputable) {
-                        const progress = Math.round((event.loaded / event.total) * 100);
-                        setUploadProgress(progress);
-                    }
-                });
-
-                xhr.addEventListener('load', () => {
-                    if (xhr.status >= 200 && xhr.status < 300) {
-                        setUploadProgress(100);
-                        resolve();
-                    } else {
-                        reject(new Error(`Upload failed with status ${xhr.status}`));
-                    }
-                });
-
-                xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
-                xhr.open('PUT', urlResult.uploadURL!);
-                xhr.setRequestHeader('Content-Type', file.type);
-                xhr.setRequestHeader('x-goog-content-length-range', `0,${file.size}`);
-                xhr.send(file);
-            });
-
-            const saveResult = await saveGalleryImage({
-                id: urlResult.imageId,
-                albumId: data.album,
-                title: data.title,
-                description: data.description,
-                alt: data.alt,
-                location: data.location,
-                width: data.width,
-                height: data.height,
-                timestamp: data.timestamp,
-            });
+            const saveResult = await saveGalleryImage(
+                {
+                    id: sourceImageIds[0],
+                    albumId: data.album,
+                    title: data.title,
+                    description: data.description,
+                    alt: data.alt,
+                    location: data.location,
+                    timestamp: data.timestamp,
+                },
+                uploadedImages
+            );
 
             if (!saveResult.success) {
                 throw new Error(saveResult.message || 'Failed to save image');
             }
 
-            toast("Image uploaded successfully!", "success");
+            toast(`${sourceImageIds.length} image${sourceImageIds.length > 1 ? 's' : ''} uploaded successfully!`, "success");
             reset();
-            setImagePreview((prev) => {
-                if (prev) {
-                    URL.revokeObjectURL(prev);
-                }
-                return null;
-            });
+            clearImage();
             setUploadProgress(0);
         } catch (error) {
             console.log(error);
@@ -226,15 +288,16 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
                     className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 border border-gray-200 dark:border-gray-700"
                 >
                     <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        Upload Image
+                        Upload Images
                     </label>
 
                     <div className="flex flex-col sm:flex-row gap-3 items-stretch">
                         {/* Upload Area */}
                         <div className="flex-1">
-                            {!imagePreview ? (
+                            {imagePreviews.length === 0 ? (
                                 <FileDragDrop
-                                    onFileSelected={handleImageSelect}
+                                    onFilesSelected={handleImageSelect}
+                                    multiple
                                     accept="image/*"
                                     disabled={isPending}
                                     className="w-full h-48 mb-0 rounded-lg"
@@ -250,36 +313,64 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
                                         >
                                             <FaCloudUploadAlt className={`w-10 h-10 mb-2 transition-colors ${isDragging ? 'text-blue-500' : 'text-gray-400 group-hover:text-blue-500'}`} />
                                             <p className="mb-1 text-xs text-gray-500 dark:text-gray-400">
-                                                <span className="font-semibold">Click to upload</span> or drag and drop
+                                                <span className="font-semibold">Click to upload</span> or drag and drop files
                                             </p>
                                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                PNG, JPG, GIF, WebP, SVG up to 10MB
+                                                PNG, JPG, GIF, WebP, SVG up to 10MB each
                                             </p>
                                         </motion.div>
                                     )}
                                 </FileDragDrop>
                             ) : (
-                                <div className="relative w-full h-48 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900 group">
-                                    <Image
-                                        src={imagePreview}
-                                        alt="Preview"
-                                        fill
-                                        className="object-contain"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={clearImage}
-                                        className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
-                                        <FaTimes className="text-sm" />
-                                    </button>
+                                <div className="space-y-2">
+                                    <div className="relative w-full h-48 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900 group">
+                                        <Image
+                                            src={imagePreviews[activePreviewIndex]}
+                                            alt={`Preview ${activePreviewIndex + 1}`}
+                                            fill
+                                            className="object-contain"
+                                        />
+                                        <div className="absolute left-2 top-2 px-2 py-1 rounded bg-black/70 text-white text-[10px]">
+                                            {activePreviewIndex + 1} / {imagePreviews.length}
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={clearImage}
+                                            className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <FaTimes className="text-sm" />
+                                        </button>
+                                    </div>
+
+                                    {imagePreviews.length > 1 && (
+                                        <div className="grid grid-cols-6 gap-2">
+                                            {imagePreviews.slice(0, 12).map((previewUrl, index) => (
+                                                <button
+                                                    key={previewUrl}
+                                                    type="button"
+                                                    onClick={() => setActivePreviewIndex(index)}
+                                                    className={`relative aspect-square rounded-md overflow-hidden border ${index === activePreviewIndex
+                                                        ? 'border-blue-500 ring-1 ring-blue-500'
+                                                        : 'border-gray-300 dark:border-gray-700'
+                                                        }`}
+                                                >
+                                                    <Image
+                                                        src={previewUrl}
+                                                        alt={`Thumbnail ${index + 1}`}
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
 
                         <input
                             type="hidden"
-                            {...register("image", { required: "Please select an image" })}
+                            {...register("image", { required: "Please select at least one image" })}
                         />
 
                         {/* Import from Drive Button */}
@@ -492,6 +583,20 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
                     </div>
                 </motion.div>
 
+                {isPending && (
+                    <div className="mt-2">
+                        <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                            <div
+                                className="h-full bg-linear-to-r from-blue-500 to-purple-500 transition-all duration-200"
+                                style={{ width: `${uploadProgress}%` }}
+                            />
+                        </div>
+                        <p className="mt-1 text-xs text-gray-600 dark:text-gray-400 text-right">
+                            {uploadProgress}% uploaded
+                        </p>
+                    </div>
+                )}
+
                 {/* Submit Button */}
                 <motion.div variants={itemVariants}>
                     <motion.button
@@ -509,24 +614,10 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
                         ) : (
                             <>
                                 <FaImage className="text-sm" />
-                                <span>Upload Image</span>
+                                <span>Upload Images</span>
                             </>
                         )}
                     </motion.button>
-
-                    {isPending && (
-                        <div className="mt-2">
-                            <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                                <div
-                                    className="h-full bg-linear-to-r from-blue-500 to-purple-500 transition-all duration-200"
-                                    style={{ width: `${uploadProgress}%` }}
-                                />
-                            </div>
-                            <p className="mt-1 text-xs text-gray-600 dark:text-gray-400 text-right">
-                                {uploadProgress}% uploaded
-                            </p>
-                        </div>
-                    )}
                 </motion.div>
             </form>
         </motion.div>

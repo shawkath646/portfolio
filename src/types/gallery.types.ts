@@ -25,15 +25,20 @@ export interface GetImagesResponse {
     hasMore: boolean;
 }
 
+export interface GalleryImageItemType {
+    id: string;
+    src: string;
+    height: number;
+    width: number;
+}
+
 export interface GalleryImageType {
     id: string;
     title: string;
     description: string;
     slug: string;
     alt: string;
-    src: string;
-    height: number;
-    width: number;
+    images: GalleryImageItemType[];
     location: string;
     timestamp: Date;
     createdAt: Date;

@@ -2,11 +2,11 @@
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { bucket, db, FieldValue } from "@/lib/firebase";
-import { APIResponseType, PartialBy } from "@/types/common.types";
-import { GalleryImageType } from "@/types/gallery.types";
+import { APIResponseType } from "@/types/common.types";
+import { GalleryImageType, GalleryImageItemType } from "@/types/gallery.types";
 import { generatePublicUrl, generateSignedUploadURL, verifyFileExists } from "@/utils/storage";
 import { generateSlug } from "@/utils/string";
-import { getAlbumById, getImageById, getImageBySlug } from "./getGalleryData";
+import { getAlbumById, getImageBySlug } from "./getGalleryData";
 import { getAuthSession } from "../authentication/authActions";
 
 const IMAGE_MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -19,6 +19,19 @@ interface RequestImageUploadURLProps {
 interface RequestImageUploadURLResponse extends APIResponseType {
     uploadURL?: string;
     imageId?: string;
+}
+
+async function generateUniqueImageSlug(title: string): Promise<string> {
+    const baseSlug = generateSlug(title, { prefix: "img" });
+    let candidateSlug = baseSlug;
+    let suffix = 2;
+
+    while (await getImageBySlug(candidateSlug)) {
+        candidateSlug = `${baseSlug}-${suffix}`;
+        suffix += 1;
+    }
+
+    return candidateSlug;
 }
 
 export async function requestImageUploadURL(
@@ -74,7 +87,8 @@ export async function requestImageUploadURL(
 }
 
 export async function saveGalleryImage(
-    props: PartialBy<GalleryImageType, "slug" | "src" | "createdAt">
+    metadata: Omit<GalleryImageType, "slug" | "images" | "createdAt">,
+    images: GalleryImageItemType[]
 ): Promise<APIResponseType> {
 
     const adminSession = await getAuthSession();
@@ -83,66 +97,91 @@ export async function saveGalleryImage(
             success: false,
             message: "Error: Permission denied! Session not found."
         };
-    };
+    }
 
-    if (!props.albumId) {
+    if (!metadata.albumId) {
         return { success: false, message: "Error: Album ID not provided." };
     }
 
-    const storagePath = `gallery/${props.id}`;
-
-    if (!(await verifyFileExists(storagePath))) {
-        return { success: false, message: "Image not uploaded." };
+    if (!images || images.length === 0) {
+        return { success: false, message: "Image sources are missing." };
     }
 
-    const imageSlug = generateSlug(props.title, { prefix: "img" });
-    const duplicateImage = await getImageBySlug(imageSlug);
+    const [album, imageSlug, uploadChecks] = await Promise.all([
+        getAlbumById(metadata.albumId),
+        generateUniqueImageSlug(metadata.title),
+        Promise.all(
+            images.map(async (img) => {
+                const storagePath = `gallery/${img.id}`;
+                const exists = await verifyFileExists(storagePath);
+                const publicUrl = exists ? await generatePublicUrl(storagePath) : "";
 
-    if (duplicateImage !== null) {
-        return { success: false, message: "Error: Image with slug already exists!" };
-    }
+                return { ...img, storagePath, exists, publicUrl };
+            })
+        )
+    ]);
 
-    const album = await getAlbumById(props.albumId);
     if (!album) {
         return { success: false, message: "Invalid album." };
     }
 
-    const publicUrl = await generatePublicUrl(storagePath);
+    const failedUploads = uploadChecks.filter((item) => !item.exists);
 
-    const imageObject: GalleryImageType = {
-        ...props,
-        src: publicUrl,
+    if (failedUploads.length > 0) {
+        const failedIds = failedUploads.map(img => img.id).join(", ");
+        return {
+            success: false,
+            message: `Operation aborted. The following images failed to upload: ${failedIds}`,
+        };
+    }
+
+    const batch = db.batch();
+
+    const parentImageRef = db.collection("gallery-images").doc(metadata.id);
+    const parentObject: Omit<GalleryImageType, "images"> = {
+        ...metadata,
         slug: imageSlug,
         createdAt: new Date(),
     };
+    batch.set(parentImageRef, parentObject);
 
-    await db
-        .collection("gallery-images")
-        .doc(imageObject.id)
-        .set(imageObject);
+    uploadChecks.forEach((imgCheck) => {
+        const subDocRef = parentImageRef.collection("images").doc(imgCheck.id);
+        const imageItem: GalleryImageItemType = {
+            id: imgCheck.id,
+            src: imgCheck.publicUrl || imgCheck.src,
+            height: imgCheck.height,
+            width: imgCheck.width,
+        };
+        batch.set(subDocRef, imageItem);
+    });
 
+    const albumRef = db.collection("gallery-albums").doc(album.id);
     const previewImages = [
-        imageObject.id,
-        ...(album.previewImages ?? []).filter(id => id !== imageObject.id)
+        parentImageRef.id,
+        ...(album.previewImages ?? []).filter((id: string) => id !== parentImageRef.id)
     ].slice(0, 5);
 
-    await db
-        .collection("gallery-albums")
-        .doc(album.id)
-        .update({
-            previewImages,
-            imageCount: FieldValue.increment(1)
-        });
+    batch.update(albumRef, {
+        previewImages,
+        imageCount: FieldValue.increment(1)
+    });
 
+    try {
+        await batch.commit();
+    } catch (error) {
+        console.error("Failed to commit batch:", error);
+        return { success: false, message: "Database error while saving images." };
+    }
 
     revalidatePath("/about/gallery", "layout");
     revalidatePath("/admin/gallery", "layout");
 
-    return { success: true, message: "Image saved." };
+    return { success: true, message: "Image saved successfully." };
 }
 
 export async function deleteImage(
-    imageId: string
+    imageRecordId: string
 ): Promise<APIResponseType> {
 
     const adminSession = await getAuthSession();
@@ -151,37 +190,71 @@ export async function deleteImage(
             success: false,
             message: "Error: Permission denied! Session not found."
         };
-    };
-
-    const image = await getImageById(imageId);
-    if (!image) {
-        return { success: false, message: "Image not found." };
     }
 
+    const imageRef = db.collection("gallery-images").doc(imageRecordId);
+    const imageDoc = await imageRef.get();
+
+    if (!imageDoc.exists) {
+        return { success: false, message: "Image record not found." };
+    }
+    const image = imageDoc.data() as GalleryImageType;
+
+    const subcollectionRef = imageRef.collection("images");
+    const subDocs = await subcollectionRef.get();
+
+    const storageImageIds = subDocs.docs.map(doc => doc.id);
+
     if (image.albumId) {
-        const album = await getAlbumById(image.albumId);
-        if (album && album.previewImages.includes(imageId)) {
-            await db.collection("gallery-albums")
-                .doc(album.id)
-                .update({
-                    previewImages: FieldValue.arrayRemove(imageId),
-                    imageCount: FieldValue.increment(-1)
-                });
+        const albumRef = db.collection("gallery-albums").doc(image.albumId);
+        const albumDoc = await albumRef.get();
+
+        if (albumDoc.exists) {
+            await albumRef.update({
+                previewImages: FieldValue.arrayRemove(imageRecordId),
+                imageCount: FieldValue.increment(-1)
+            }).catch(err => console.error("Failed to update album during deletion:", err));
         }
     }
 
-    const filePath = `gallery/${imageId}`;
+    if (storageImageIds.length > 0) {
+        await Promise.all(
+            storageImageIds.map(async (storageImageId) => {
+                const filePath = `gallery/${storageImageId}`;
 
-    if (await verifyFileExists(filePath)) {
-        await bucket.file(filePath).delete().catch(() => { });
+                try {
+                    const file = bucket.file(filePath);
+                    const [exists] = await file.exists();
+
+                    if (exists) {
+                        await file.delete();
+                    }
+                } catch (error) {
+                    console.error(`Failed to delete storage file ${filePath}:`, error);
+                }
+            })
+        );
     }
 
-    await db.collection("gallery-images").doc(imageId).delete();
+    const batch = db.batch();
+
+    subDocs.forEach(doc => {
+        batch.delete(doc.ref);
+    });
+
+    batch.delete(imageRef);
+
+    try {
+        await batch.commit();
+    } catch (error) {
+        console.error("Failed to delete Firestore documents:", error);
+        return { success: false, message: "Failed to delete database records." };
+    }
 
     revalidatePath("/about/gallery", "layout");
     revalidatePath("/admin/gallery", "layout");
 
-    return { success: true, message: "Image deleted successfully." };
+    return { success: true, message: "Image record and files deleted successfully." };
 }
 
 export async function updateImageAlbum(
@@ -234,3 +307,4 @@ export async function updateImageAlbum(
         message: "Image album updated successfully."
     };
 }
+
