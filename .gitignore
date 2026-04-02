@@ -67,6 +67,7 @@ next-env.d.ts
 .project
 .settings
 .classpath
+.agents
 
 # OS files
 .DS_Store
