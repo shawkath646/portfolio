@@ -42,6 +42,25 @@ const nextConfig: NextConfig = {
     ],
     qualities: [70, 75, 85],
   },
+  async redirects() {
+    return [
+      {
+        source: "/index",
+        destination: "/",
+        permanent: true
+      },
+      {
+        source: "/share",
+        destination: "/contact/share",
+        permanent: true
+      },
+      {
+        source: "/about/gallery/sejong-university",
+        destination: "/about/gallery/alb-sejong-university",
+        permanent: true
+      }
+    ]
+  }
 };
 
 export default nextConfig;

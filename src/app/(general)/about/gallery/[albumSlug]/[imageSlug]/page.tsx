@@ -67,9 +67,7 @@ export async function generateMetadata(
     };
 }
 
-export default async function ImagePage(
-    { params }: PageProps<'/about/gallery/[albumSlug]/[imageSlug]'>
-) {
+export default async function ImagePage({ params }: PageProps<'/about/gallery/[albumSlug]/[imageSlug]'>) {
     const { albumSlug, imageSlug } = await params;
     const albumDetails = await getAlbumBySlug(albumSlug);
     const imageRecord = await getImageBySlug(imageSlug);
@@ -97,11 +95,11 @@ export default async function ImagePage(
     const imageSchema = {
         "@context": "https://schema.org",
         "@type": "ImageObject",
-        "@id": `${appBaseUrl}/about/gallery/${albumSlug}/${imageSlug}#image`,
+        "@id": `${appBaseUrl.origin}/about/gallery/${albumSlug}/${imageSlug}#image`,
         "name": imageRecord.title,
         "description": imageRecord.description || `Photo from ${albumName} album`,
         "contentUrl": imageRecord.images[0].src,
-        "url": `${appBaseUrl}/about/gallery/${albumSlug}/${imageSlug}`,
+        "url": `${appBaseUrl.origin}/about/gallery/${albumSlug}/${imageSlug}`,
         "thumbnailUrl": imageRecord.images[0].src,
         "width": {
             "@type": "QuantitativeValue",
@@ -118,21 +116,21 @@ export default async function ImagePage(
         "datePublished": imageRecord.createdAt.toISOString(),
         "author": {
             "@type": "Person",
-            "@id": `${appBaseUrl}/#person`,
+            "@id": `${appBaseUrl.origin}/#person`,
             "name": "Shawkat Hossain Maruf",
-            "url": appBaseUrl.toString()
+            "url": appBaseUrl.origin
         },
         "creator": {
             "@type": "Person",
-            "@id": `${appBaseUrl}/#person`
+            "@id": `${appBaseUrl.origin}/#person`
         },
         "copyrightHolder": {
             "@type": "Person",
-            "@id": `${appBaseUrl}/#person`
+            "@id": `${appBaseUrl.origin}/#person`
         },
         "copyrightYear": imageRecord.timestamp.getFullYear(),
         "license": "https://creativecommons.org/licenses/by-nc/4.0/",
-        "acquireLicensePage": `${appBaseUrl}/contact`,
+        "acquireLicensePage": `${appBaseUrl.origin}/contact`,
         ...(imageRecord.location && {
             "contentLocation": {
                 "@type": "Place",
@@ -141,13 +139,13 @@ export default async function ImagePage(
         }),
         "isPartOf": {
             "@type": "ImageGallery",
-            "@id": `${appBaseUrl}/about/gallery/${albumSlug}#gallery`,
+            "@id": `${appBaseUrl.origin}/about/gallery/${albumSlug}#gallery`,
             "name": albumName,
-            "url": `${appBaseUrl}/about/gallery/${albumSlug}`
+            "url": `${appBaseUrl.origin}/about/gallery/${albumSlug}`
         },
         "mainEntityOfPage": {
             "@type": "WebPage",
-            "@id": `${appBaseUrl}/about/gallery/${albumSlug}/${imageSlug}`
+            "@id": `${appBaseUrl.origin}/about/gallery/${albumSlug}/${imageSlug}`
         },
         ...(imagesMetadata.length > 1 && {
             "associatedMedia": imagesMetadata
