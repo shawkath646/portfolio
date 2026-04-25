@@ -1,0 +1,16 @@
+{
+    "heading": "다음 작업",
+    "taskListAriaLabel": "작업 목록",
+    "priorities": {
+        "high": "높은 우선순위",
+        "medium": "중간 우선순위",
+        "low": "낮은 우선순위"
+    },
+    "tasks": [
+        { "id": 1, "text": "문서 작성", "priority": "high" },
+        { "id": 2, "text": "네비게이션 반응형 수정", "priority": "medium" },
+        { "id": 3, "text": "클라이언트 연락", "priority": "high" },
+        { "id": 4, "text": "신규 API 엔드포인트 구현", "priority": "medium" },
+        { "id": 5, "text": "회원가입 폼 개발", "priority": "low" }
+    ]
+}

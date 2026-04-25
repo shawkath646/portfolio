@@ -1,0 +1,7 @@
+{
+    "title": "Your Uploads",
+    "uploadedCountSingle": "1 file uploaded",
+    "uploadedCountPlural": "{count} files uploaded",
+    "emptyTitle": "No files shared yet",
+    "emptyDescription": "Upload files from the form on the left and your recent uploads will appear here."
+}

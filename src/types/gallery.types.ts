@@ -9,20 +9,26 @@ export interface GalleryAlbumType {
 
 export interface GetAlbumsResponse {
     albums: GalleryAlbumType[];
-    page: number;
     limit: number;
     totalItems: number;
+    page: number;
     totalPages: number;
     hasMore: boolean;
+    hasPrev: boolean;
+    prevStartAfter?: string;
+    nextStartAfter?: string;
 }
 
 export interface GetImagesResponse {
     images: GalleryImageType[];
-    page: number;
     limit: number;
     totalItems: number;
+    page: number;
     totalPages: number;
     hasMore: boolean;
+    hasPrev: boolean;
+    prevStartAfter?: string;
+    nextStartAfter?: string;
 }
 
 export interface GalleryImageItemType {
@@ -30,6 +36,8 @@ export interface GalleryImageItemType {
     src: string;
     height: number;
     width: number;
+    timestamp: Date;
+    size: number;
 }
 
 export interface GalleryImageType {
@@ -41,6 +49,5 @@ export interface GalleryImageType {
     images: GalleryImageItemType[];
     location: string;
     timestamp: Date;
-    createdAt: Date;
     albumId: string | null;
 }

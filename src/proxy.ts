@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { handleAdminRequest, handleClientApiRequest } from "@/actions/authentication/proxyHelperFunctions";
 import { isActiveFlag } from "@/lib/flags";
 import maintenanceHTML from "./data/maintenanceHTML";
+import { locales, getLocale } from "./lib/locale";
+
 
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -35,6 +37,25 @@ export default async function middleware(request: NextRequest) {
     return handleClientApiRequest(request, requestHeaders);
   }
 
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
+
+  const pathnameHasLocale = locales.some(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  );
+
+  if (!pathnameHasLocale) {
+    const locale = getLocale(request);
+
+    const newPath = pathname === '/' ? `/${locale}` : `/${locale}${pathname}`;
+    const newUrl = new URL(newPath, request.url);
+
+    newUrl.search = request.nextUrl.search;
+
+    return NextResponse.redirect(newUrl);
+  }
+
   return NextResponse.next({
     request: { headers: requestHeaders },
   });
@@ -42,6 +63,6 @@ export default async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    '/((?!api|_next/static|_next/image|_next/data|favicon.ico|manifest.webmanifest|robots.txt|sitemap.xml|\\.well-known|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|webmanifest)$).*)',
   ],
 };

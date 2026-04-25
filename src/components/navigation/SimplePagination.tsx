@@ -1,5 +1,12 @@
 import Link from "next/link";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { getLanguagePack } from "@/lib/locale";
+
+type PaginationLanguagePack = {
+    navAriaLabel: string;
+    previous: string;
+    next: string;
+};
 
 type PaginationProps = {
     prevPage?: string;
@@ -7,18 +14,22 @@ type PaginationProps = {
     prevPageLabel?: string;
     nextPageLabel?: string;
     className?: string;
+    lang?: string;
 };
 
-export default function SimplePagination({
+export default async function SimplePagination({
     prevPage,
     nextPage,
     prevPageLabel,
     nextPageLabel,
     className = "",
+    lang = "en",
 }: PaginationProps) {
+    const paginationLanguagePack: PaginationLanguagePack = await getLanguagePack(lang, "pagination-component");
+
     return (
         <nav
-            aria-label="Page navigation"
+            aria-label={paginationLanguagePack.navAriaLabel}
             className={`container mx-auto flex items-center justify-between gap-4 py-5 border-t border-gray-200/40 dark:border-gray-700/40 ${className}`}
             role="navigation"
         >
@@ -34,7 +45,7 @@ export default function SimplePagination({
                     </span>
 
                     <span className="flex flex-col leading-tight">
-                        <span className="text-xs opacity-70">Previous</span>
+                        <span className="text-xs opacity-70">{paginationLanguagePack.previous}</span>
                         {prevPageLabel && (
                             <span className="hidden sm:block text-sm font-medium">
                                 {prevPageLabel}
@@ -54,7 +65,7 @@ export default function SimplePagination({
                     className="group inline-flex items-center gap-3 px-3 py-2 rounded-xl border border-gray-300/60 dark:border-gray-600/60 text-gray-800 dark:text-gray-200 hover:border-blue-500/70 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
                 >
                     <span className="flex flex-col text-right leading-tight">
-                        <span className="text-xs opacity-70">Next</span>
+                        <span className="text-xs opacity-70">{paginationLanguagePack.next}</span>
                         {nextPageLabel && (
                             <span className="hidden sm:block text-sm font-medium">
                                 {nextPageLabel}

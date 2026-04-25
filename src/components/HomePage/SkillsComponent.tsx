@@ -11,24 +11,53 @@ import useReducedMotion from "@/hooks/useReducedMotion";
 type SkillLeaf = {
   label: string;
   icon: React.ReactNode;
-  ariaLabel?: string;
 };
 
 type SkillBranch = {
   label: string;
   icon: React.ReactNode;
   children: SkillLeaf[];
-  ariaLabel?: string;
+};
+
+type SkillsLanguagePack = {
+  title: string;
+  description: string;
+  categoriesAriaLabel: string;
+  footerText: string;
+  skillsInPrefix: string;
+  skillAriaPrefix: string;
+  branchWeb: string;
+  branchAndroid: string;
+  branchData: string;
+  webReact: string;
+  webVue: string;
+  webNext: string;
+  webBootstrap: string;
+  webTailwind: string;
+  webNode: string;
+  webExpress: string;
+  webFirebase: string;
+  webMongo: string;
+  androidReactNative: string;
+  androidJava: string;
+  androidExpo: string;
+  androidFirebase: string;
+  dataPython: string;
+  dataPandas: string;
+  dataNumpy: string;
+  dataJupyter: string;
+  dataSklearn: string;
+  dataMatplotlib: string;
 };
 
 // Memoized individual skill item component for better performance
-const SkillItem = memo(({ leaf, index }: { leaf: SkillLeaf; index: number }) => {
+const SkillItem = memo(({ leaf, index, skillAriaPrefix }: { leaf: SkillLeaf; index: number; skillAriaPrefix: string }) => {
   return (
     <motion.li
       className="flex items-center gap-3 text-base sm:text-lg text-gray-800 dark:text-gray-200 font-medium py-1"
       variants={itemVariants}
       custom={index}
-      aria-label={leaf.ariaLabel || `Skill: ${leaf.label}`}
+      aria-label={`${skillAriaPrefix}: ${leaf.label}`}
     >
       <span className="text-lg sm:text-xl flex items-center justify-center" aria-hidden="true">
         {leaf.icon}
@@ -40,7 +69,11 @@ const SkillItem = memo(({ leaf, index }: { leaf: SkillLeaf; index: number }) => 
 SkillItem.displayName = 'SkillItem';
 
 // Memoized skill branch component for better performance
-const SkillBranchComponent = memo(({ branch }: { branch: SkillBranch }) => {
+const SkillBranchComponent = memo(({ branch, skillsInPrefix, skillAriaPrefix }: {
+  branch: SkillBranch;
+  skillsInPrefix: string;
+  skillAriaPrefix: string;
+}) => {
   return (
     <motion.li
       variants={fadeInUp}
@@ -65,61 +98,16 @@ const SkillBranchComponent = memo(({ branch }: { branch: SkillBranch }) => {
         transition={{ duration: 0.4, ease: "easeInOut" }}
         className="pl-4 mt-2 space-y-2 overflow-hidden"
         role="list"
-        aria-label={`Skills in ${branch.label}`}
+        aria-label={`${skillsInPrefix} ${branch.label}`}
       >
         {branch.children.map((leaf, lidx) => (
-          <SkillItem key={leaf.label} leaf={leaf} index={lidx} />
+          <SkillItem key={leaf.label} leaf={leaf} index={lidx} skillAriaPrefix={skillAriaPrefix} />
         ))}
       </motion.ul>
     </motion.li>
   );
 });
 SkillBranchComponent.displayName = 'SkillBranchComponent';
-
-// Skills data structure
-const skillsTree: SkillBranch[] = [
-  {
-    label: "Full Stack Web Development",
-    icon: <FaCode className="text-blue-600" aria-hidden="true" />,
-    ariaLabel: "Skills in Full Stack Web Development",
-    children: [
-      { label: "React.js", icon: <SiReact className="text-cyan-500" aria-hidden="true" />, ariaLabel: "React.js framework" },
-      { label: "Vue.js", icon: <FaVuejs className="text-green-500" aria-hidden="true" />, ariaLabel: "Vue.js framework" },
-      { label: "Next.js", icon: <SiNextdotjs className="text-black dark:text-white" aria-hidden="true" />, ariaLabel: "Next.js framework" },
-      { label: "Bootstrap", icon: <SiBootstrap className="text-purple-600" aria-hidden="true" />, ariaLabel: "Bootstrap CSS framework" },
-      { label: "TailwindCSS", icon: <SiTailwindcss className="text-cyan-400" aria-hidden="true" />, ariaLabel: "TailwindCSS framework" },
-      { label: "Node.js", icon: <SiNodedotjs className="text-green-600" aria-hidden="true" />, ariaLabel: "Node.js runtime" },
-      { label: "Express.js", icon: <SiExpress className="text-gray-800 dark:text-gray-200" aria-hidden="true" />, ariaLabel: "Express.js framework" },
-      { label: "Firebase", icon: <SiFirebase className="text-yellow-500" aria-hidden="true" />, ariaLabel: "Firebase platform" },
-      { label: "MongoDB", icon: <SiMongodb className="text-green-700" aria-hidden="true" />, ariaLabel: "MongoDB database" },
-    ],
-  },
-  {
-    label: "Android App Development",
-    icon: <FaAndroid className="text-green-500" aria-hidden="true" />,
-    ariaLabel: "Skills in Android App Development",
-    children: [
-      { label: "React Native", icon: <TbBrandReactNative className="text-cyan-500" aria-hidden="true" />, ariaLabel: "React Native framework" },
-      { label: "Java", icon: <FaJava className="text-red-500" aria-hidden="true" />, ariaLabel: "Java programming language" },
-      { label: "Expo", icon: <TbBrandReactNative className="text-purple-500" aria-hidden="true" />, ariaLabel: "Expo framework" },
-      { label: "Firebase", icon: <SiFirebase className="text-yellow-500" aria-hidden="true" />, ariaLabel: "Firebase platform" },
-    ],
-  },
-  {
-    label: "Data Analysis",
-    icon: <FaChartBar className="text-yellow-500" aria-hidden="true" />,
-    ariaLabel: "Skills in Data Analysis",
-    children: [
-      { label: "Python", icon: <SiPython className="text-yellow-400" aria-hidden="true" />, ariaLabel: "Python programming language" },
-      { label: "Pandas", icon: <SiPandas className="text-blue-600" aria-hidden="true" />, ariaLabel: "Pandas library" },
-      { label: "NumPy", icon: <SiNumpy className="text-orange-600" aria-hidden="true" />, ariaLabel: "NumPy library" },
-      { label: "Jupyter Notebook", icon: <SiJupyter className="text-orange-400" aria-hidden="true" />, ariaLabel: "Jupyter Notebook" },
-      { label: "scikit-learn", icon: <SiScikitlearn className="text-yellow-900" aria-hidden="true" />, ariaLabel: "scikit-learn library" },
-      { label: "Matplotlib", icon: <FaChartLine className="text-blue-400" aria-hidden="true" />, ariaLabel: "Matplotlib library" },
-    ],
-  },
-];
-
 
 // Animation variants with performance optimizations
 const containerVariants: Variants = {
@@ -179,7 +167,7 @@ const itemVariants: Variants = {
   }),
 };
 
-const SkillsComponent = memo(function SkillsComponent() {
+const SkillsComponent = memo(function SkillsComponent({ languagePack }: { languagePack: SkillsLanguagePack }) {
   // Set up intersection observer for lazy loading
   const controls = useAnimation();
   const [ref, inView] = useInView({
@@ -205,6 +193,46 @@ const SkillsComponent = memo(function SkillsComponent() {
     }
   }, [controls, inView, prefersReducedMotion]);
 
+  const skillsTree: SkillBranch[] = [
+    {
+      label: languagePack.branchWeb,
+      icon: <FaCode className="text-blue-600" aria-hidden="true" />,
+      children: [
+        { label: languagePack.webReact, icon: <SiReact className="text-cyan-500" aria-hidden="true" /> },
+        { label: languagePack.webVue, icon: <FaVuejs className="text-green-500" aria-hidden="true" /> },
+        { label: languagePack.webNext, icon: <SiNextdotjs className="text-black dark:text-white" aria-hidden="true" /> },
+        { label: languagePack.webBootstrap, icon: <SiBootstrap className="text-purple-600" aria-hidden="true" /> },
+        { label: languagePack.webTailwind, icon: <SiTailwindcss className="text-cyan-400" aria-hidden="true" /> },
+        { label: languagePack.webNode, icon: <SiNodedotjs className="text-green-600" aria-hidden="true" /> },
+        { label: languagePack.webExpress, icon: <SiExpress className="text-gray-800 dark:text-gray-200" aria-hidden="true" /> },
+        { label: languagePack.webFirebase, icon: <SiFirebase className="text-yellow-500" aria-hidden="true" /> },
+        { label: languagePack.webMongo, icon: <SiMongodb className="text-green-700" aria-hidden="true" /> },
+      ],
+    },
+    {
+      label: languagePack.branchAndroid,
+      icon: <FaAndroid className="text-green-500" aria-hidden="true" />,
+      children: [
+        { label: languagePack.androidReactNative, icon: <TbBrandReactNative className="text-cyan-500" aria-hidden="true" /> },
+        { label: languagePack.androidJava, icon: <FaJava className="text-red-500" aria-hidden="true" /> },
+        { label: languagePack.androidExpo, icon: <TbBrandReactNative className="text-purple-500" aria-hidden="true" /> },
+        { label: languagePack.androidFirebase, icon: <SiFirebase className="text-yellow-500" aria-hidden="true" /> },
+      ],
+    },
+    {
+      label: languagePack.branchData,
+      icon: <FaChartBar className="text-yellow-500" aria-hidden="true" />,
+      children: [
+        { label: languagePack.dataPython, icon: <SiPython className="text-yellow-400" aria-hidden="true" /> },
+        { label: languagePack.dataPandas, icon: <SiPandas className="text-blue-600" aria-hidden="true" /> },
+        { label: languagePack.dataNumpy, icon: <SiNumpy className="text-orange-600" aria-hidden="true" /> },
+        { label: languagePack.dataJupyter, icon: <SiJupyter className="text-orange-400" aria-hidden="true" /> },
+        { label: languagePack.dataSklearn, icon: <SiScikitlearn className="text-yellow-900" aria-hidden="true" /> },
+        { label: languagePack.dataMatplotlib, icon: <FaChartLine className="text-blue-400" aria-hidden="true" /> },
+      ],
+    },
+  ];
+
   return (
     <section
       aria-labelledby="skills-title"
@@ -223,7 +251,7 @@ const SkillsComponent = memo(function SkillsComponent() {
             className="text-2xl sm:text-3xl font-semibold text-transparent bg-clip-text bg-linear-to-r from-blue-700 via-cyan-500 to-purple-600 dark:from-cyan-200 dark:via-blue-400 dark:to-purple-500 text-center"
             variants={fadeInUp}
           >
-            Skills That Power My Work
+            {languagePack.title}
           </motion.h2>
 
           <motion.div
@@ -237,17 +265,22 @@ const SkillsComponent = memo(function SkillsComponent() {
             className="max-w-xl text-base sm:text-lg text-gray-700 dark:text-gray-200 text-center mt-2"
             variants={fadeInUp}
           >
-            Learned deeply from scratch to make your project robust, scalable, and innovative — blending strong fundamentals with hands-on expertise.
+            {languagePack.description}
           </motion.p>
         </header>
 
         <ul
           className="grid gap-6 w-full max-w-6xl mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
           role="list"
-          aria-label="Skills categories"
+          aria-label={languagePack.categoriesAriaLabel}
         >
           {skillsTree.map((branch) => (
-            <SkillBranchComponent key={branch.label} branch={branch} />
+            <SkillBranchComponent
+              key={branch.label}
+              branch={branch}
+              skillsInPrefix={languagePack.skillsInPrefix}
+              skillAriaPrefix={languagePack.skillAriaPrefix}
+            />
           ))}
         </ul>
 
@@ -255,7 +288,7 @@ const SkillsComponent = memo(function SkillsComponent() {
           className="mt-10 text-sm text-gray-500 dark:text-gray-300 text-center"
           variants={fadeInUp}
         >
-          Explore my tech stack!
+          {languagePack.footerText}
         </motion.p>
       </motion.div>
     </section>

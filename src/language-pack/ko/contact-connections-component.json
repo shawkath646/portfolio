@@ -1,0 +1,30 @@
+{
+    "heading": "연락하기",
+    "subtitle": "프로젝트 상담, 전문 협업, 또는 소셜 연결까지 원하는 방식으로 편하게 연락해 주세요!",
+    "categoriesAriaLabel": "카테고리별 연락 수단",
+    "footerText": "언제든 편하게 인사 남겨 주세요. 함께 협업할 기회를 기다리고 있습니다!",
+    "professional": {
+        "title": "전문 네트워크",
+        "description": "새로운 기회, 협업, 네트워킹을 위해 전문적으로 연결해 보세요.",
+        "linkedIn": { "name": "LinkedIn", "text": "링크드인에서 연결하기" },
+        "github": { "name": "GitHub", "text": "코드와 프로젝트 보기" },
+        "email": { "name": "이메일", "text": "이메일 보내기" }
+    },
+    "messaging": {
+        "title": "메시징",
+        "description": "빠른 대화, 프로젝트 논의, 또는 가벼운 인사까지 편하게 연락하세요!",
+        "facebook": { "name": "Facebook", "text": "페이스북으로 메시지 보내기" },
+        "messenger": { "name": "Messenger", "text": "메신저로 채팅하기" },
+        "kakaoTalk": { "name": "KakaoTalk", "text": "카카오톡으로 연결하기" },
+        "telegram": { "name": "Telegram", "text": "텔레그램으로 연락하기" },
+        "whatsapp": { "name": "WhatsApp", "text": "왓츠앱으로 메시지 보내기" }
+    },
+    "social": {
+        "title": "소셜 미디어",
+        "description": "업데이트, 브이로그, 창작 콘텐츠를 팔로우해 보세요.",
+        "facebook": { "name": "Facebook", "text": "게시물과 스토리 보기" },
+        "youtube": { "name": "YouTube", "text": "튜토리얼과 브이로그 보기" },
+        "instagram": { "name": "Instagram", "text": "여행 사진과 릴스 보기" },
+        "tiktok": { "name": "TikTok", "text": "일상을 담은 힐링 숏폼 보기" }
+    }
+}

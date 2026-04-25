@@ -5,8 +5,17 @@ import Link from "next/link";
 import { motion, useAnimation, useInView, Variants } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
+type CompanyIntroLanguagePack = {
+    visionBadge: string;
+    headingLead: string;
+    brandName: string;
+    description: string;
+    externalLinksAriaLabel: string;
+    learnMoreText: string;
+    logoAlt: string;
+};
 
-const CompanyIntro = memo(function CompanyIntro() {
+const CompanyIntro = memo(function CompanyIntro({ languagePack }: { languagePack: CompanyIntroLanguagePack }) {
     const controls = useAnimation();
     const prefersReducedMotion = useReducedMotion(controls);
     const ref = useRef(null);
@@ -66,7 +75,7 @@ const CompanyIntro = memo(function CompanyIntro() {
                                 variants={itemVariants}
                                 className="text-sm font-semibold tracking-wider uppercase text-blue-600 dark:text-cyan-400 block"
                             >
-                                The Vision
+                                {languagePack.visionBadge}
                             </motion.span>
 
                             {/* Heading with Inline Logo */}
@@ -79,14 +88,14 @@ const CompanyIntro = memo(function CompanyIntro() {
                                     src="https://cloudburstlab.vercel.app/api/branding/logo?variant=transparent"
                                     height={32}
                                     width={80}
-                                    alt="Cloudburst Lab Logo"
-                                    className="object-contain"
+                                    alt={languagePack.logoAlt}
+                                    className="object-contain h-8 w-20"
                                     priority
                                 />
-                                Meet
+                                {languagePack.headingLead}
 
                                 <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600 dark:from-cyan-400 dark:to-purple-400">
-                                    Cloudburst Lab
+                                    {languagePack.brandName}
                                 </span>
                             </motion.h2>
                         </div>
@@ -95,23 +104,20 @@ const CompanyIntro = memo(function CompanyIntro() {
                             className="text-base leading-relaxed text-slate-600 dark:text-slate-300 max-w-3xl"
                             variants={itemVariants}
                         >
-                            This is the identity of my dream to build a software startup.
-                            I envision branding my developed software products under this name as a mark of innovation and trust.
-                            In the near future, this will grow into a team-driven company focused on developing cutting-edge,
-                            AI-powered solutions that shape tomorrow&apos;s digital experience.
+                            {languagePack.description}
                         </motion.p>
 
                         {/* Interactive Navigation */}
                         <motion.div
                             className="mt-2 text-end"
                             variants={itemVariants}
-                            aria-label="Cloudburst Lab external links"
+                            aria-label={languagePack.externalLinksAriaLabel}
                         >
                             <Link
                                 href="https://cloudburstlab.vercel.app"
                                 className="text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-500 transition-colors"
                             >
-                                Learn More
+                                {languagePack.learnMoreText}
                             </Link>
                         </motion.div>
                     </div>

@@ -1,13 +1,22 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { FiLock, FiEye, FiEyeOff, FiShield, FiArrowRight } from "react-icons/fi";
+import { IoIosWarning } from "react-icons/io";
 import { handleGenericLogin } from "@/actions/genericAuth/authActions";
+import restrictedLoginPageMessages from "@/data/restrictedLoginPageMessages.json";
+import { useCooldown } from "@/hooks/useCooldown";
 import { AccessScopeLabel } from "@/types/genericAuth.types";
-import RecaptchaV3Client from "../lib/GoogleRecaptchaV3/RecaptchaV3Client";
+import RecaptchaV3Client, { RecaptchaV3Handle } from "../lib/GoogleRecaptchaV3/RecaptchaV3Client";
+
+const accessScopeMessageMap: Record<AccessScopeLabel, keyof typeof restrictedLoginPageMessages> = {
+    personal_life: "personalLife",
+    friends_corner: "friendsCorner",
+    love_corner: "loveCorner"
+};
 
 interface RestrictedPageLoginProps {
     accessScope: AccessScopeLabel;
@@ -22,82 +31,47 @@ export default function RestrictedPageLogin({
     description,
     icon
 }: RestrictedPageLoginProps) {
-    const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [failureHint, setFailureHint] = useState("");
     const router = useRouter();
-    const [recaptchaTrigger, setRecaptchaTrigger] = useState(0);
-    const recaptchaPromiseRef = useRef<{
-        resolve: (token: string | null) => void;
-        reject: (error: Error) => void;
-        timeoutId: ReturnType<typeof setTimeout> | null;
-    } | null>(null);
+    const recaptchaRef = useRef<RecaptchaV3Handle>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
-    const requestRecaptchaToken = () => {
-        if (recaptchaPromiseRef.current) {
-            if (recaptchaPromiseRef.current.timeoutId) {
-                clearTimeout(recaptchaPromiseRef.current.timeoutId);
-            }
+    const { cooldown, isCoolingDown, startCooldown } = useCooldown(5);
 
-            recaptchaPromiseRef.current.resolve(null);
-            recaptchaPromiseRef.current = null;
-        }
-
-        return new Promise<string | null>((resolve, reject) => {
-            const timeoutId = setTimeout(() => {
-                recaptchaPromiseRef.current = null;
-                reject(new Error("Recaptcha timeout"));
-            }, 8000);
-
-            recaptchaPromiseRef.current = { resolve, reject, timeoutId };
-            setRecaptchaTrigger((prev) => prev + 1);
-        });
+    const getRandomFailureMessage = () => {
+        const messages = restrictedLoginPageMessages[accessScopeMessageMap[accessScope]];
+        return messages[Math.floor(Math.random() * messages.length)];
     };
-
-    const handleRecaptchaToken = (nextToken: string | null) => {
-        if (recaptchaPromiseRef.current) {
-            if (recaptchaPromiseRef.current.timeoutId) {
-                clearTimeout(recaptchaPromiseRef.current.timeoutId);
-            }
-
-            recaptchaPromiseRef.current.resolve(nextToken);
-            recaptchaPromiseRef.current = null;
-        }
-    };
-
-    useEffect(() => {
-        return () => {
-            if (recaptchaPromiseRef.current) {
-                if (recaptchaPromiseRef.current.timeoutId) {
-                    clearTimeout(recaptchaPromiseRef.current.timeoutId);
-                }
-
-                recaptchaPromiseRef.current.resolve(null);
-                recaptchaPromiseRef.current = null;
-            }
-        };
-    }, []);
-
 
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (isLoading || isCoolingDown) return;
 
-        if (isLoading) return;
+        const password = inputRef.current?.value;
+        if (!password) {
+            setError("Please enter your password.");
+            return;
+        }
 
         setError("");
+        setFailureHint("");
         setIsLoading(true);
 
         try {
-            const token = await requestRecaptchaToken();
+            const token = await recaptchaRef.current?.execute();
             if (!token) throw new Error("recaptcha");
-
-
 
             const response = await handleGenericLogin(accessScope, password, token);
 
             if (!response.success) {
                 setError(response.message);
+                setFailureHint(getRandomFailureMessage());
+                startCooldown();
+
+                setTimeout(() => inputRef.current?.focus(), 50);
                 return;
             }
 
@@ -108,6 +82,7 @@ export default function RestrictedPageLogin({
             } else {
                 setError("An unexpected error occurred.");
             }
+            startCooldown();
         } finally {
             setIsLoading(false);
         }
@@ -124,7 +99,7 @@ export default function RestrictedPageLogin({
                 <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03] dark:opacity-10" />
             </div>
 
-            <motion.div
+            <motion.section
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
@@ -153,16 +128,20 @@ export default function RestrictedPageLogin({
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <FiLock className="h-4 w-4 text-gray-400 dark:text-slate-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors" />
                                 </div>
+                                <label htmlFor="access-password" className="sr-only">Access Password</label>
                                 <input
+                                    id="access-password"
                                     type={showPassword ? "text" : "password"}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    autoComplete="current-password"
+                                    ref={inputRef}
+                                    required
                                     placeholder="Enter access password"
                                     className="w-full pl-9 pr-10 py-2.5 bg-white dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
                                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-white transition-colors cursor-pointer"
                                 >
                                     {showPassword ? <FiEyeOff className="h-4 w-4" /> : <FiEye className="h-4 w-4" />}
@@ -172,39 +151,57 @@ export default function RestrictedPageLogin({
 
                         {/* Only render reCAPTCHA when form is visible */}
                         <RecaptchaV3Client
+                            ref={recaptchaRef}
                             action="restricted_page_login"
-                            onToken={handleRecaptchaToken}
-                            trigger={recaptchaTrigger}
                         />
 
-                        {/* Error Message */}
-                        <AnimatePresence mode="wait">
-                            {error && (
-                                <motion.div
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: "auto" }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                    className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded px-3 py-2"
-                                >
-                                    {error}
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                        <div aria-live="polite" className="w-full">
+                            <AnimatePresence mode="popLayout">
+                                {error && (
+                                    <motion.div
+                                        key="error-msg"
+                                        initial={{ opacity: 0, y: -10, height: 0 }}
+                                        animate={{ opacity: 1, y: 0, height: "auto" }}
+                                        exit={{ opacity: 0, y: -10, height: 0 }}
+                                        transition={{ duration: 0.25, ease: "easeInOut" }}
+                                        className="overflow-hidden"
+                                    >
+                                        <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs text-blue-700 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-300 flex flex-col gap-1.5">
+                                            <div className="flex items-center gap-2 font-medium">
+                                                <IoIosWarning size={18} className="shrink-0" />
+                                                <p>{error}</p>
+                                            </div>
+
+                                            {failureHint && (
+                                                <p className="pl-6 opacity-80 italic">
+                                                    {failureHint}
+                                                </p>
+                                            )}
+
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
 
                         {/* Submit Button */}
                         <button
                             type="submit"
-                            disabled={isLoading}
+                            disabled={isLoading || isCoolingDown}
                             className={`
                                 w-full py-2.5 px-4 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700
                                 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg shadow-blue-500/20 dark:shadow-blue-900/20
                                 transition-all duration-200 transform active:scale-[0.98]
                                 flex items-center justify-center gap-2
-                                ${isLoading ? "opacity-70 cursor-wait" : ""}
+                                ${(isLoading || isCoolingDown) ? "opacity-70 cursor-wait" : ""}
                             `}
                         >
                             {isLoading ? (
                                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : isCoolingDown ? (
+                                <>
+                                    Retry in {cooldown}s
+                                </>
                             ) : (
                                 <>
                                     Unlock Access <FiArrowRight className="opacity-70" />
@@ -226,13 +223,14 @@ export default function RestrictedPageLogin({
                                     src="https://cloudburstlab.vercel.app/api/branding/logo?variant=transparent"
                                     alt="Cloudburst Lab Transparent Logo"
                                     height={25}
-                                    width={40}
+                                    width={48}
+                                    className="w-12 h-6.25"
                                 />
                             </a>
                         </div>
                     </form>
                 </div>
-            </motion.div>
+            </motion.section>
         </main>
     );
 }

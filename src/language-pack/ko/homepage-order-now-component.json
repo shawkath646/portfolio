@@ -1,0 +1,30 @@
+{
+    "title": "지금 의뢰하기 / 함께 일하기",
+    "whyMe": "왜 저를 선택해야 할까요?",
+    "reasonsAriaLabel": "의뢰해야 하는 이유",
+    "reasons": [
+        "프리랜서 및 원격 협업에 숙련되어 있습니다",
+        "소프트웨어 개발 경력 4년 이상",
+        "가독성이 뛰어난 체계적이고 전문적인 코드 작성",
+        "실전 대규모 프로젝트 10개 이상 수행",
+        "친절하고 클라이언트 요구를 정확히 이해",
+        "고객이 만족할 때까지 책임감 있게 작업"
+    ],
+    "platformsAriaLabel": "연락 및 의뢰 플랫폼",
+    "directConnectTitle": "빠른 직접 문의",
+    "fastestBadge": "가장 빠름",
+    "fastestBadgeAriaLabel": "가장 빠른 방법",
+    "directConnectDescription": "즉시 답변과 더 밀도 있는 협업을 위해 직접 연락하세요.",
+    "telegramLabel": "텔레그램",
+    "linkedInLabel": "링크드인",
+    "contactTelegramAriaLabel": "텔레그램으로 연락하기",
+    "contactLinkedInAriaLabel": "링크드인으로 연락하기",
+    "platformsTitle": "플랫폼 통해 의뢰하기",
+    "trustedBadge": "신뢰 가능",
+    "trustedBadgeAriaLabel": "신뢰할 수 있는 플랫폼",
+    "platformsDescription": "상위 프리랜서 플랫폼을 통해 안전하게 의뢰하고 결제 보호를 받으세요.",
+    "fiverrLabel": "파이버",
+    "upworkLabel": "업워크",
+    "hireFiverrAriaLabel": "파이버에서 의뢰하기",
+    "hireUpworkAriaLabel": "업워크에서 의뢰하기"
+}

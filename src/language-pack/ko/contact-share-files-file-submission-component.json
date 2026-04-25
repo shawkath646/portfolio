@@ -1,0 +1,23 @@
+{
+    "senderNameRequiredWarning": "업로드 전에 보내는 사람 이름을 입력해 주세요.",
+    "senderNamePlaceholder": "보내는 사람 이름",
+    "globalNotePlaceholder": "공통 메모",
+    "statusHeader": "업로드 상태",
+    "statusText": {
+        "pending": "대기 중...",
+        "generatingUrl": "업로드 URL 생성 중...",
+        "uploading": "업로드 중...",
+        "finalizing": "마무리 중...",
+        "completed": "완료",
+        "error": "실패"
+    },
+    "allUploadedTitle": "모든 파일 업로드 완료!",
+    "uploadedCountSingle": "파일 1개가 성공적으로 업로드되었습니다",
+    "uploadedCountPlural": "파일 {count}개가 성공적으로 업로드되었습니다",
+    "adminPanelHint": "이제 관리자 패널에서 파일을 확인할 수 있습니다",
+    "uploadMoreButton": "파일 더 업로드하기",
+    "uploadingButton": "업로드 중...",
+    "uploadButtonSingle": "파일 1개 업로드",
+    "uploadButtonPlural": "파일 {count}개 업로드",
+    "clearAllButton": "모두 지우기"
+}

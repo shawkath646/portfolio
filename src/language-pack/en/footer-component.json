@@ -1,0 +1,16 @@
+{
+    "quickLinksTitle": "Quick Links",
+    "siteFooterAriaLabel": "Site footer",
+    "footerNavigationAriaLabel": "Footer navigation",
+    "warningText": "⚠️ Do not copy any images or content without proper permission from the author. Doing so will be considered a cyber crime!",
+    "websiteBuiltByText": "Website built by",
+    "copyrightText": "Copyright © {brandName} 2025 ~ {currentYear}. All rights reserved.",
+    "logoAlt": "Cloudburst Lab",
+    "brandName": "Cloudburst Lab",
+    "quickLinks": {
+        "adminPanel": "Admin Panel",
+        "sitemap": "Sitemap",
+        "privacyPolicy": "Privacy Policy",
+        "termsOfService": "Terms of Service"
+    }
+}

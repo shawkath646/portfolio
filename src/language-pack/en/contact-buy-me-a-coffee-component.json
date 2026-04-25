@@ -1,0 +1,26 @@
+{
+    "heading": "Fancy a Coffee or a Gift?",
+    "intro": "If you enjoyed my work or found my projects helpful, you can support me with a virtual coffee, a small gift, or simply by sending some love! Every gesture, big or small, inspires me to keep building and sharing. Thank you for your kindness!",
+    "supportOptionsAriaLabel": "Support options",
+    "footerText": "Your support keeps me energized and motivated. Thank you so much!",
+    "options": {
+        "coffee": {
+            "title": "Buy Me a Coffee",
+            "description": "Fuel my creativity and late-night coding with a virtual coffee! Your gesture keeps my passion alive.",
+            "buttonLabel": "☕ Give a Coffee",
+            "buttonAriaLabel": "Buy me a coffee"
+        },
+        "gift": {
+            "title": "Send a Gift",
+            "description": "Show your appreciation by sending a small gift. Every bit of support motivates me to create more awesome projects.",
+            "buttonLabel": "🎁 Send a Gift",
+            "buttonAriaLabel": "Send a gift"
+        },
+        "love": {
+            "title": "Spread Some Love",
+            "description": "Share a little love if my work helped you. Your support means the world and keeps me going!",
+            "buttonLabel": "❤️ Give Some Love",
+            "buttonAriaLabel": "Send some love"
+        }
+    }
+}

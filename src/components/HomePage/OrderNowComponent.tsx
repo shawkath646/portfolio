@@ -6,6 +6,30 @@ import { FaUpwork } from "react-icons/fa6";
 import { SiFiverr } from "react-icons/si";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
+type OrderNowLanguagePack = {
+  title: string;
+  whyMe: string;
+  reasonsAriaLabel: string;
+  reasons: string[];
+  platformsAriaLabel: string;
+  directConnectTitle: string;
+  fastestBadge: string;
+  fastestBadgeAriaLabel: string;
+  directConnectDescription: string;
+  telegramLabel: string;
+  linkedInLabel: string;
+  contactTelegramAriaLabel: string;
+  contactLinkedInAriaLabel: string;
+  platformsTitle: string;
+  trustedBadge: string;
+  trustedBadgeAriaLabel: string;
+  platformsDescription: string;
+  fiverrLabel: string;
+  upworkLabel: string;
+  hireFiverrAriaLabel: string;
+  hireUpworkAriaLabel: string;
+};
+
 // Animation Variants
 const containerVariants: Variants = {
   hidden: {},
@@ -37,17 +61,7 @@ const listItemVariants: Variants = {
   }),
 };
 
-// Reasons array
-const reasons = [
-  "Freelance / Remote working expert",
-  "4+ years of experience in software development",
-  "Pro-level structured code with easy readability",
-  "Worked on 10+ real-life, large-scale projects",
-  "Friendly and understands client needs",
-  "Works until client satisfaction is achieved",
-];
-
-export default function OrderNowComponent() {
+export default function OrderNowComponent({ languagePack }: { languagePack: OrderNowLanguagePack }) {
   // Initialize animation controls
   const controls = useAnimation();
   
@@ -69,7 +83,7 @@ export default function OrderNowComponent() {
         className="text-2xl sm:text-3xl font-bold text-center mb-12 text-gray-800 dark:text-gray-300"
         variants={fadeInUp}
       >
-        Order Now / Hire Me
+        {languagePack.title}
       </motion.h2>
 
       <motion.div
@@ -77,13 +91,13 @@ export default function OrderNowComponent() {
         variants={fadeInUp}
       >
         <h3 className="text-xl sm:text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">
-          Why Me?
+          {languagePack.whyMe}
         </h3>
         <ul 
           className="text-left space-y-3 text-gray-700 dark:text-gray-300"
-          aria-label="Reasons to hire me"
+          aria-label={languagePack.reasonsAriaLabel}
         >
-          {reasons.map((point, idx) => (
+          {languagePack.reasons.map((point, idx) => (
             <motion.li
               key={idx}
               className="relative pl-6 before:content-['✔'] before:absolute before:left-0 before:text-green-500 dark:before:text-green-300 font-medium"
@@ -101,7 +115,7 @@ export default function OrderNowComponent() {
       <motion.div
         className="w-full flex flex-col md:flex-row gap-8"
         variants={containerVariants}
-        aria-label="Contact platforms"
+        aria-label={languagePack.platformsAriaLabel}
       >
         {/* Quick Direct Connect */}
         <motion.div
@@ -115,17 +129,17 @@ export default function OrderNowComponent() {
               id="direct-connect-heading"
               className="text-blue-700 dark:text-blue-300 text-xl font-semibold"
             >
-              Quick Direct Connect
+              {languagePack.directConnectTitle}
             </h3>
             <span 
               className="bg-blue-200/80 dark:bg-blue-700/50 text-blue-700 dark:text-blue-200 px-2 py-0.5 rounded text-xs font-bold"
-              aria-label="Fastest method"
+              aria-label={languagePack.fastestBadgeAriaLabel}
             >
-              Fastest
+              {languagePack.fastestBadge}
             </span>
           </div>
           <p className="text-blue-900 dark:text-blue-100 mb-4 text-center text-sm">
-            Connect directly for instant response and a more personal collaboration experience.
+            {languagePack.directConnectDescription}
           </p>
           <div className="flex gap-6 mt-2">
             <a
@@ -133,20 +147,20 @@ export default function OrderNowComponent() {
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center group"
-              aria-label="Contact me on Telegram"
+              aria-label={languagePack.contactTelegramAriaLabel}
             >
               <FaTelegramPlane className="text-blue-500 group-hover:scale-110 transition-transform text-3xl" aria-hidden="true" />
-              <span className="text-xs text-blue-700 dark:text-blue-200 mt-1 font-medium">Telegram</span>
+              <span className="text-xs text-blue-700 dark:text-blue-200 mt-1 font-medium">{languagePack.telegramLabel}</span>
             </a>
             <a
               href="https://www.linkedin.com/in/yourusername"
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center group"
-              aria-label="Contact me on LinkedIn"
+              aria-label={languagePack.contactLinkedInAriaLabel}
             >
               <FaLinkedin className="text-blue-700 group-hover:scale-110 transition-transform text-3xl" aria-hidden="true" />
-              <span className="text-xs text-blue-700 dark:text-blue-200 mt-1 font-medium">LinkedIn</span>
+              <span className="text-xs text-blue-700 dark:text-blue-200 mt-1 font-medium">{languagePack.linkedInLabel}</span>
             </a>
           </div>
         </motion.div>
@@ -163,17 +177,17 @@ export default function OrderNowComponent() {
               id="platforms-heading"
               className="text-green-700 dark:text-green-300 text-xl font-semibold"
             >
-              Order via Platforms
+              {languagePack.platformsTitle}
             </h3>
             <span 
               className="bg-green-200/80 dark:bg-green-700/50 text-green-700 dark:text-green-200 px-2 py-0.5 rounded text-xs font-bold"
-              aria-label="Trusted platforms"
+              aria-label={languagePack.trustedBadgeAriaLabel}
             >
-              Trusted
+              {languagePack.trustedBadge}
             </span>
           </div>
           <p className="text-green-900 dark:text-green-100 mb-4 text-center text-sm">
-            Hire me securely through top freelancing platforms for extra peace of mind and buyer protection.
+            {languagePack.platformsDescription}
           </p>
           <div className="flex gap-6 mt-2">
             <Link
@@ -181,20 +195,20 @@ export default function OrderNowComponent() {
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center group"
-              aria-label="Hire me on Fiverr"
+              aria-label={languagePack.hireFiverrAriaLabel}
             >
               <SiFiverr className="text-green-500 group-hover:scale-110 transition-transform text-3xl" aria-hidden="true" />
-              <span className="text-xs text-green-700 dark:text-green-200 mt-1 font-medium">Fiverr</span>
+              <span className="text-xs text-green-700 dark:text-green-200 mt-1 font-medium">{languagePack.fiverrLabel}</span>
             </Link>
             <Link
               href="https://www.upwork.com/freelancers/~yourprofile"
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center group"
-              aria-label="Hire me on Upwork"
+              aria-label={languagePack.hireUpworkAriaLabel}
             >
               <FaUpwork className="text-green-600 group-hover:scale-110 transition-transform text-3xl" aria-hidden="true" />
-              <span className="text-xs text-green-700 dark:text-green-200 mt-1 font-medium">Upwork</span>
+              <span className="text-xs text-green-700 dark:text-green-200 mt-1 font-medium">{languagePack.upworkLabel}</span>
             </Link>
           </div>
         </motion.div>

@@ -2,31 +2,47 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const quickLinks = [
-  { name: "Admin Panel", href: "/admin" },
-  { name: "Sitemap", href: "/sitemap.xml" },
-  { name: "Privacy Policy", href: "#" },
-  { name: "Terms of Service", href: "#" },
-];
+type FooterLanguagePack = {
+  quickLinksTitle: string;
+  siteFooterAriaLabel: string;
+  footerNavigationAriaLabel: string;
+  warningText: string;
+  websiteBuiltByText: string;
+  copyrightText: string;
+  logoAlt: string;
+  brandName: string;
+  quickLinks: {
+    adminPanel: string;
+    sitemap: string;
+    privacyPolicy: string;
+    termsOfService: string;
+  };
+};
 
-export default function Footer() {
+export default function Footer({ languagePack }: { languagePack: FooterLanguagePack }) {
 
   const currentYear = new Date().getFullYear();
+  const quickLinks = [
+    { name: languagePack.quickLinks.adminPanel, href: "/admin" },
+    { name: languagePack.quickLinks.sitemap, href: "/sitemap.xml" },
+    { name: languagePack.quickLinks.privacyPolicy, href: "#" },
+    { name: languagePack.quickLinks.termsOfService, href: "#" },
+  ];
 
   return (
     <footer
       className="w-full bg-linear-to-br from-gray-900 via-blue-900 to-gray-900 dark:from-gray-950 dark:via-blue-950/50 dark:to-gray-950 text-white border-t border-blue-500/20"
       role="contentinfo"
-      aria-label="Site footer"
+      aria-label={languagePack.siteFooterAriaLabel}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Quick Links Section */}
         <div className="mb-8">
           <h3 className="text-lg font-semibold text-blue-300 mb-4 text-center sm:text-left">
-            Quick Links
+            {languagePack.quickLinksTitle}
           </h3>
           <nav
-            aria-label="Footer navigation"
+            aria-label={languagePack.footerNavigationAriaLabel}
             className="flex flex-wrap justify-center sm:justify-start gap-x-6 gap-y-3"
           >
             {quickLinks.map((link) => (
@@ -47,7 +63,7 @@ export default function Footer() {
         {/* Notice Section */}
         <div className="mb-6 text-center">
           <p className="text-xs sm:text-sm text-yellow-200/90 font-medium leading-relaxed max-w-4xl mx-auto">
-            ⚠️ Do not copy any images or content without proper permission from the author. Doing so will be considered a cyber crime!
+            {languagePack.warningText}
           </p>
         </div>
 
@@ -57,7 +73,7 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="space-y-3 text-center text-xs sm:text-sm text-gray-400">
           <p className="flex flex-wrap items-center justify-center gap-1">
-            <span>Website built by</span>
+            <span>{languagePack.websiteBuiltByText}</span>
             <a
               href="https://github.com/shawkath646"
               target="_blank"
@@ -75,16 +91,16 @@ export default function Footer() {
             >
               <Image
                 src="https://cloudburstlab.vercel.app/api/branding/logo?variant=transparent"
-                alt="CloudBurst Lab"
-                width={120}
-                height={30}
-                className="h-5 w-auto"
+                alt={languagePack.logoAlt}
+                width={64}
+                height={32}
+                className="h-8 w-16"
               />
             </a>
           </p>
 
           <p className="text-gray-500">
-            Copyright © CloudBurst Lab 2025 ~ {currentYear}. All rights reserved.
+            {languagePack.copyrightText.replace("{currentYear}", String(currentYear)).replace("{brandName}", languagePack.brandName)}
           </p>
         </div>
       </div>

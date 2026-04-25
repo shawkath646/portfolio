@@ -1,0 +1,7 @@
+{
+    "title": "내 업로드",
+    "uploadedCountSingle": "파일 1개 업로드됨",
+    "uploadedCountPlural": "파일 {count}개 업로드됨",
+    "emptyTitle": "아직 공유된 파일이 없습니다",
+    "emptyDescription": "왼쪽 폼에서 파일을 업로드하면 최근 업로드 목록이 여기에 표시됩니다."
+}

@@ -83,7 +83,7 @@ export default function ImageViewModal({ image }: { image: GalleryImageType }) {
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
-                    className="max-w-7xl w-full flex flex-col lg:flex-row gap-4"
+                    className="container w-full flex flex-col lg:flex-row gap-4"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Image */}
@@ -199,27 +199,15 @@ export default function ImageViewModal({ image }: { image: GalleryImageType }) {
                                     </div>
                                 )}
 
-                                <div className="flex justify-between">
-                                    <div className="flex items-start gap-3">
-                                        <FaCalendar className="text-blue-500 mt-0.75 shrink-0" />
-                                        <div>
-                                            <p className="text-xs text-zinc-500">Date Captured</p>
-                                            <time
-                                                className="text-zinc-300 text-xs"
-                                                dateTime={image.timestamp.toISOString()}
-                                            >
-                                                {formatDateTime(image.timestamp, { showYear: true })}
-                                            </time>
-                                        </div>
-                                    </div>
-
+                                <div className="flex items-start gap-3">
+                                    <FaCalendar className="text-blue-500 mt-0.75 shrink-0" />
                                     <div>
-                                        <p className="text-xs text-zinc-500">Date Uploaded</p>
+                                        <p className="text-xs text-zinc-500">Date Captured</p>
                                         <time
                                             className="text-zinc-300 text-xs"
-                                            dateTime={image.createdAt.toISOString()}
+                                            dateTime={image.timestamp.toISOString()}
                                         >
-                                            {formatDateTime(image.createdAt, { showYear: true })}
+                                            {formatDateTime(image.timestamp, { showYear: true })}
                                         </time>
                                     </div>
                                 </div>

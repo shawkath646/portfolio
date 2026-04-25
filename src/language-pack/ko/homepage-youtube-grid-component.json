@@ -1,0 +1,12 @@
+{
+    "title": "🎥 제 유튜브 채널 둘러보기",
+    "description": "여가 시간에 무엇을 하는지 궁금하신가요? 튜토리얼, 개발 로그, 흥미로운 실험을 공유합니다. 방문하고 구독해서 최신 소식을 받아보세요!",
+    "channelInfoAriaLabel": "유튜브 채널 정보",
+    "channelLogoSuffix": "채널 로고",
+    "channelHandle": "@shawkath646",
+    "subscribeAriaLabel": "유튜브 채널 구독하기",
+    "subscribeButtonText": "🔔 구독",
+    "recentVideosAriaLabel": "최근 유튜브 영상",
+    "watchPrefix": "시청:",
+    "thumbnailPrefix": "썸네일"
+}

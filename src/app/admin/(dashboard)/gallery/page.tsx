@@ -21,7 +21,7 @@ export default async function AdminGalleryPage() {
             aria-label="Admin gallery page content"
             className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 py-4 px-3 sm:px-4 lg:px-6"
         >
-            <div className="max-w-7xl mx-auto">
+            <div className="container mx-auto">
                 <PicUploadHeader />
 
                 <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
@@ -29,7 +29,7 @@ export default async function AdminGalleryPage() {
                         <UploadForm albumList={albumList.filter(i => i.id !== "unknown-album")} />
                     </div>
 
-                    <div className="lg:col-span-1 lg:sticky lg:top-4">
+                    <div className="lg:col-span-1 lg:sticky lg:mt-15">
                         <div className="h-full lg:max-h-[calc(100vh-8rem)]">
                             <AlbumsEditor albumList={albumList} />
                         </div>

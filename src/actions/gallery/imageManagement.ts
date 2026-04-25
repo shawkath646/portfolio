@@ -87,8 +87,8 @@ export async function requestImageUploadURL(
 }
 
 export async function saveGalleryImage(
-    metadata: Omit<GalleryImageType, "slug" | "images" | "createdAt">,
-    images: GalleryImageItemType[]
+    metadata: Omit<GalleryImageType, "id" | "slug" | "images" | "timestamp">,
+    images: Omit<GalleryImageItemType, "src">[]
 ): Promise<APIResponseType> {
 
     const adminSession = await getAuthSession();
@@ -116,7 +116,7 @@ export async function saveGalleryImage(
                 const exists = await verifyFileExists(storagePath);
                 const publicUrl = exists ? await generatePublicUrl(storagePath) : "";
 
-                return { ...img, storagePath, exists, publicUrl };
+                return { ...img, exists, publicUrl };
             })
         )
     ]);
@@ -137,24 +137,23 @@ export async function saveGalleryImage(
 
     const batch = db.batch();
 
-    const parentImageRef = db.collection("gallery-images").doc(metadata.id);
-    const parentObject: Omit<GalleryImageType, "images"> = {
+    const parentImageRef = db.collection("gallery-images").doc();
+    const imageItems: GalleryImageItemType[] = uploadChecks.map((imgCheck) => ({
+        id: imgCheck.id,
+        src: imgCheck.publicUrl,
+        height: imgCheck.height,
+        width: imgCheck.width,
+        timestamp: imgCheck.timestamp,
+        size: imgCheck.size
+    }));
+    const parentObject: GalleryImageType = {
         ...metadata,
+        id: parentImageRef.id,
         slug: imageSlug,
-        createdAt: new Date(),
+        timestamp: new Date(),
+        images: imageItems,
     };
     batch.set(parentImageRef, parentObject);
-
-    uploadChecks.forEach((imgCheck) => {
-        const subDocRef = parentImageRef.collection("images").doc(imgCheck.id);
-        const imageItem: GalleryImageItemType = {
-            id: imgCheck.id,
-            src: imgCheck.publicUrl || imgCheck.src,
-            height: imgCheck.height,
-            width: imgCheck.width,
-        };
-        batch.set(subDocRef, imageItem);
-    });
 
     const albumRef = db.collection("gallery-albums").doc(album.id);
     const previewImages = [
@@ -199,11 +198,7 @@ export async function deleteImage(
         return { success: false, message: "Image record not found." };
     }
     const image = imageDoc.data() as GalleryImageType;
-
-    const subcollectionRef = imageRef.collection("images");
-    const subDocs = await subcollectionRef.get();
-
-    const storageImageIds = subDocs.docs.map(doc => doc.id);
+    const storageImageIds = (image.images ?? []).map((imageItem) => imageItem.id);
 
     if (image.albumId) {
         const albumRef = db.collection("gallery-albums").doc(image.albumId);
@@ -237,10 +232,6 @@ export async function deleteImage(
     }
 
     const batch = db.batch();
-
-    subDocs.forEach(doc => {
-        batch.delete(doc.ref);
-    });
 
     batch.delete(imageRef);
 

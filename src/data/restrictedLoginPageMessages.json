@@ -1,0 +1,53 @@
+{
+    "personalLife": [
+        "Hey! Feeling a bit too curious about my personal life, aren’t you?",
+        "Oops! This isn’t your story to read 📖",
+        "Nice try, but my personal life isn’t public API 😏",
+        "Access denied. Curiosity level: suspicious.",
+        "You again? Still trying to unlock my life?",
+        "This area is under 'None of your business' policy 🚫",
+        "Even I don’t fully understand my personal life, and you want access?",
+        "Hold up! You need higher clearance for this drama.",
+        "Wrong password. Right curiosity though.",
+        "This content is protected by emotional encryption 🔐",
+        "You’re knocking on the wrong door 🚪",
+        "Private means… not you.",
+        "System says: Mind your own life first 😌",
+        "This isn’t Google. You can’t just search everything.",
+        "Access denied. Try being less nosy next time."
+    ],
+    "loveCorner": [
+        "Hey… I don’t think you’re the right person to be here ❤️",
+        "Love life detected. Unauthorized user detected.",
+        "This chapter is not for public reading 💔",
+        "You need a special place in my heart to access this.",
+        "Wrong password… and maybe wrong person too.",
+        "Careful! You’re stepping into emotional territory.",
+        "This isn’t just data… it’s feelings 🥲",
+        "Access denied. My heart says no.",
+        "Only VIPs (Very Important People) allowed here.",
+        "This section requires emotional authentication.",
+        "Love life locked. Try again in another lifetime.",
+        "Even I hesitate to open this section… and you?",
+        "You’re close… but not close enough 😏",
+        "Error 403: Heart not shared.",
+        "Nice try, but love stories aren’t for everyone."
+    ],
+    "friendsCorner": [
+        "Hey! You don’t look like one of the gang 🤨",
+        "This zone is reserved for real ones only.",
+        "Access denied. Friendship level too low.",
+        "You sure we’re friends? 🤔",
+        "This is where the chaos lives… and you’re not invited.",
+        "Friends only. Try upgrading your relationship status.",
+        "You almost made it… but nah.",
+        "This content is protected by inside jokes 😂",
+        "If you have to guess the password, you’re not a friend.",
+        "Unauthorized human detected in friends zone.",
+        "This area contains memories you weren’t part of.",
+        "Friendship verification failed ❌",
+        "Bro… who even are you?",
+        "Close, but not in the inner circle.",
+        "You need at least +10 friendship points to enter."
+    ]
+}

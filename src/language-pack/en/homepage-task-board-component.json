@@ -1,0 +1,16 @@
+{
+    "heading": "NEXT TASKS",
+    "taskListAriaLabel": "Task list",
+    "priorities": {
+        "high": "High priority",
+        "medium": "Medium priority",
+        "low": "Low priority"
+    },
+    "tasks": [
+        { "id": 1, "text": "Write documentation", "priority": "high" },
+        { "id": 2, "text": "Fix navbar responsiveness", "priority": "medium" },
+        { "id": 3, "text": "Contact the client", "priority": "high" },
+        { "id": 4, "text": "Implement new API endpoints", "priority": "medium" },
+        { "id": 5, "text": "Code the signup form", "priority": "low" }
+    ]
+}

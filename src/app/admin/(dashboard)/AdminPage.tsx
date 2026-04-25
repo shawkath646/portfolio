@@ -20,7 +20,7 @@ export default function AdminPage() {
     };
 
     return (
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Header Section */}
             <div className="mb-16 text-center">
                 <motion.div

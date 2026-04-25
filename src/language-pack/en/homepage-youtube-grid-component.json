@@ -1,0 +1,12 @@
+{
+    "title": "🎥 Explore My YouTube Channel",
+    "description": "Curious about what I do in my leisure time? I share tutorials, dev logs, and cool experiments. Visit and subscribe to stay updated!",
+    "channelInfoAriaLabel": "YouTube channel information",
+    "channelLogoSuffix": "channel logo",
+    "channelHandle": "@shawkath646",
+    "subscribeAriaLabel": "Subscribe to the YouTube channel",
+    "subscribeButtonText": "🔔 Subscribe",
+    "recentVideosAriaLabel": "Recent YouTube videos",
+    "watchPrefix": "Watch",
+    "thumbnailPrefix": "Thumbnail for"
+}

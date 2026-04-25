@@ -13,34 +13,17 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: 'en',
     icons: [
       {
-        src: '/favicon.ico',
-        sizes: 'any',
-        type: 'image/x-icon',
-      },
-      {
-        src: '/icon-192x192.png',
+        src: '/android-chrome-192x192.png',
         type: 'image/png',
         sizes: '192x192',
         purpose: 'any',
       },
       {
-        src: '/icon-192x192.png',
-        type: 'image/png',
-        sizes: '192x192',
-        purpose: 'maskable',
-      },
-      {
-        src: '/icon-512x512.png',
+        src: '/android-chrome-512x512.png',
         type: 'image/png',
         sizes: '512x512',
         purpose: 'any',
-      },
-      {
-        src: '/icon-512x512.png',
-        type: 'image/png',
-        sizes: '512x512',
-        purpose: 'maskable',
-      },
+      }
     ],
   }
 }

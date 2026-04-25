@@ -1,15 +1,13 @@
 "use client";
-import { useState, useTransition, useCallback, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import Image from "next/image";
+import { useState, useCallback } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { FileObject, useEasyDragDrop } from "easy-file-dragdrop";
 import { motion } from "framer-motion";
-import { FaCloudUploadAlt, FaImage, FaTimes } from "react-icons/fa";
+import { FaImage } from "react-icons/fa";
 import { requestImageUploadURL, saveGalleryImage } from "@/actions/gallery/imageManagement";
-import googleDriveLogo from "@/assets/google-drive-icon-512x512.png";
-import FileDragDrop from "@/components/FileDragDrop";
 import { useToast } from "@/components/Toast";
-import { GalleryAlbumType } from "@/types/gallery.types";
-import getImageMetadata from "@/utils/getImageMetadata";
+import { GalleryAlbumType, GalleryImageItemType } from "@/types/gallery.types";
+import runWithConcurrency from "@/utils/runWithConcurrency";
 
 type UploadFormData = {
     title: string;
@@ -17,128 +15,36 @@ type UploadFormData = {
     location: string;
     alt: string;
     album: string;
-    image: FileList;
-    width: number;
-    height: number;
-    timestamp: Date;
+    images: FileObject[];
 };
 
-type SelectedImageMetadata = {
-    width: number;
-    height: number;
-};
+
+const MAX_UPLOAD_FILES = 20;
+const MAX_UPLOAD_FILE_SIZE_MB = 10;
+const IMAGE_ACCEPT = "image/jpeg,image/png,image/gif,image/webp,image/svg+xml";
 
 export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[] }) {
-    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-    const [selectedImageMetadata, setSelectedImageMetadata] = useState<SelectedImageMetadata[]>([]);
-    const [activePreviewIndex, setActivePreviewIndex] = useState(0);
+    const { InputCanvas, PreviewPane } = useEasyDragDrop();
     const [uploadProgress, setUploadProgress] = useState(0);
-    const [isPending, startTransition] = useTransition();
+    const [isLoading, setIsLoading] = useState(false);
     const toast = useToast();
 
     const {
+        control,
         register,
         handleSubmit,
         formState: { errors },
         reset,
-        setValue,
-        setError,
-        clearErrors,
-        watch
     } = useForm<UploadFormData>({
         defaultValues: {
+            title: "",
             description: "",
             location: "",
-            width: 0,
-            height: 0,
-            timestamp: new Date(),
+            alt: "",
+            album: "",
+            images: []
         }
     });
-
-    const width = watch('width');
-    const height = watch('height');
-    const timestamp = watch('timestamp');
-
-    useEffect(() => {
-        return () => {
-            imagePreviews.forEach((previewUrl) => URL.revokeObjectURL(previewUrl));
-        };
-    }, [imagePreviews]);
-
-    const validateImageFile = useCallback((file: File): string | null => {
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-        if (!validTypes.includes(file.type)) {
-            return 'Only image files are allowed (JPG, PNG, GIF, WebP, or SVG).';
-        }
-
-        const maxSize = 10 * 1024 * 1024;
-        if (file.size > maxSize) {
-            return 'Image must be 10MB or smaller.';
-        }
-
-        return null;
-    }, []);
-
-    const handleImageSelect = useCallback(async (files: File[]) => {
-        if (files.length === 0) {
-            setError("image", { type: "manual", message: "Please select at least one image." });
-            return;
-        }
-
-        if (files.length > 20) {
-            setError("image", { type: "manual", message: "You can upload up to 20 images at once." });
-            return;
-        }
-
-        const validationError = files
-            .map((file) => validateImageFile(file))
-            .find((errorMessage): errorMessage is string => Boolean(errorMessage));
-
-        if (validationError) {
-            setError("image", { type: "manual", message: validationError });
-            return;
-        }
-
-        clearErrors("image");
-
-        const metadataList = await Promise.all(files.map((file) => getImageMetadata(file)));
-        const normalizedMetadata = metadataList.map((item) => ({
-            width: item.width && item.width > 0 ? item.width : 1,
-            height: item.height && item.height > 0 ? item.height : 1,
-        }));
-        const primaryMetadata = metadataList[0];
-
-        setValue('width', primaryMetadata.width ?? 0, { shouldValidate: true, shouldDirty: true });
-        setValue('height', primaryMetadata.height ?? 0, { shouldValidate: true, shouldDirty: true });
-        setValue('timestamp', primaryMetadata.timestamp || new Date(), { shouldValidate: true, shouldDirty: true });
-        setSelectedImageMetadata(normalizedMetadata);
-
-        const dataTransfer = new DataTransfer();
-        files.forEach((file) => dataTransfer.items.add(file));
-        setValue('image', dataTransfer.files as unknown as FileList, { shouldValidate: true, shouldDirty: true });
-
-        setImagePreviews((previousPreviews) => {
-            previousPreviews.forEach((previewUrl) => URL.revokeObjectURL(previewUrl));
-            return files.map((file) => URL.createObjectURL(file));
-        });
-
-        setActivePreviewIndex(0);
-    }, [clearErrors, setError, setValue, validateImageFile]);
-
-    // Clear image preview
-    const clearImage = useCallback(() => {
-        setImagePreviews((previousPreviews) => {
-            previousPreviews.forEach((previewUrl) => URL.revokeObjectURL(previewUrl));
-            return [];
-        });
-        setActivePreviewIndex(0);
-        setSelectedImageMetadata([]);
-        clearErrors("image");
-        setValue('image', undefined as unknown as FileList, { shouldValidate: true, shouldDirty: true });
-        setValue('width', 0, { shouldValidate: true, shouldDirty: true });
-        setValue('height', 0, { shouldValidate: true, shouldDirty: true });
-        setValue('timestamp', new Date(), { shouldValidate: true, shouldDirty: true });
-    }, [clearErrors, setValue]);
 
     const uploadFileWithProgress = useCallback(async (
         file: File,
@@ -171,86 +77,114 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
         });
     }, []);
 
-    const onSubmit = (data: UploadFormData) => startTransition(async () => {
+
+
+    const onSubmit = async (data: UploadFormData) => {
         try {
-            const files = Array.from(data.image || []);
-            if (files.length === 0) {
+            const selectedItems = data.images;
+            const selectedImages = selectedItems.map((item) => item.file);
+
+            if (selectedImages.length === 0) {
                 toast("Please select at least one image", "warning");
                 return;
             }
 
+            setIsLoading(true);
             setUploadProgress(0);
 
-            const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
-            let uploadedBytes = 0;
-            const sourceImageIds: string[] = [];
-            const uploadedImages: { id: string; src: string; width: number; height: number }[] = [];
-
-            for (const [index, file] of files.entries()) {
+            const preparationTasks = selectedItems.map((item) => async () => {
                 const urlResult = await requestImageUploadURL({
-                    fileType: file.type,
-                    fileSize: file.size,
+                    fileType: item.metadata.type,
+                    fileSize: item.metadata.size,
                 });
 
                 if (!urlResult.success || !urlResult.imageId || !urlResult.uploadURL) {
-                    throw new Error(urlResult.message || 'Failed to generate upload URL');
+                    throw new Error(urlResult.message || "Failed to generate upload URL");
                 }
 
-                let currentFileLoadedBytes = 0;
+                return {
+                    imageId: urlResult.imageId,
+                    uploadURL: urlResult.uploadURL,
+                    width: item.image?.width ?? 0,
+                    height: item.image?.height ?? 0,
+                    size: item.metadata.size || 0,
+                    timestamp: item.metadata.lastModified
+                        ? new Date(item.metadata.lastModified)
+                        : new Date(item.createdAt)
+                };
+            });
 
-                await uploadFileWithProgress(file, urlResult.uploadURL, (loadedBytes) => {
-                    currentFileLoadedBytes = loadedBytes;
-                    const currentProgress = Math.round(
-                        ((uploadedBytes + currentFileLoadedBytes) / totalBytes) * 100
-                    );
-                    setUploadProgress(Math.min(currentProgress, 100));
+            const preparedFiles = await runWithConcurrency(preparationTasks, 4);
+
+            const totalBytes = selectedImages.reduce((sum, image) => sum + image.size, 0);
+            const perFileLoadedBytes = new Array(selectedImages.length).fill(0);
+            let uploadedBytes = 0;
+            let isUpdating = false;
+
+            const uploadTasks = selectedImages.map((image, index) => async () => {
+                await uploadFileWithProgress(image, preparedFiles[index].uploadURL, (loaded) => {
+                    const maxForFile = image.size || 0;
+                    const nextLoaded = Math.max(0, Math.min(loaded, maxForFile));
+                    const delta = nextLoaded - perFileLoadedBytes[index];
+
+                    if (delta <= 0) return;
+
+                    perFileLoadedBytes[index] = nextLoaded;
+                    uploadedBytes += delta;
+
+                    if (!isUpdating) {
+                        isUpdating = true;
+                        requestAnimationFrame(() => {
+                            const progress = totalBytes > 0
+                                ? Math.round((uploadedBytes / totalBytes) * 100)
+                                : 100;
+                            setUploadProgress(Math.min(progress, 100));
+                            isUpdating = false;
+                        });
+                    }
                 });
+            });
 
-                uploadedBytes += file.size;
-                sourceImageIds.push(urlResult.imageId);
-                uploadedImages.push({
-                    id: urlResult.imageId,
-                    src: "",
-                    width: selectedImageMetadata[index]?.width ?? data.width,
-                    height: selectedImageMetadata[index]?.height ?? data.height,
-                });
-                setUploadProgress(Math.min(Math.round((uploadedBytes / totalBytes) * 100), 100));
-            }
+            await runWithConcurrency(uploadTasks, 4);
+            setUploadProgress(100);
 
-            if (sourceImageIds.length === 0) {
-                throw new Error("No uploaded image IDs found.");
+            const finalImageData: Omit<GalleryImageItemType, "src">[] = preparedFiles.map(file => ({
+                id: file.imageId,
+                height: file.height,
+                width: file.width,
+                size: file.size ?? 0,
+                timestamp: file.timestamp
+            }));
+
+            if (finalImageData.length === 0) {
+                throw new Error("No image data found.");
             }
 
             const saveResult = await saveGalleryImage(
                 {
-                    id: sourceImageIds[0],
                     albumId: data.album,
                     title: data.title,
                     description: data.description,
                     alt: data.alt,
                     location: data.location,
-                    timestamp: data.timestamp,
                 },
-                uploadedImages
+                finalImageData
             );
 
             if (!saveResult.success) {
                 throw new Error(saveResult.message || 'Failed to save image');
             }
 
-            toast(`${sourceImageIds.length} image${sourceImageIds.length > 1 ? 's' : ''} uploaded successfully!`, "success");
+            toast(`${finalImageData.length} image${finalImageData.length > 1 ? 's' : ''} uploaded successfully!`, "success");
             reset();
-            clearImage();
-            setUploadProgress(0);
-        } catch (error) {
-            console.log(error);
-            setUploadProgress(0);
-            toast("Failed to upload image", "error");
-        }
-    });
 
-    const handleImportFromDrive = () => {
-        toast("Import from Google Drive - Coming soon!", "info");
+        } catch (error) {
+            console.error("Upload error:", error);
+            toast("Failed to upload image", "error");
+        } finally {
+            setUploadProgress(0);
+            setIsLoading(false);
+        }
     };
 
     const containerVariants = {
@@ -281,309 +215,167 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
             initial="hidden"
             animate="visible"
         >
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-10">
                 {/* Image Upload Section */}
                 <motion.div
                     variants={itemVariants}
-                    className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 border border-gray-200 dark:border-gray-700"
+                    className="overflow-hidden relative"
                 >
-                    <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        Upload Images
-                    </label>
+                    <Controller
+                        name="images"
+                        control={control}
+                        render={({ field }) => {
+                            const fieldProps = {
+                                name: field.name,
+                                value: field.value,
+                                onChange: field.onChange,
+                                onBlur: field.onBlur,
+                            };
 
-                    <div className="flex flex-col sm:flex-row gap-3 items-stretch">
-                        {/* Upload Area */}
-                        <div className="flex-1">
-                            {imagePreviews.length === 0 ? (
-                                <FileDragDrop
-                                    onFilesSelected={handleImageSelect}
-                                    multiple
-                                    accept="image/*"
-                                    disabled={isPending}
-                                    className="w-full h-48 mb-0 rounded-lg"
-                                    idleClassName="border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 hover:bg-gray-100 dark:hover:bg-gray-900 hover:border-blue-400 dark:hover:border-blue-500"
-                                    draggingClassName="border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/30"
-                                    inputAriaLabel="Image upload input"
-                                >
-                                    {({ isDragging }) => (
-                                        <motion.div
-                                            className="flex flex-col items-center justify-center pt-4 pb-4"
-                                            whileHover={{ scale: 1.05 }}
-                                            transition={{ type: "spring", stiffness: 300 }}
-                                        >
-                                            <FaCloudUploadAlt className={`w-10 h-10 mb-2 transition-colors ${isDragging ? 'text-blue-500' : 'text-gray-400 group-hover:text-blue-500'}`} />
-                                            <p className="mb-1 text-xs text-gray-500 dark:text-gray-400">
-                                                <span className="font-semibold">Click to upload</span> or drag and drop files
-                                            </p>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                PNG, JPG, GIF, WebP, SVG up to 10MB each
-                                            </p>
-                                        </motion.div>
-                                    )}
-                                </FileDragDrop>
-                            ) : (
-                                <div className="space-y-2">
-                                    <div className="relative w-full h-48 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900 group">
-                                        <Image
-                                            src={imagePreviews[activePreviewIndex]}
-                                            alt={`Preview ${activePreviewIndex + 1}`}
-                                            fill
-                                            className="object-contain"
-                                        />
-                                        <div className="absolute left-2 top-2 px-2 py-1 rounded bg-black/70 text-white text-[10px]">
-                                            {activePreviewIndex + 1} / {imagePreviews.length}
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={clearImage}
-                                            className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <FaTimes className="text-sm" />
-                                        </button>
-                                    </div>
-
-                                    {imagePreviews.length > 1 && (
-                                        <div className="grid grid-cols-6 gap-2">
-                                            {imagePreviews.slice(0, 12).map((previewUrl, index) => (
-                                                <button
-                                                    key={previewUrl}
-                                                    type="button"
-                                                    onClick={() => setActivePreviewIndex(index)}
-                                                    className={`relative aspect-square rounded-md overflow-hidden border ${index === activePreviewIndex
-                                                        ? 'border-blue-500 ring-1 ring-blue-500'
-                                                        : 'border-gray-300 dark:border-gray-700'
-                                                        }`}
-                                                >
-                                                    <Image
-                                                        src={previewUrl}
-                                                        alt={`Thumbnail ${index + 1}`}
-                                                        fill
-                                                        className="object-cover"
-                                                    />
-                                                </button>
-                                            ))}
+                            return (
+                                <>
+                                    <InputCanvas
+                                        label="Upload Images"
+                                        description={`PNG, JPG, GIF, WebP, SVG up to ${MAX_UPLOAD_FILE_SIZE_MB}MB each`}
+                                        {...fieldProps}
+                                        accept={IMAGE_ACCEPT}
+                                        multiple
+                                        maxFiles={MAX_UPLOAD_FILES}
+                                        maxFileSize={MAX_UPLOAD_FILE_SIZE_MB}
+                                        disabled={isLoading}
+                                    />
+                                    {fieldProps.value.length > 0 && (
+                                        <div className="mt-4">
+                                            <PreviewPane showPreview />
                                         </div>
                                     )}
-                                </div>
-                            )}
-                        </div>
-
-                        <input
-                            type="hidden"
-                            {...register("image", { required: "Please select at least one image" })}
-                        />
-
-                        {/* Import from Drive Button */}
-                        <motion.button
-                            type="button"
-                            onClick={handleImportFromDrive}
-                            className="flex flex-row sm:flex-col items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-600 transition-all group sm:w-24 h-48"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                        >
-                            <Image
-                                src={googleDriveLogo}
-                                alt="Google Drive"
-                                width={32}
-                                height={32}
-                                className="group-hover:scale-110 transition-transform"
-                            />
-                            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 sm:text-center">
-                                Import from Drive
-                            </span>
-                        </motion.button>
-                    </div>
-
-                    {errors.image && (
-                        <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">
-                            {errors.image.message}
-                        </p>
-                    )}
+                                </>
+                            );
+                        }}
+                    />
                 </motion.div>
 
                 {/* Form Fields */}
                 <motion.div
                     variants={itemVariants}
-                    className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 border border-gray-200 dark:border-gray-700 space-y-3"
+                    className="rounded-xl border border-white/60 bg-white/70 p-4 backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/45"
                 >
-                    {/* Album Selection */}
-                    <div>
-                        <label htmlFor="album" className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                            Select Album *
-                        </label>
-                        <select
-                            id="album"
-                            {...register("album", { required: "Please select an album" })}
-                            className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        >
-                            <option value="">Choose an album...</option>
-                            {albumList.map((album) => (
-                                <option key={album.id} value={album.id}>
-                                    {album.name}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.album && (
-                            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-                                {errors.album.message}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Title */}
-                    <div>
-                        <label htmlFor="title" className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                            Title *
-                        </label>
-                        <input
-                            type="text"
-                            id="title"
-                            {...register("title", {
-                                required: "Title is required",
-                                validate: (value) => value.trim().length > 0 || "Title is required",
-                            })}
-                            placeholder="Enter image title..."
-                            className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        />
-                        {errors.title && (
-                            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-                                {errors.title.message}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Description */}
-                    <textarea
-                        id="description"
-                        {...register("description", {
-                            required: "Description is required",
-                            minLength: {
-                                value: 5,
-                                message: "Description must be at least 5 characters",
-                            },
-                            validate: (value) => value.trim().length > 0 || "Description is required",
-                        })}
-                        rows={3}
-                        placeholder="Add a description for your image..."
-                        onInput={(e) => {
-                            const el = e.currentTarget;
-                            el.style.height = "auto";
-                            el.style.height = `${el.scrollHeight}px`;
-                        }}
-                        className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none max-h-40 overflow-y-auto custom-scrollbar"
-                    />
-
-                    {/* Width and Height - Side by side */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="relative space-y-3">
+                        {/* Album Selection */}
                         <div>
-                            <label htmlFor="width" className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                                Width
+                            <label htmlFor="album" className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                                Select Album *
+                            </label>
+                            <select
+                                id="album"
+                                {...register("album", { required: "Please select an album" })}
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            >
+                                <option value="">Choose an album...</option>
+                                {albumList.map((album) => (
+                                    <option key={album.id} value={album.id}>
+                                        {album.name}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.album && (
+                                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                                    {errors.album.message}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Title */}
+                        <div>
+                            <label htmlFor="title" className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                                Title *
                             </label>
                             <input
                                 type="text"
-                                id="width"
-                                value={width ? `${width}px` : 'N/A'}
-                                readOnly
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900/50 text-gray-600 dark:text-gray-400 cursor-not-allowed"
+                                id="title"
+                                {...register("title", {
+                                    required: "Title is required",
+                                    validate: (value) => value.trim().length > 0 || "Title is required",
+                                })}
+                                placeholder="Enter image title..."
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                             />
+                            {errors.title && (
+                                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                                    {errors.title.message}
+                                </p>
+                            )}
                         </div>
-                        <div>
-                            <label htmlFor="height" className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                                Height
-                            </label>
-                            <input
-                                type="text"
-                                id="height"
-                                value={height ? `${height}px` : 'N/A'}
-                                readOnly
-                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900/50 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-                            />
-                        </div>
-                    </div>
 
-                    <input
-                        type="hidden"
-                        {...register("width", {
-                            required: "Width is required",
-                            min: { value: 1, message: "Width must be greater than 0" },
-                            valueAsNumber: true,
-                        })}
-                    />
-                    <input
-                        type="hidden"
-                        {...register("height", {
-                            required: "Height is required",
-                            min: { value: 1, message: "Height must be greater than 0" },
-                            valueAsNumber: true,
-                        })}
-                    />
-                    {(errors.width || errors.height) && (
-                        <p className="-mt-1 text-xs text-red-600 dark:text-red-400">
-                            {errors.width?.message || errors.height?.message}
-                        </p>
-                    )}
-
-                    {/* Timestamp */}
-                    <div>
-                        <label htmlFor="timestamp" className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                            Timestamp
-                        </label>
-                        <input
-                            type="text"
-                            id="timestamp"
-                            value={timestamp ? timestamp.toLocaleString() : 'N/A'}
-                            readOnly
-                            className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900/50 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-                        />
-                    </div>
-
-                    {/* Location */}
-                    <div>
-                        <label htmlFor="location" className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                            Location
-                        </label>
-                        <input
-                            type="text"
-                            id="location"
-                            {...register("location", {
-                                required: "Location is required",
+                        {/* Description */}
+                        <textarea
+                            id="description"
+                            {...register("description", {
+                                required: "Description is required",
                                 minLength: {
-                                    value: 2,
-                                    message: "Location must be at least 2 characters",
+                                    value: 5,
+                                    message: "Description must be at least 5 characters",
                                 },
-                                validate: (value) => value.trim().length > 0 || "Location is required",
+                                validate: (value) => value.trim().length > 0 || "Description is required",
                             })}
-                            placeholder="Where was this taken?"
-                            className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            rows={3}
+                            placeholder="Add a description for your image..."
+                            onInput={(e) => {
+                                const el = e.currentTarget;
+                                el.style.height = "auto";
+                                el.style.height = `${el.scrollHeight}px`;
+                            }}
+                            className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none max-h-40 overflow-y-auto custom-scrollbar"
                         />
-                        {errors.location && (
-                            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-                                {errors.location.message}
-                            </p>
-                        )}
-                    </div>
 
-                    {/* Alt Text */}
-                    <div>
-                        <label htmlFor="alt" className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                            Alt Text *
-                        </label>
-                        <input
-                            type="text"
-                            id="alt"
-                            {...register("alt", { required: "Alt text is required for accessibility" })}
-                            placeholder="Describe the image for accessibility..."
-                            className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        />
-                        {errors.alt && (
-                            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-                                {errors.alt.message}
-                            </p>
-                        )}
+                        {/* Location */}
+                        <div>
+                            <label htmlFor="location" className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                                Location
+                            </label>
+                            <input
+                                type="text"
+                                id="location"
+                                {...register("location", {
+                                    required: "Location is required",
+                                    minLength: {
+                                        value: 2,
+                                        message: "Location must be at least 2 characters",
+                                    },
+                                    validate: (value) => value.trim().length > 0 || "Location is required",
+                                })}
+                                placeholder="Where was this taken?"
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            />
+                            {errors.location && (
+                                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                                    {errors.location.message}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Alt Text */}
+                        <div>
+                            <label htmlFor="alt" className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                                Alt Text *
+                            </label>
+                            <input
+                                type="text"
+                                id="alt"
+                                {...register("alt", { required: "Alt text is required for accessibility" })}
+                                placeholder="Describe the image for accessibility..."
+                                className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            />
+                            {errors.alt && (
+                                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                                    {errors.alt.message}
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </motion.div>
 
-                {isPending && (
+                {isLoading && (
                     <div className="mt-2">
                         <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
                             <div
@@ -601,12 +393,12 @@ export default function UploadForm({ albumList }: { albumList: GalleryAlbumType[
                 <motion.div variants={itemVariants}>
                     <motion.button
                         type="submit"
-                        disabled={isPending}
-                        className="w-full px-5 py-3 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold text-sm rounded-lg shadow-lg disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-                        whileHover={!isPending ? { scale: 1.02 } : {}}
-                        whileTap={!isPending ? { scale: 0.98 } : {}}
+                        disabled={isLoading}
+                        className="mt-8 w-full px-5 py-3 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold text-sm rounded-lg shadow-lg disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                        whileHover={!isLoading ? { scale: 1.02 } : {}}
+                        whileTap={!isLoading ? { scale: 0.98 } : {}}
                     >
-                        {isPending ? (
+                        {isLoading ? (
                             <>
                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                 <span>Uploading...</span>

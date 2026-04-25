@@ -1,51 +1,6 @@
-"use client";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { motion , Variants } from "framer-motion";
-import {
-    FiHome,
-    FiAlertCircle
-} from "react-icons/fi";
-
-import "../styles/not-found.css";
-
-// Animation variants
-const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.3,
-            delayChildren: 0.2,
-        },
-    },
-};
-
-const itemVariants: Variants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-        y: 0,
-        opacity: 1,
-        transition: { duration: 0.5 },
-    },
-};
-
-// 404 text animation variants
-const textVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: {
-        opacity: 1,
-        scale: 1,
-        transition: {
-            duration: 0.8,
-        },
-    },
-};
+export const dynamic = 'force-static';
 
 export default function NotFound() {
-    // Get the current path
-    const pathname = usePathname();
-
     return (
         <main
             id="main-content"
@@ -67,26 +22,14 @@ export default function NotFound() {
                 <div className="absolute bottom-1/3 left-1/3 w-24 h-24 border border-blue-400/20 dark:border-blue-300/10 rounded-full animate-float-reverse opacity-30" style={{ animationDelay: '3s' }} />
             </div>
 
-            <motion.section
-                className="relative z-10 max-w-3xl w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700/50 overflow-hidden"
-                initial="hidden"
-                animate="visible"
-                variants={containerVariants}
+            <section
+                className="relative z-10 max-w-3xl w-full"
                 aria-labelledby="error-title"
             >
-                {/* Top "Error" bar */}
-                <div 
-                    className="bg-linear-to-r from-blue-500 via-blue-600 to-indigo-500 h-2 w-full"
-                    aria-hidden="true" 
-                />
-
                 {/* Error content container */}
                 <div className="py-8 px-6 text-center relative">
                     {/* 404 with glitch effect */}
-                    <motion.div
-                        className="relative text-center mb-8"
-                        variants={textVariants}
-                    >
+                    <div className="relative text-center mb-8">
                         <h1
                             id="error-title"
                             className="font-mono text-8xl md:text-9xl font-bold text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-blue-500 to-indigo-500 dark:from-blue-400 dark:to-indigo-400 inline-block"
@@ -94,51 +37,17 @@ export default function NotFound() {
                         >
                             404
                         </h1>
-                    </motion.div>
+                    </div>
 
-                    <motion.h2
-                        className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6"
-                        variants={itemVariants}
-                    >
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
                         Page Not Found
-                    </motion.h2>
+                    </h2>
 
-                    <motion.p
-                        className="text-gray-600 dark:text-gray-300 mb-8 max-w-lg mx-auto"
-                        variants={itemVariants}
-                    >
+                    <p className="text-gray-600 dark:text-gray-300 mb-8 max-w-lg mx-auto">
                         The page you are looking for doesn&apos;t exist or has been moved.
-                    </motion.p>
-
-                    {/* Requested Path */}
-                    <motion.div
-                        className="mb-8 bg-blue-50 dark:bg-blue-900/30 rounded-lg p-4 flex flex-col sm:flex-row items-center gap-2 text-gray-700 dark:text-gray-300"
-                        variants={itemVariants}
-                        role="alert"
-                        aria-live="polite"
-                    >
-                        <FiAlertCircle className="text-blue-500 shrink-0" aria-hidden="true" />
-                        <span className="font-mono text-sm truncate max-w-57.5 sm:max-w-sm md:max-w-md">
-                            Requested path: <code>{pathname}</code>
-                        </span>
-                    </motion.div>
-
-                    {/* Back to home button */}
-                    <motion.nav
-                        variants={itemVariants}
-                        aria-label="Page navigation"
-                    >
-                        <Link
-                            href="/"
-                            className="inline-flex items-center gap-2 bg-linear-to-r from-blue-500 to-indigo-600 text-white font-medium py-3 px-6 rounded-full hover:shadow-lg transition transform hover:-translate-y-1 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-                            aria-label="Go back to home page"
-                        >
-                            <FiHome className="text-lg" aria-hidden="true" />
-                            <span>Back to Home</span>
-                        </Link>
-                    </motion.nav>
+                    </p>
                 </div>
-            </motion.section>
+            </section>
         </main>
     );
 }

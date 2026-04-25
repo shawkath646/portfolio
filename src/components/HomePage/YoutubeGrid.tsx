@@ -37,9 +37,23 @@ interface Video {
 interface YoutubeGridProps {
     channel: Channel;
     videos: Video[];
+    languagePack: YoutubeGridLanguagePack;
 }
 
-export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
+type YoutubeGridLanguagePack = {
+    title: string;
+    description: string;
+    channelInfoAriaLabel: string;
+    channelLogoSuffix: string;
+    channelHandle: string;
+    subscribeAriaLabel: string;
+    subscribeButtonText: string;
+    recentVideosAriaLabel: string;
+    watchPrefix: string;
+    thumbnailPrefix: string;
+};
+
+export default function YoutubeGrid({ channel, videos, languagePack }: YoutubeGridProps) {
     return (
         <motion.section
             className="container mx-auto py-8 my-20"
@@ -55,15 +69,14 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
                     className="text-3xl font-bold mb-2 text-center"
                     variants={fadeUp}
                 >
-                    🎥 Explore My YouTube Channel
+                    {languagePack.title}
                 </motion.h2>
 
                 <motion.p
                     className="text-center text-gray-600 dark:text-gray-300"
                     variants={fadeUp}
                 >
-                    Curious about what I do in my leisure time? I share tutorials, dev logs, and cool experiments.
-                    Visit & subscribe to stay updated!
+                    {languagePack.description}
                 </motion.p>
             </div>
 
@@ -72,27 +85,27 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
                 <motion.aside
                     className="bg-white dark:bg-gray-900 rounded-2xl shadow-md p-6 shrink-0 w-full md:w-80 text-center"
                     variants={fadeUp}
-                    aria-label="YouTube channel information"
+                    aria-label={languagePack.channelInfoAriaLabel}
                 >
                     <Image
                         src={channel.icon}
-                        alt={`${channel.title} channel logo`}
+                        alt={`${channel.title} ${languagePack.channelLogoSuffix}`}
                         width={100}
                         height={100}
                         className="rounded-full mx-auto mb-4"
                     />
                     <h3 className="text-2xl font-semibold mb-2">{channel.title}</h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                        @shawkath646
+                        {languagePack.channelHandle}
                     </p>
                     <Link
                         href="https://www.youtube.com/@shawkath646?sub_confirmation=1"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block bg-red-600 text-white px-5 py-2 rounded-full hover:bg-red-700 transition"
-                        aria-label="Subscribe to the YouTube channel"
+                        aria-label={languagePack.subscribeAriaLabel}
                     >
-                        🔔 Subscribe
+                        {languagePack.subscribeButtonText}
                     </Link>
                 </motion.aside>
 
@@ -104,7 +117,7 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
                     whileInView="visible"
                     viewport={{ once: true }}
                     role="list"
-                    aria-label="Recent YouTube videos"
+                    aria-label={languagePack.recentVideosAriaLabel}
                 >
                     <motion.div className="flex gap-4 min-w-max">
                         {videos.map((video: Video) => (
@@ -120,11 +133,11 @@ export default function YoutubeGrid({ channel, videos }: YoutubeGridProps) {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="block bg-white dark:bg-gray-900 rounded-lg shadow hover:shadow-lg transition duration-200 overflow-hidden"
-                                    aria-label={`Watch ${video.title}`}
+                                    aria-label={`${languagePack.watchPrefix} ${video.title}`}
                                 >
                                     <Image
                                         src={video.thumbnail}
-                                        alt={`Thumbnail for ${video.title}`}
+                                        alt={`${languagePack.thumbnailPrefix} ${video.title}`}
                                         width={300}
                                         height={169}
                                         className="w-full h-auto"

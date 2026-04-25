@@ -1,0 +1,30 @@
+{
+    "heading": "Get In Touch",
+    "subtitle": "Whether you want to discuss a project, collaborate professionally, or just connect on social, pick your favorite way to reach out!",
+    "categoriesAriaLabel": "Contact methods by category",
+    "footerText": "Always happy to connect and collaborate, drop a hi anytime!",
+    "professional": {
+        "title": "Professional Connection",
+        "description": "Let's connect professionally for new opportunities, collaborations, or networking.",
+        "linkedIn": { "name": "LinkedIn", "text": "Connect with me on LinkedIn" },
+        "github": { "name": "GitHub", "text": "Explore my code and projects" },
+        "email": { "name": "Email", "text": "Send me an email" }
+    },
+    "messaging": {
+        "title": "Messaging",
+        "description": "Reach out for a quick chat, project discussion, or just to say hi!",
+        "facebook": { "name": "Facebook", "text": "Message me on Facebook" },
+        "messenger": { "name": "Messenger", "text": "Chat via Messenger" },
+        "kakaoTalk": { "name": "KakaoTalk", "text": "Connect on KakaoTalk" },
+        "telegram": { "name": "Telegram", "text": "Ping me on Telegram" },
+        "whatsapp": { "name": "WhatsApp", "text": "Message me on WhatsApp" }
+    },
+    "social": {
+        "title": "Social Media",
+        "description": "Follow for updates, vlogs, and creative content.",
+        "facebook": { "name": "Facebook", "text": "See my posts and stories" },
+        "youtube": { "name": "YouTube", "text": "Watch tutorials and vlogs" },
+        "instagram": { "name": "Instagram", "text": "See travel photos and reels" },
+        "tiktok": { "name": "TikTok", "text": "Watch relaxing short videos from my daily exploration" }
+    }
+}

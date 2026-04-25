@@ -7,7 +7,18 @@ import { LifeEvent } from "@/types/common.types";
 
 interface LifeTimelineProps {
     lifeEvents: LifeEvent[];
+    languagePack: LifeTimelineLanguagePack;
 }
+
+type LifeTimelineLanguagePack = {
+    heading: string;
+    exploreHint: string;
+    showDetailsPrefix: string;
+    statusToday: string;
+    statusPassedThisYear: string;
+    statusComingUp: string;
+    monthLocale: string;
+};
 
 type TooltipPlacement = "top" | "bottom";
 
@@ -23,7 +34,7 @@ const VIEWPORT_GUTTER = 12;
 const MOBILE_TOOLTIP_WIDTH = 256;
 const DESKTOP_TOOLTIP_WIDTH = 320;
 
-export default function LifeTimelineCarousel({ lifeEvents }: LifeTimelineProps) {
+export default function LifeTimelineCarousel({ lifeEvents, languagePack }: LifeTimelineProps) {
     const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
 
     const scrollContainerRef = useRef<HTMLOListElement>(null);
@@ -152,11 +163,11 @@ export default function LifeTimelineCarousel({ lifeEvents }: LifeTimelineProps) 
                             id="timeline-heading"
                             className="text-2xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-blue-950 to-blue-700 dark:from-blue-50 dark:to-blue-300 tracking-tight"
                         >
-                            Milestones & Journey
+                            {languagePack.heading}
                         </h2>
                         <p className="flex items-center gap-2 text-blue-700/80 dark:text-blue-300/80 mt-1 text-sm font-medium">
                             <FaArrowsAltH aria-hidden className="w-3.5 h-3.5 opacity-60" />
-                            Swipe or scroll to explore
+                            {languagePack.exploreHint}
                         </p>
                     </div>
                 </div>
@@ -170,7 +181,7 @@ export default function LifeTimelineCarousel({ lifeEvents }: LifeTimelineProps) 
                     {sortedEvents.map((event) => {
                         const eventDate = event.timestamp;
                         const day = eventDate.getDate();
-                        const month = eventDate.toLocaleString("default", { month: "short" });
+                        const month = eventDate.toLocaleString(languagePack.monthLocale, { month: "short" });
                         const originalYear = eventDate.getFullYear();
 
                         const isToday = today.getMonth() === eventDate.getMonth() && today.getDate() === eventDate.getDate();
@@ -192,7 +203,7 @@ export default function LifeTimelineCarousel({ lifeEvents }: LifeTimelineProps) 
                                 }}
                                 tabIndex={0}
                                 role="button"
-                                aria-label={`Show details for ${event.title}`}
+                                aria-label={`${languagePack.showDetailsPrefix} ${event.title}`}
                                 aria-expanded={tooltipData?.id === event.id}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter" || e.key === " ") {
@@ -297,7 +308,7 @@ export default function LifeTimelineCarousel({ lifeEvents }: LifeTimelineProps) 
                                     </p>
                                 )}
                                 <p className="text-[10px] uppercase tracking-wider text-blue-600 dark:text-blue-400 mt-2 font-bold">
-                                    {isPopupToday ? "Happening Today" : isPopupPastThisYear ? "Passed This Year" : "Coming Up"}
+                                    {isPopupToday ? languagePack.statusToday : isPopupPastThisYear ? languagePack.statusPassedThisYear : languagePack.statusComingUp}
                                 </p>
                             </div>
                         </div>

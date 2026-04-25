@@ -3,7 +3,13 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { FiShare2 } from "react-icons/fi";
 
-export default function ShareFilesSection() {
+type ShareFilesLanguagePack = {
+    title: string;
+    description: string;
+    linkAriaLabel: string;
+};
+
+export default function ShareFilesSection({ languagePack }: { languagePack: ShareFilesLanguagePack }) {
     return (
         <section
             aria-labelledby="share-files-title"
@@ -21,6 +27,7 @@ export default function ShareFilesSection() {
                     <Link
                         href="/contact/share-files"
                         className="block group relative overflow-hidden rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-6 shadow-lg hover:shadow-xl transition-all duration-300"
+                        aria-label={languagePack.linkAriaLabel}
                     >
                         {/* Animated Gradient Border */}
                         <div className="absolute inset-0 rounded-xl bg-linear-to-r from-blue-500 via-cyan-500 to-blue-500 opacity-75 blur-sm animate-[spin_15s_linear_infinite]"></div>
@@ -38,10 +45,10 @@ export default function ShareFilesSection() {
                                     id="share-files-title"
                                     className="text-lg font-semibold text-gray-900 dark:text-white mb-1"
                                 >
-                                    Share Files with Me
+                                    {languagePack.title}
                                 </h2>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    Send files securely to Shawkat Hossain Maruf
+                                    {languagePack.description}
                                 </p>
                             </div>
                         </div>

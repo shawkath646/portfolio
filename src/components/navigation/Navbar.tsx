@@ -6,14 +6,19 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react
 import { AnimatePresence, motion } from "motion/react";
 import { FaBars } from "react-icons/fa";
 import { RxCross2 } from "react-icons/rx";
+import { isLocale } from "@/lib/locale";
 
 const navigation = [
-    { name: "Home", href: "/", description: "Welcome to my portfolio" },
-    { name: "About", href: "/about", description: "Learn about my background and experience" },
-    { name: "Creations", href: "/creations", description: "View my latest projects, research and work" },
-    { name: "Blog", href: "#", description: "Read my thoughts and tutorials" },
-    { name: "Contact", href: "/contact", description: "Get in touch with me" },
-];
+    { key: "home", href: "/" },
+    { key: "about", href: "/about" },
+    { key: "creations", href: "/creations" },
+    { key: "blogs", href: "/blogs" },
+    { key: "contact", href: "/contact" },
+] as const;
+
+type NavKey = (typeof navigation)[number]["key"];
+type NavItemConfig = (typeof navigation)[number];
+type NavLanguagePack = Partial<Record<NavKey | `${NavKey}-desc` | "top-text", string>>;
 
 const OutsideClickHandler = ({
     open,
@@ -42,21 +47,38 @@ const OutsideClickHandler = ({
 
     return null;
 };
+export const normalizePath = (path: string): string => {
+  const segments = path.split('/').filter(Boolean);
+
+  if (segments.length > 0 && isLocale(segments[0])) {
+    return '/' + segments.slice(1).join('/');
+  }
+
+  return path;
+};
 
 const NavItem = ({
     item,
     currentPath,
     isMobile = false,
     onClose,
+    navLanguagePack,
 }: {
-    item: typeof navigation[0];
+    item: NavItemConfig;
     currentPath: string;
     isMobile?: boolean;
     onClose?: () => void;
+    navLanguagePack: NavLanguagePack;
 }) => {
-    const isActive = item.href === "/"
-        ? currentPath === "/"
-        : currentPath.startsWith(item.href);
+    const normalizedPath = normalizePath(currentPath);
+    const itemLabel = navLanguagePack[item.key] ?? item.key;
+    const itemDescription = navLanguagePack[`${item.key}-desc`];
+    const itemAriaLabel = itemDescription ? `${itemLabel}: ${itemDescription}` : itemLabel;
+
+    const isActive =
+        item.href === "/"
+            ? normalizedPath === "/"
+            : normalizedPath.startsWith(item.href);
 
     return (
         <Link
@@ -71,9 +93,11 @@ const NavItem = ({
                 }
             `}
             aria-current={isActive ? 'page' : undefined}
-            title={item.description}
+            aria-label={itemAriaLabel}
+            title={itemDescription}
         >
-            <span className="relative z-10">{item.name}</span>
+            <span className="relative z-10">{itemLabel}</span>
+
             {!isMobile && (
                 <span
                     className={`
@@ -92,11 +116,11 @@ const NavItem = ({
     );
 };
 
-export default function Navbar() {
+export default function Navbar({ navLanguagePack }: { navLanguagePack: NavLanguagePack }) {
     const currentPath = usePathname();
     const disclosureButtonId = "main-nav-toggle";
     const disclosurePanelId = "main-nav-panel";
-    
+
     const navRef = useRef<HTMLElement>(null);
 
     return (
@@ -111,16 +135,16 @@ export default function Navbar() {
                 <>
                     <OutsideClickHandler open={open} close={close} containerRef={navRef} />
 
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mx-auto container px-4 sm:px-6 lg:px-8">
                         <div className="flex h-16 justify-between items-center">
                             {/* Logo/Brand */}
                             <div className="shrink-0 flex items-center">
                                 <Link
                                     href="/"
                                     className="font-extrabold text-xl text-blue-600 dark:text-cyan-400 hover:text-blue-700 dark:hover:text-cyan-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded"
-                                    aria-label="Shawkat Hossain Maruf - Home"
+                                    aria-label={`${navLanguagePack["top-text"]} - ${navLanguagePack.home}`}
                                 >
-                                    <span>SH MARUF</span>
+                                    <span>{navLanguagePack["top-text"]}</span>
                                 </Link>
                             </div>
 
@@ -131,10 +155,11 @@ export default function Navbar() {
                             >
                                 <ul className="flex space-x-1" role="menubar">
                                     {navigation.map((item) => (
-                                        <li key={item.name} role="none">
+                                        <li key={item.key} role="none">
                                             <NavItem
                                                 item={item}
                                                 currentPath={currentPath}
+                                                navLanguagePack={navLanguagePack}
                                             />
                                         </li>
                                     ))}
@@ -195,11 +220,12 @@ export default function Navbar() {
                                     >
                                         {navigation.map((item) => (
                                             <NavItem
-                                                key={item.name}
+                                                key={item.key}
                                                 item={item}
                                                 currentPath={currentPath}
                                                 isMobile={true}
                                                 onClose={close}
+                                                navLanguagePack={navLanguagePack}
                                             />
                                         ))}
                                     </nav>

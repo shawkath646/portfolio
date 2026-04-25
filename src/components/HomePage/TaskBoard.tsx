@@ -4,16 +4,16 @@ import { Patrick_Hand } from "next/font/google";
 import { motion, useAnimation , useInView } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
-
-
-// Sample tasks - could be fetched from an API in a real scenario
-const tasks = [
-  { id: 1, text: "Write documentation", priority: "high" },
-  { id: 2, text: "Fix navbar responsiveness", priority: "medium" },
-  { id: 3, text: "Contact the client", priority: "high" },
-  { id: 4, text: "Implement new API endpoints", priority: "medium" },
-  { id: 5, text: "Code the signup form", priority: "low" },
-];
+type TaskBoardLanguagePack = {
+  heading: string;
+  taskListAriaLabel: string;
+  priorities: {
+    high: string;
+    medium: string;
+    low: string;
+  };
+  tasks: Task[];
+};
 
 // Load font once
 const patrickHand = Patrick_Hand({ subsets: ["latin"], weight: "400" });
@@ -29,15 +29,15 @@ interface Task {
 const PRIORITY_MAP = {
   high: {
     class: "bg-red-400/20 border-red-500",
-    label: "High priority"
+    label: "high"
   },
   medium: {
     class: "bg-amber-400/20 border-amber-500",
-    label: "Medium priority"
+    label: "medium"
   },
   low: {
     class: "bg-green-400/20 border-green-500",
-    label: "Low priority"
+    label: "low"
   }
 };
 
@@ -45,11 +45,13 @@ const PRIORITY_MAP = {
 const TaskItem = ({ 
   task, 
   index,
-  prefersReducedMotion
+  prefersReducedMotion,
+  priorityLabel
 }: { 
   task: Task, 
   index: number,
-  prefersReducedMotion: boolean 
+  prefersReducedMotion: boolean,
+  priorityLabel: string,
 }) => {
   // Get priority color and label from the map
   const priority = PRIORITY_MAP[task.priority];
@@ -79,7 +81,7 @@ const TaskItem = ({
         bounce: 0.4
       }}
       whileHover={prefersReducedMotion ? {} : { x: 5, scale: 1.02 }}
-      aria-label={`${task.text} - ${priority.label}`}
+      aria-label={`${task.text} - ${priorityLabel}`}
     >
       <motion.span 
         className={`inline-block w-4 h-4 border-2 border-white rounded-sm ${priority.class}`}
@@ -103,15 +105,14 @@ const TaskItem = ({
   );
 };
 
-const TasksBoard = () => {
+const TasksBoard = ({ languagePack }: { languagePack: TaskBoardLanguagePack }) => {
   // Animation controls
   const controls = useAnimation();
   const prefersReducedMotion = useReducedMotion(controls);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
   
-  // Tasks with proper type
-  const typedTasks = tasks as Task[];
+  const typedTasks = languagePack.tasks;
   
   // Trigger animations when in view
   useEffect(() => {
@@ -166,20 +167,21 @@ const TasksBoard = () => {
           }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          NEXT TASKS
+          {languagePack.heading}
         </motion.h2>
       </div>
       
       <ul 
         className="space-y-4 pl-3 relative z-10"
-        aria-label="Task list"
+        aria-label={languagePack.taskListAriaLabel}
       >
         {typedTasks.map((task, idx) => (
           <TaskItem 
             key={task.id} 
             task={task} 
             index={idx}
-            prefersReducedMotion={prefersReducedMotion} 
+            prefersReducedMotion={prefersReducedMotion}
+            priorityLabel={languagePack.priorities[task.priority]}
           />
         ))}
       </ul>

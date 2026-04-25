@@ -40,7 +40,7 @@ export default async function Page() {
             aria-label="Security settings admin page content"
             className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-800 p-3 sm:p-4"
         >
-            <div className="container mx-auto max-w-7xl space-y-6">
+            <div className="container mx-auto space-y-6">
                 <SecurityHeader />
                 <AdminPassword />
                 {(passwordsData.passwordList && passwordsData.expiredCount !== undefined) ? (

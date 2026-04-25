@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
+
+const withMDX = createMDX({
+  extension: /\.mdx?$/,
+});
 
 const nextConfig: NextConfig = {
+  pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
   allowedDevOrigins: ["10.0.2.2"],
   reactStrictMode: true,
   reactCompiler: true,
@@ -39,6 +45,12 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
     qualities: [70, 75, 85],
   },
@@ -51,7 +63,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/share",
-        destination: "/contact/share",
+        destination: "/contact/share-files",
         permanent: true
       },
       {
@@ -63,4 +75,4 @@ const nextConfig: NextConfig = {
   }
 };
 
-export default nextConfig;
+export default withMDX(nextConfig);

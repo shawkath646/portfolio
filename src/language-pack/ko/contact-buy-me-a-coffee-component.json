@@ -1,0 +1,26 @@
+{
+    "heading": "커피 한 잔, 혹은 작은 응원 어떠세요?",
+    "intro": "제 작업이 도움이 되었다면 가상 커피, 작은 선물, 혹은 따뜻한 응원으로 힘을 보태주세요. 크고 작은 모든 응원이 더 좋은 결과물을 만드는 원동력이 됩니다. 진심으로 감사합니다!",
+    "supportOptionsAriaLabel": "응원 옵션",
+    "footerText": "여러분의 응원이 큰 힘이 됩니다. 정말 감사합니다!",
+    "options": {
+        "coffee": {
+            "title": "커피 사주기",
+            "description": "가상 커피 한 잔으로 창의적인 작업과 밤샘 코딩에 에너지를 더해 주세요!",
+            "buttonLabel": "☕ 커피 보내기",
+            "buttonAriaLabel": "커피 응원하기"
+        },
+        "gift": {
+            "title": "선물 보내기",
+            "description": "작은 선물로 감사의 마음을 전해 주세요. 여러분의 응원은 더 멋진 프로젝트를 만드는 동기입니다.",
+            "buttonLabel": "🎁 선물 보내기",
+            "buttonAriaLabel": "선물 보내기"
+        },
+        "love": {
+            "title": "응원 보내기",
+            "description": "제 작업이 도움이 되었다면 따뜻한 응원을 남겨 주세요. 큰 힘이 됩니다!",
+            "buttonLabel": "❤️ 응원 보내기",
+            "buttonAriaLabel": "응원하기"
+        }
+    }
+}

@@ -1,18 +1,38 @@
 "use server";
 import { cache } from "react";
+import { FieldPath, DocumentSnapshot } from "firebase-admin/firestore";
 import { db } from "@/lib/firebase";
 import {
     GalleryAlbumType,
     GalleryImageType,
-    GalleryImageItemType,
     GetAlbumsResponse,
     GetImagesResponse
 } from "@/types/gallery.types";
+import { applyStartAfterCursor, encodeCursor, getCursorPageNumber, getPreviousCursor } from "@/utils/cursor";
 import { timestampToDate } from "@/utils/dateTime";
 
-type GetAllAlbumsParams = {
-    page?: number;
-    limit?: number;
+const ALBUMS_PAGE_LIMIT = 18;
+const IMAGES_PAGE_LIMIT = 20;
+
+
+
+const getOrderedQuery = (collectionName: string) =>
+    db
+        .collection(collectionName)
+        .orderBy("timestamp", "desc")
+        .orderBy(FieldPath.documentId(), "desc");
+
+const normalizeImageData = (doc: DocumentSnapshot): GalleryImageType => {
+    const imageData = doc.data() as GalleryImageType;
+    
+    return {
+        ...imageData,
+        timestamp: timestampToDate(imageData.timestamp),
+        images: imageData.images.map(img => ({
+            ...img,
+            timestamp: timestampToDate(img.timestamp)
+        }))
+    };
 };
 
 const getUnknownAlbum = cache(async (): Promise<GalleryAlbumType> => {
@@ -42,57 +62,56 @@ const getUnknownAlbum = cache(async (): Promise<GalleryAlbumType> => {
 });
 
 export const getAllAlbums = cache(
-    async ({
-        page = 1,
-        limit = 15
-    }: GetAllAlbumsParams = {}): Promise<GetAlbumsResponse> => {
+    async (startAfter?: string): Promise<GetAlbumsResponse> => {
+        const baseQuery = getOrderedQuery("gallery-albums");
 
-        const pageNumber = Math.max(1, page);
-        const offset = (pageNumber - 1) * limit;
+        const [totalSnapshot, page, pagedSnapshot] = await Promise.all([
+            baseQuery.count().get(),
+            getCursorPageNumber(baseQuery, startAfter, ALBUMS_PAGE_LIMIT),
+            applyStartAfterCursor(baseQuery, startAfter)
+                .limit(ALBUMS_PAGE_LIMIT + 1)
+                .get(),
+        ]);
 
-        const baseQuery = db
-            .collection("gallery-albums")
-            .orderBy("timestamp", "desc");
+        const hasMore = pagedSnapshot.docs.length > ALBUMS_PAGE_LIMIT;
+        const docs = hasMore
+            ? pagedSnapshot.docs.slice(0, ALBUMS_PAGE_LIMIT)
+            : pagedSnapshot.docs;
 
-        const totalSnapshot = await baseQuery.count().get();
-        const totalItems = totalSnapshot.data().count;
-        const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
-
-        const snapshot = await baseQuery
-            .offset(offset)
-            .limit(limit + 1)
-            .get();
-
-        const docs = snapshot.docs;
-        const hasMore = docs.length > limit;
-
-        if (hasMore) {
-            docs.pop();
-        }
-
-        const albums = docs.map((doc) => {
+        const albums: GalleryAlbumType[] = docs.map((doc) => {
             const album = doc.data() as GalleryAlbumType;
             album.timestamp = timestampToDate(album.timestamp);
             return album;
         });
 
+        const unknownAlbum = !hasMore ? await getUnknownAlbum() : null;
+        const hasUnknown = (unknownAlbum?.imageCount ?? 0) > 0;
+        if (hasUnknown && unknownAlbum) albums.push(unknownAlbum);
 
+        const firestoreTotal = totalSnapshot.data().count;
+        const totalItems = firestoreTotal + (hasUnknown ? 1 : 0);
+        const totalPages = Math.max(1, Math.ceil(totalItems / ALBUMS_PAGE_LIMIT));
 
-        if (!hasMore) {
-            const unknownAlbum = await getUnknownAlbum();
+        const nextStartAfter =
+            hasMore && docs.length > 0
+                ? encodeCursor(docs[docs.length - 1])
+                : undefined;
 
-            if (unknownAlbum.imageCount > 0) {
-                albums.push();
-            }
-        }
+        const hasPrev = !!startAfter;
+        const prevStartAfter = hasPrev && pagedSnapshot.docs.length > 0
+            ? await getPreviousCursor(baseQuery, pagedSnapshot.docs[0], ALBUMS_PAGE_LIMIT)
+            : undefined;
 
         return {
             albums,
-            page: pageNumber,
-            limit,
+            limit: ALBUMS_PAGE_LIMIT,
             totalItems,
+            page,
             totalPages,
-            hasMore
+            hasMore,
+            hasPrev,
+            prevStartAfter,
+            nextStartAfter,
         };
     }
 );
@@ -182,24 +201,7 @@ export const getGallerySnapshot = cache(
             return data;
         });
 
-        const images: GalleryImageType[] = await Promise.all(
-            imageSnapshot.docs.map(async (doc) => {
-                const data = doc.data() as Omit<GalleryImageType, "images">;
-
-                data.timestamp = timestampToDate(data.timestamp);
-                data.createdAt = timestampToDate(data.createdAt);
-
-                const subDocsSnapshot = await doc.ref.collection("images").get();
-                const imageItems: GalleryImageItemType[] = subDocsSnapshot.docs.map(
-                    (subDoc) => subDoc.data() as GalleryImageItemType
-                );
-
-                return {
-                    ...data,
-                    images: imageItems,
-                } as GalleryImageType;
-            })
-        );
+        const images: GalleryImageType[] = imageSnapshot.docs.map(normalizeImageData);
 
         albums.push(await getUnknownAlbum());
 
@@ -224,20 +226,7 @@ export const getImageBySlug = cache(
 
         const doc = imageSnapshot.docs[0];
 
-        const imageData = doc.data() as Omit<GalleryImageType, "images">;
-
-        imageData.timestamp = timestampToDate(imageData.timestamp);
-        imageData.createdAt = timestampToDate(imageData.createdAt);
-
-        const subDocsSnapshot = await doc.ref.collection("images").get();
-        const imageItems: GalleryImageItemType[] = subDocsSnapshot.docs.map(
-            (subDoc) => subDoc.data() as GalleryImageItemType
-        );
-
-        return {
-            ...imageData,
-            images: imageItems,
-        } as GalleryImageType;
+        return normalizeImageData(doc);
     }
 );
 
@@ -247,20 +236,7 @@ export const getImageById = cache(
 
         if (!docSnapshot.exists) return null;
 
-        const imageData = docSnapshot.data() as Omit<GalleryImageType, "images">;
-
-        imageData.timestamp = timestampToDate(imageData.timestamp);
-        imageData.createdAt = timestampToDate(imageData.createdAt);
-
-        const subDocsSnapshot = await docSnapshot.ref.collection("images").get();
-        const imageItems: GalleryImageItemType[] = subDocsSnapshot.docs.map(
-            (subDoc) => subDoc.data() as GalleryImageItemType
-        );
-
-        return {
-            ...imageData,
-            images: imageItems,
-        } as GalleryImageType;
+        return normalizeImageData(docSnapshot);
     }
 );
 
@@ -269,26 +245,10 @@ export const getLatestGalleryImages = cache(
         const latestImagesSnapshot = await db
             .collection("gallery-images")
             .orderBy("timestamp", "desc")
-            .limit(15)
+            .limit(IMAGES_PAGE_LIMIT)
             .get();
 
-        const latestImages = await Promise.all(
-            latestImagesSnapshot.docs.map(async (doc) => {
-                const data = doc.data() as Omit<GalleryImageType, "images">;
-
-                const subDocsSnapshot = await doc.ref.collection("images").get();
-                const imageItems: GalleryImageItemType[] = subDocsSnapshot.docs.map(
-                    (subDoc) => subDoc.data() as GalleryImageItemType
-                );
-
-                return {
-                    ...data,
-                    images: imageItems,
-                    timestamp: timestampToDate(data.timestamp),
-                    createdAt: timestampToDate(data.createdAt),
-                } as GalleryImageType;
-            })
-        );
+        const latestImages = latestImagesSnapshot.docs.map(normalizeImageData);
 
         const albumIds = [
             ...new Set(
@@ -298,9 +258,8 @@ export const getLatestGalleryImages = cache(
             ),
         ];
 
-        const albumSnapshots = await Promise.all(
-            albumIds.map((id) => db.collection("gallery-albums").doc(id).get())
-        );
+        const refs = albumIds.map((id) => db.collection("gallery-albums").doc(id));
+        const albumSnapshots = await db.getAll(...refs);
 
         const albumSlugMap = new Map<string, string>();
 
@@ -320,67 +279,58 @@ export const getLatestGalleryImages = cache(
     }
 );
 
-type GetImagesParams = {
-    page?: number;
-    limit?: number;
-};
-
 export const getImageFromAlbum = cache(
     async (
         albumId: string | null,
-        { page = 1, limit = 20 }: GetImagesParams = {}
+        startAfter?: string
     ): Promise<GetImagesResponse> => {
-
-        const pageNumber = Math.max(1, page);
-        const offset = (pageNumber - 1) * limit;
-
         const normalizedAlbumId =
-            albumId === null || albumId === "unknown-album"
-                ? null
-                : albumId;
+            albumId === null || albumId === "unknown-album" ? null : albumId;
 
         const baseQuery = db
             .collection("gallery-images")
-            .where("albumId", "==", normalizedAlbumId);
-
-        const countSnapshot = await baseQuery.count().get();
-        const totalItems = countSnapshot.data().count;
-        const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
-
-        const snapshot = await baseQuery
+            .where("albumId", "==", normalizedAlbumId)
             .orderBy("timestamp", "desc")
-            .offset(offset)
-            .limit(limit + 1)
-            .get();
+            .orderBy(FieldPath.documentId(), "desc");
 
-        const hasMore = snapshot.docs.length > limit;
-        const docs = hasMore ? snapshot.docs.slice(0, limit) : snapshot.docs;
+        const [totalSnapshot, page, pagedSnapshot] = await Promise.all([
+            baseQuery.count().get(),
+            getCursorPageNumber(baseQuery, startAfter, IMAGES_PAGE_LIMIT),
+            applyStartAfterCursor(baseQuery, startAfter)
+                .limit(IMAGES_PAGE_LIMIT + 1)
+                .get(),
+        ]);
 
-        const images: GalleryImageType[] = await Promise.all(
-            docs.map(async (doc) => {
-                const data = doc.data() as Omit<GalleryImageType, "images">;
+        const hasMore = pagedSnapshot.docs.length > IMAGES_PAGE_LIMIT;
+        const docs = hasMore
+            ? pagedSnapshot.docs.slice(0, IMAGES_PAGE_LIMIT)
+            : pagedSnapshot.docs;
 
-                const subDocsSnapshot = await doc.ref.collection("images").get();
-                const imageItems: GalleryImageItemType[] = subDocsSnapshot.docs.map(
-                    (subDoc) => subDoc.data() as GalleryImageItemType
-                );
+        const images: GalleryImageType[] = docs.map(normalizeImageData);
 
-                return {
-                    ...data,
-                    images: imageItems,
-                    timestamp: timestampToDate(data.timestamp),
-                    createdAt: timestampToDate(data.createdAt)
-                } as GalleryImageType;
-            })
-        );
+        const totalItems = totalSnapshot.data().count;
+        const totalPages = Math.max(1, Math.ceil(totalItems / IMAGES_PAGE_LIMIT));
+
+        const nextStartAfter =
+            hasMore && docs.length > 0
+                ? encodeCursor(docs[docs.length - 1])
+                : undefined;
+
+        const hasPrev = !!startAfter;
+        const prevStartAfter = hasPrev && pagedSnapshot.docs.length > 0
+            ? await getPreviousCursor(baseQuery, pagedSnapshot.docs[0], IMAGES_PAGE_LIMIT)
+            : undefined;
 
         return {
             images,
             hasMore,
             totalItems,
-            limit,
-            page: pageNumber,
-            totalPages
+            limit: IMAGES_PAGE_LIMIT,
+            page,
+            totalPages,
+            hasPrev,
+            prevStartAfter,
+            nextStartAfter,
         };
     }
 );
@@ -398,27 +348,11 @@ export const getAlbumPreviewImages = cache(
 
         const imageMap = new Map<string, GalleryImageType>();
 
-        await Promise.all(
-            snapshots.map(async (doc) => {
-                if (!doc.exists) return;
-
-                const data = doc.data() as Omit<GalleryImageType, "images">;
-
-                const subDocsSnapshot = await doc.ref.collection("images").get();
-                const imageItems: GalleryImageItemType[] = subDocsSnapshot.docs.map(
-                    (subDoc) => subDoc.data() as GalleryImageItemType
-                );
-
-                const fullImage: GalleryImageType = {
-                    ...data,
-                    images: imageItems,
-                    timestamp: timestampToDate(data.timestamp),
-                    createdAt: timestampToDate(data.createdAt),
-                };
-
-                imageMap.set(doc.id, fullImage);
-            })
-        );
+        snapshots.forEach((doc) => {
+            if (doc.exists) {
+                imageMap.set(doc.id, normalizeImageData(doc));
+            }
+        });
 
         return imageMap;
     }

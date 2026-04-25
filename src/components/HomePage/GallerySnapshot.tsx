@@ -8,9 +8,18 @@ import { GalleryImageType } from "@/types/gallery.types";
 
 interface GallerySnapshotProps {
   images: (GalleryImageType & { albumSlug: string })[];
+  languagePack: GallerySnapshotLanguagePack;
 }
 
-export default function GallerySnapshot({ images }: GallerySnapshotProps) {
+type GallerySnapshotLanguagePack = {
+  title: string;
+  description: string;
+  viewImagePrefix: string;
+  viewAllAriaLabel: string;
+  viewAllText: string;
+};
+
+export default function GallerySnapshot({ images, languagePack }: GallerySnapshotProps) {
   const displayImages = images.slice(0, 14);
 
   const containerVariants = {
@@ -73,11 +82,11 @@ export default function GallerySnapshot({ images }: GallerySnapshotProps) {
             id="gallery-snapshot-title"
             className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-white"
           >
-            Gallery Highlights
+            {languagePack.title}
           </h2>
         </div>
         <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-          A glimpse into my captured moments and creative photography
+          {languagePack.description}
         </p>
       </motion.header>
 
@@ -100,15 +109,19 @@ export default function GallerySnapshot({ images }: GallerySnapshotProps) {
               <Link
                 href={`/about/gallery/${image.albumSlug}/${image.slug}`}
                 className="block w-full h-full"
-                aria-label={`View ${image.title} in gallery`}
+                aria-label={`${languagePack.viewImagePrefix} ${image.title}`}
               >
                 <figure className="relative w-full h-full">
+                  {/* REPLACED `fill` WITH EXPLICIT DIMENSIONS
+              Added `w-full h-full` to className so it visually acts exactly like `fill` 
+            */}
                   <Image
                     src={image.images[0].src}
                     alt={image.alt || image.title}
-                    fill
+                    width={image.images[0].width || 800}   // Use your DB width, fallback to a sensible default
+                    height={image.images[0].height || 800} // Use your DB height, fallback to a sensible default
                     sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
 
                   {/* Gradient overlay on hover */}
@@ -130,7 +143,7 @@ export default function GallerySnapshot({ images }: GallerySnapshotProps) {
             </article>
           </motion.li>
         ))}
-
+        
         {/* View All Button as Grid Item */}
         <motion.li
           variants={itemVariants}
@@ -140,7 +153,7 @@ export default function GallerySnapshot({ images }: GallerySnapshotProps) {
           <Link
             href="/about/gallery"
             className="flex flex-col items-center justify-center w-full h-full p-4"
-            aria-label="View all gallery images"
+            aria-label={languagePack.viewAllAriaLabel}
           >
             {/* Circular Arrow Background */}
             <div className="relative mb-3" aria-hidden="true">
@@ -151,7 +164,7 @@ export default function GallerySnapshot({ images }: GallerySnapshotProps) {
 
             {/* Text */}
             <span className="text-white font-semibold text-sm sm:text-base text-center">
-              View All
+              {languagePack.viewAllText}
             </span>
           </Link>
         </motion.li>

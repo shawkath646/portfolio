@@ -1,0 +1,30 @@
+{
+    "title": "Order Now / Hire Me",
+    "whyMe": "Why Me?",
+    "reasonsAriaLabel": "Reasons to hire me",
+    "reasons": [
+        "Freelance / Remote working expert",
+        "4+ years of experience in software development",
+        "Pro-level structured code with easy readability",
+        "Worked on 10+ real-life, large-scale projects",
+        "Friendly and understands client needs",
+        "Works until client satisfaction is achieved"
+    ],
+    "platformsAriaLabel": "Contact platforms",
+    "directConnectTitle": "Quick Direct Connect",
+    "fastestBadge": "Fastest",
+    "fastestBadgeAriaLabel": "Fastest method",
+    "directConnectDescription": "Connect directly for instant response and a more personal collaboration experience.",
+    "telegramLabel": "Telegram",
+    "linkedInLabel": "LinkedIn",
+    "contactTelegramAriaLabel": "Contact me on Telegram",
+    "contactLinkedInAriaLabel": "Contact me on LinkedIn",
+    "platformsTitle": "Order via Platforms",
+    "trustedBadge": "Trusted",
+    "trustedBadgeAriaLabel": "Trusted platforms",
+    "platformsDescription": "Hire me securely through top freelancing platforms for extra peace of mind and buyer protection.",
+    "fiverrLabel": "Fiverr",
+    "upworkLabel": "Upwork",
+    "hireFiverrAriaLabel": "Hire me on Fiverr",
+    "hireUpworkAriaLabel": "Hire me on Upwork"
+}

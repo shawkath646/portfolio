@@ -1,3 +1,5 @@
+import { AccessScopeLabel } from "./genericAuth.types";
+
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export type PlatformType = "android" | "desktop" | "web";
@@ -36,5 +38,22 @@ export interface LifeEvent {
   id: string;
   title: string;
   desc: string;
+  timestamp: Date;
+}
+
+
+export interface PersonObj {
+  id: string;
+  name: string;
+  slug: string;
+  profile: string;
+  mdxUrl: string;
+  dateOfBirth: Date | null;
+  meetOn: Date;
+  leftOn: Date | null;
+  gender: "male" | "female" | "others";
+  relation: string[];
+  relatedTo: AccessScopeLabel;
+  isLoveTimeline: boolean;
   timestamp: Date;
 }

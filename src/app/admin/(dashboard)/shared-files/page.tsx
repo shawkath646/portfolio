@@ -25,7 +25,7 @@ export default async function SharedFilesPage(props: PageProps<'/admin/shared-fi
             aria-label="Shared files admin page content"
             className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800"
         >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <SharedFilesClient sharedFiles={sharedFiles} />
             </div>
         </main>

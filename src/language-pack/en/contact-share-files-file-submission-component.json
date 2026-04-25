@@ -1,0 +1,23 @@
+{
+    "senderNameRequiredWarning": "Please add sender name before uploading.",
+    "senderNamePlaceholder": "Sender name",
+    "globalNotePlaceholder": "Global note",
+    "statusHeader": "Upload Status",
+    "statusText": {
+        "pending": "Pending...",
+        "generatingUrl": "Generating URL...",
+        "uploading": "Uploading...",
+        "finalizing": "Finalizing...",
+        "completed": "Completed",
+        "error": "Failed"
+    },
+    "allUploadedTitle": "All Files Uploaded!",
+    "uploadedCountSingle": "1 file successfully uploaded",
+    "uploadedCountPlural": "{count} files successfully uploaded",
+    "adminPanelHint": "Files are now accessible from the admin panel",
+    "uploadMoreButton": "Upload More Files",
+    "uploadingButton": "Uploading...",
+    "uploadButtonSingle": "Upload 1 File",
+    "uploadButtonPlural": "Upload {count} Files",
+    "clearAllButton": "Clear All"
+}

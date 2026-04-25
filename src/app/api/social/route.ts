@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import getSocialLinks from "@/actions/dataFetch/getSocialLinks";
+import getSocialLinks from "@/actions/mixed/getSocialLinks";
 
 export async function GET(request: NextRequest) {
     try {

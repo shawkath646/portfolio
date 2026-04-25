@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState, forwardRef, useImperativeHandle } from "react";
 import Script from "next/script";
 
 declare global {
@@ -18,65 +18,57 @@ declare global {
 const googleRecaptchaSiteKey = process.env.NEXT_PUBLIC_GOOGLE_RECAPTCHA_SITE_KEY;
 if (!googleRecaptchaSiteKey) throw new Error("Error: Environment variable \"NEXT_PUBLIC_GOOGLE_RECAPTCHA_SITE_KEY\" is not defined");
 
+export interface RecaptchaV3Handle {
+    execute: () => Promise<string>;
+}
+
 type GoogleRecaptchaV3Props = {
     action: string;
-    onToken?: (token: string | null) => void;
-    trigger?: number;
     inputId?: string;
 };
 
-export default function RecaptchaV3Client({
-    action,
-    onToken,
-    trigger,
-    inputId = "recaptcha-token",
-}: GoogleRecaptchaV3Props) {
-    const [isLoaded, setIsLoaded] = useState(false);
-    const [token, setToken] = useState<string | null>(null);
+const RecaptchaV3Client = forwardRef<RecaptchaV3Handle, GoogleRecaptchaV3Props>(
+    ({ action, inputId = "recaptcha-token" }, ref) => {
+        const [token, setToken] = useState<string | null>(null);
+        const scriptSrc = `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey}`;
 
-    const scriptSrc = `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey}`;
-
-    const executeRecaptcha = useCallback(async () => {
-        if (!googleRecaptchaSiteKey) return;
-        if (!window.grecaptcha) return;
-
-        window.grecaptcha.ready(async () => {
-            try {
-                const nextToken = await window.grecaptcha?.execute(
-                    googleRecaptchaSiteKey,
-                    { action }
-                );
-
-                setToken(nextToken || null);
-                onToken?.(nextToken || null);
-            } catch (e) {
-                console.error("Recaptcha error", e);
-                setToken(null);
-                onToken?.(null);
-            }
-        });
-    }, [action, onToken]);
-
-    useEffect(() => {
-        if (isLoaded && typeof trigger === "number") {
-            void executeRecaptcha();
-        }
-    }, [action, executeRecaptcha, isLoaded, onToken, trigger]);
-
-
-    return (
-        <>
-            <Script
-                src={scriptSrc}
-                strategy="afterInteractive"
-                onLoad={() => {
-                    setIsLoaded(true);
-                    if (typeof trigger !== "number") {
-                        void executeRecaptcha();
+        useImperativeHandle(ref, () => ({
+            execute: () => {
+                return new Promise<string>((resolve, reject) => {
+                    if (!window.grecaptcha) {
+                        reject(new Error("reCAPTCHA script has not loaded yet."));
+                        return;
                     }
-                }}
-            />
-            <input type="hidden" name="recaptchaToken" id={inputId} value={token || ""} readOnly />
-        </>
-    );
-}
+
+                    window.grecaptcha.ready(async () => {
+                        try {
+                            const nextToken = await window.grecaptcha!.execute(
+                                googleRecaptchaSiteKey,
+                                { action }
+                            );
+                            setToken(nextToken);
+                            resolve(nextToken);
+                        } catch (e) {
+                            console.error("Recaptcha error", e);
+                            reject(e);
+                        }
+                    });
+                });
+            }
+        }), [action]);
+
+        return (
+            <>
+                <Script
+                    src={scriptSrc}
+                    strategy="afterInteractive"
+                />
+                <input type="hidden" name="recaptchaToken" id={inputId} value={token || ""} readOnly />
+            </>
+        );
+    }
+);
+
+RecaptchaV3Client.displayName = "RecaptchaV3Client";
+
+export default RecaptchaV3Client;

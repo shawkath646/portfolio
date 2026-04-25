@@ -18,8 +18,10 @@ export interface AdminDataType {
 const getAdminData = cache(async() => {
     const docRef = await db.collection("site-config").doc("admin-data").get();
     const adminData = docRef.data() as AdminDataType;
-    adminData.dateOfBirth = timestampToDate(adminData.dateOfBirth);
-    return adminData;
+    return {
+      ...adminData,
+      dateOfBirth: timestampToDate(adminData.dateOfBirth)
+    };
 });
 
 export default getAdminData;

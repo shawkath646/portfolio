@@ -36,7 +36,25 @@ const revealWord: Variants = {
     },
 };
 
-export default function EnhancedLanding() {
+type LandingLanguagePack = {
+    mainTitle: string;
+    bioItem1: string;
+    bioItem2: string;
+    bioItem3: string;
+    bioItem4: string;
+    skillItem1: string;
+    skillItem2: string;
+    skillItem3: string;
+    skillItem4: string;
+    skillItem5: string;
+    ctaDownloadCv: string;
+    ctaViewWorks: string;
+    scrollText: string;
+    profileImageAlt: string;
+    profileAriaLabel: string;
+};
+
+export default function EnhancedLanding({ languagePack }: { languagePack: LandingLanguagePack }) {
     const controls = useAnimation();
     const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -54,15 +72,27 @@ export default function EnhancedLanding() {
         if (inView) controls.start("visible");
     }, [controls, inView]);
 
-    const titleWords = "Shawkat Hossain Maruf".split(" ");
+    const {
+        mainTitle,
+        bioItem1,
+        bioItem2,
+        bioItem3,
+        bioItem4,
+        ctaDownloadCv: downloadCvText,
+        ctaViewWorks: viewWorksText,
+        scrollText,
+        profileImageAlt,
+        profileAriaLabel,
+    } = languagePack;
 
-    // Skill tags with different floating offsets
+    const titleWords = mainTitle.split(" ");
+
     const floatingItems = [
-        { icon: <FaCode />, text: "Full Stack", delay: 0 },
-        { icon: <FaAndroid />, text: "Android Dev", delay: 1.5 },
-        { icon: <FaBriefcase />, text: "4+ Years Exp", delay: 0.5 },
-        { icon: <FaProjectDiagram />, text: "10+ Projects", delay: 2 },
-        { icon: <FaGlobe />, text: "Remote Ready", delay: 1 },
+        { icon: <FaCode />, text: languagePack.skillItem1, delay: 0 },
+        { icon: <FaAndroid />, text: languagePack.skillItem2, delay: 1.5 },
+        { icon: <FaBriefcase />, text: languagePack.skillItem3, delay: 0.5 },
+        { icon: <FaProjectDiagram />, text: languagePack.skillItem4, delay: 2 },
+        { icon: <FaGlobe />, text: languagePack.skillItem5, delay: 1 },
     ];
 
     return (
@@ -103,7 +133,7 @@ export default function EnhancedLanding() {
                         src="/profile.jpg"
                         width={120}
                         height={120}
-                        alt="Shawkat Hossain Maruf"
+                        alt={profileImageAlt}
                         className="relative rounded-full border border-white/20 dark:border-white/10 shadow-2xl z-10"
                         priority
                     />
@@ -118,7 +148,7 @@ export default function EnhancedLanding() {
                 {/* Staggered Word Reveal Heading */}
                 <motion.h1
                     itemProp="name"
-                    aria-label="Shawkat Hossain Maruf"
+                    aria-label={profileAriaLabel}
                     className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white flex flex-wrap justify-center gap-x-4 gap-y-2 mb-6"
                     variants={revealWrapper}
                     initial="hidden"
@@ -157,7 +187,7 @@ export default function EnhancedLanding() {
                         <li className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
                                 <span className="text-blue-500 dark:text-cyan-400">✨</span>
-                                <span>Tech-minded explorer</span>
+                                <span>{bioItem1}</span>
                             </div>
                             {/* Separator moved INSIDE the li, hidden from screen readers */}
                             <span className="hidden sm:inline text-slate-300 dark:text-slate-700" aria-hidden="true">|</span>
@@ -167,7 +197,7 @@ export default function EnhancedLanding() {
                         <li className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
                                 <span className="text-green-500 dark:text-green-400">🌲</span>
-                                <span>Outdoor lover</span>
+                                <span>{bioItem2}</span>
                             </div>
                             <span className="hidden md:inline text-slate-300 dark:text-slate-700" aria-hidden="true">|</span>
                         </li>
@@ -179,7 +209,7 @@ export default function EnhancedLanding() {
                         <li className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
                                 <FaUserGraduate className="text-purple-500 dark:text-purple-400" />
-                                <span>CSE @ Sejong University</span>
+                                <span>{bioItem3}</span>
                             </div>
                             <span className="hidden sm:inline text-slate-300 dark:text-slate-700" aria-hidden="true">|</span>
                         </li>
@@ -187,7 +217,7 @@ export default function EnhancedLanding() {
                         {/* Item 4 (No trailing separator needed) */}
                         <li className="flex items-center gap-2">
                             <FaMapMarkerAlt className="text-rose-500 dark:text-rose-400" />
-                            <span>Seoul, South Korea</span>
+                            <span>{bioItem4}</span>
                         </li>
 
                     </ul>
@@ -232,14 +262,14 @@ export default function EnhancedLanding() {
                     >
                         <span className="absolute inset-0 bg-linear-to-r from-blue-600 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         <FaCloudDownloadAlt className="relative z-10 text-lg group-hover:text-white" />
-                        <span className="relative z-10 group-hover:text-white transition-colors duration-300">Download CV</span>
+                        <span className="relative z-10 group-hover:text-white transition-colors duration-300">{downloadCvText}</span>
                     </Link>
 
                     <Link
-                        href="/projects"
+                        href="/creations/projects"
                         className="group inline-flex items-center gap-2 px-8 py-3.5 bg-white/50 dark:bg-transparent text-slate-900 dark:text-white rounded-full font-bold text-sm sm:text-base border border-slate-300 dark:border-white/20 transition-all hover:border-blue-500 dark:hover:border-cyan-400 hover:bg-white dark:hover:bg-white/5"
                     >
-                        <span>View my works</span>
+                        <span>{viewWorksText}</span>
                         <IoIosArrowForward className="group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </motion.div>
@@ -253,7 +283,7 @@ export default function EnhancedLanding() {
                 transition={{ delay: 2, duration: 1 }}
                 className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 hover:opacity-100 transition-opacity"
             >
-                <span className="text-[10px] uppercase tracking-widest font-semibold text-slate-500 dark:text-slate-400">Scroll</span>
+                <span className="text-[10px] uppercase tracking-widest font-semibold text-slate-500 dark:text-slate-400">{scrollText}</span>
                 <motion.div
                     animate={{ y: [0, 8, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
