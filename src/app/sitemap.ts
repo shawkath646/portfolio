@@ -41,6 +41,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
                 },
             });
         });
+
+        alternateLanguages["x-default"] = new URL(`/en${route.path}`, appBaseUrl).toString();
     });
 
     return sitemapEntries;

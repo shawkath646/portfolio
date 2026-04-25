@@ -53,7 +53,7 @@ export default async function middleware(request: NextRequest) {
 
     newUrl.search = request.nextUrl.search;
 
-    return NextResponse.redirect(newUrl);
+    return NextResponse.redirect(newUrl, { status: 308 });
   }
 
   return NextResponse.next({

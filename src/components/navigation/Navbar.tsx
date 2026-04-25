@@ -57,6 +57,28 @@ export const normalizePath = (path: string): string => {
   return path;
 };
 
+const getLocaleFromPath = (path: string): string | null => {
+    const segments = path.split('/').filter(Boolean);
+
+    if (segments.length > 0 && isLocale(segments[0])) {
+        return segments[0];
+    }
+
+    return null;
+};
+
+const getLocalizedHref = (href: string, locale: string | null): string => {
+    if (!locale) {
+        return href;
+    }
+
+    if (href === "/") {
+        return `/${locale}`;
+    }
+
+    return `/${locale}${href}`;
+};
+
 const NavItem = ({
     item,
     currentPath,
@@ -71,6 +93,8 @@ const NavItem = ({
     navLanguagePack: NavLanguagePack;
 }) => {
     const normalizedPath = normalizePath(currentPath);
+    const currentLocale = getLocaleFromPath(currentPath);
+    const localizedHref = getLocalizedHref(item.href, currentLocale);
     const itemLabel = navLanguagePack[item.key] ?? item.key;
     const itemDescription = navLanguagePack[`${item.key}-desc`];
     const itemAriaLabel = itemDescription ? `${itemLabel}: ${itemDescription}` : itemLabel;
@@ -82,7 +106,7 @@ const NavItem = ({
 
     return (
         <Link
-            href={item.href}
+            href={localizedHref}
             onClick={onClose}
             className={`group relative rounded-md px-3 py-2 text-sm font-semibold transition-all duration-200
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2
@@ -118,6 +142,8 @@ const NavItem = ({
 
 export default function Navbar({ navLanguagePack }: { navLanguagePack: NavLanguagePack }) {
     const currentPath = usePathname();
+    const currentLocale = getLocaleFromPath(currentPath);
+    const brandHref = getLocalizedHref("/", currentLocale);
     const disclosureButtonId = "main-nav-toggle";
     const disclosurePanelId = "main-nav-panel";
 
@@ -140,7 +166,7 @@ export default function Navbar({ navLanguagePack }: { navLanguagePack: NavLangua
                             {/* Logo/Brand */}
                             <div className="shrink-0 flex items-center">
                                 <Link
-                                    href="/"
+                                    href={brandHref}
                                     className="font-extrabold text-xl text-blue-600 dark:text-cyan-400 hover:text-blue-700 dark:hover:text-cyan-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded"
                                     aria-label={`${navLanguagePack["top-text"]} - ${navLanguagePack.home}`}
                                 >
