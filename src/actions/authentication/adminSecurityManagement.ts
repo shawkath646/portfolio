@@ -129,7 +129,7 @@ export async function getLoginAttempts(): Promise<GetLoginAttemptsResponse> {
     const EXPIRY_MS = 5 * 60 * 1000;
 
     const attempts: GetLoginAttemptsResponse =
-        snapshot.docs.map((doc) => {
+        snapshot.docs.map((doc: any) => {
             const data = doc.data() as LoginAttemptRecord;
             const timestamp = timestampToDate(data.timestamp);
 

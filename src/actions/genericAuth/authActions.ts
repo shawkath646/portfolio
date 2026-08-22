@@ -51,7 +51,7 @@ export async function handleGenericLogin(
         const ref = doc.ref;
         let finalData: GenericAuthPasswordRecordType | null = null;
 
-        await db.runTransaction(async (tx) => {
+        await db.runTransaction(async (tx: any) => {
             const freshDoc = await tx.get(ref);
             const freshData = freshDoc.data() as GenericAuthPasswordRecordType;
 

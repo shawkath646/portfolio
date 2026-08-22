@@ -1,5 +1,6 @@
-import admin from "firebase-admin";
-import { FieldValue } from "firebase-admin/firestore";
+import { getApps, getApp, initializeApp, cert, ServiceAccount } from "firebase-admin/app";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 import { getEnv } from "@/utils/getEnv";
 
 export const firebaseConfig = {
@@ -18,14 +19,14 @@ export const firebaseConfig = {
     universe_domain: getEnv("FIREBASE_UNIVERSE_DOMAIN"),
 };
 
-const app = admin.apps.length
-    ? admin.app()
-    : admin.initializeApp({
-        credential: admin.credential.cert(firebaseConfig as admin.ServiceAccount),
+const app = getApps().length
+    ? getApp()
+    : initializeApp({
+        credential: cert(firebaseConfig as ServiceAccount),
         storageBucket: getEnv("FIREBASE_STORAGE_BUCKET")
     });
 
-const db = admin.firestore(app);
-const bucket = admin.storage(app).bucket(getEnv("FIREBASE_STORAGE_BUCKET"));
+const db = getFirestore(app);
+const bucket = getStorage(app).bucket(getEnv("FIREBASE_STORAGE_BUCKET"));
 
-export { admin, db, bucket, FieldValue };
+export { app as admin, db, bucket, FieldValue };

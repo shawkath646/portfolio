@@ -1,6 +1,6 @@
 "use server";
 
-import { messaging } from "firebase-admin";
+import { getMessaging, Message } from "firebase-admin/messaging";
 import { admin } from "@/lib/firebase";
 
 interface SendMessageProps {
@@ -28,7 +28,7 @@ export const sendNotificationToDevice = async (props: SendMessageProps) => {
     throw new Error("fcmToken must be a non-empty string.");
   }
 
-  const message: messaging.Message = {
+  const message: Message = {
     token: fcmToken,
     notification: {
       title,
@@ -61,7 +61,7 @@ export const sendNotificationToDevice = async (props: SendMessageProps) => {
   };
 
   try {
-    const messageId = await admin.messaging().send(message);
+    const messageId = await getMessaging(admin).send(message);
     return messageId;
   } catch {
     throw new Error("Failed to send notification.");

@@ -263,7 +263,7 @@ export async function updateImageAlbum(
     const imageRef = db.collection("gallery-images").doc(imageId);
     const newAlbumRef = db.collection("gallery-albums").doc(newAlbumId);
 
-    await db.runTransaction(async (tx) => {
+    await db.runTransaction(async (tx: any) => {
         const imageDoc = await tx.get(imageRef);
 
         if (!imageDoc.exists) {
