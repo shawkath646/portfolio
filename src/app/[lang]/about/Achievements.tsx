@@ -1,20 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { IconType } from "react-icons";
-import { useInView } from "react-intersection-observer";
-import { motion, useAnimation, Variants } from "framer-motion";
-import { 
-    FaTrophy, 
-    FaMedal, 
-    FaStar, 
-    FaAward, 
+import { motion, useAnimation, Variants, useInView } from "framer-motion";
+import {
+    FaTrophy,
+    FaMedal,
+    FaStar,
+    FaAward,
     FaCertificate,
     FaGraduationCap,
     FaCode,
     FaRocket
 } from "react-icons/fa";
-
 
 interface Achievement {
     id: string;
@@ -84,7 +82,6 @@ const achievements: Achievement[] = [
     }
 ];
 
-// Animation variants
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -97,8 +94,8 @@ const containerVariants: Variants = {
 };
 
 const cardVariants: Variants = {
-    hidden: { 
-        opacity: 0, 
+    hidden: {
+        opacity: 0,
         y: 50,
         scale: 0.9
     },
@@ -116,7 +113,7 @@ const cardVariants: Variants = {
 };
 
 const iconVariants: Variants = {
-    hidden: { 
+    hidden: {
         scale: 0,
         rotate: -180
     },
@@ -151,7 +148,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
         <motion.div
             variants={cardVariants}
             custom={index}
-            whileHover={{ 
+            whileHover={{
                 scale: 1.002,
                 transition: { duration: 0.2 }
             }}
@@ -186,7 +183,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
                 <h3 className="text-base font-bold text-gray-900 dark:text-white group-hover:text-transparent group-hover:bg-linear-to-r group-hover:from-blue-600 group-hover:to-purple-600 group-hover:bg-clip-text transition-all duration-300">
                     {achievement.title}
                 </h3>
-                
+
                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
                     {achievement.description}
                 </p>
@@ -207,9 +204,11 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
 
 export default function Achievements() {
     const controls = useAnimation();
-    const [ref, inView] = useInView({
-        triggerOnce: true,
-        threshold: 0.1
+
+    const ref = useRef(null);
+    const inView = useInView(ref, {
+        once: true,
+        amount: 0.1
     });
 
     useEffect(() => {
@@ -219,7 +218,7 @@ export default function Achievements() {
     }, [controls, inView]);
 
     return (
-        <section 
+        <section
             ref={ref}
             className="relative py-12 px-4 sm:px-6 lg:px-8 overflow-hidden"
             aria-labelledby="achievements-title"
@@ -259,23 +258,23 @@ export default function Achievements() {
                             <FaAward className="text-3xl text-yellow-500 dark:text-yellow-400" />
                         </motion.div>
                     </div>
-                    
-                    <h2 
+
+                    <h2
                         id="achievements-title"
                         className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mb-3"
                     >
-                        Achievements & 
+                        Achievements &
                         <span className="block mt-1 bg-linear-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
                             Milestones
                         </span>
                     </h2>
-                    
+
                     <p className="text-sm text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                         Key accomplishments and milestones in my journey as a developer and student
                     </p>
 
                     {/* Decorative line */}
-                    <motion.div 
+                    <motion.div
                         className="mt-4 h-0.5 w-20 mx-auto rounded-full bg-linear-to-r from-purple-500 via-pink-500 to-blue-500"
                         initial={{ scaleX: 0 }}
                         animate={controls}
@@ -296,9 +295,9 @@ export default function Achievements() {
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5"
                 >
                     {achievements.map((achievement, index) => (
-                        <AchievementCard 
-                            key={achievement.id} 
-                            achievement={achievement} 
+                        <AchievementCard
+                            key={achievement.id}
+                            achievement={achievement}
                             index={index}
                         />
                     ))}

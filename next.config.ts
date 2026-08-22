@@ -1,13 +1,7 @@
 import type { NextConfig } from "next";
-import createMDX from "@next/mdx";
-
-const withMDX = createMDX({
-  extension: /\.mdx?$/,
-});
 
 const nextConfig: NextConfig = {
-  pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
-  allowedDevOrigins: ["10.0.2.2"],
+  pageExtensions: ["js", "jsx", "ts", "tsx"],
   reactStrictMode: true,
   reactCompiler: true,
   experimental: {
@@ -60,19 +54,9 @@ const nextConfig: NextConfig = {
         source: "/index",
         destination: "/",
         permanent: true
-      },
-      {
-        source: "/share",
-        destination: "/contact/share-files",
-        permanent: true
-      },
-      {
-        source: "/about/gallery/sejong-university",
-        destination: "/about/gallery/alb-sejong-university",
-        permanent: true
       }
     ]
   }
 };
 
-export default withMDX(nextConfig);
+export default nextConfig;

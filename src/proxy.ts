@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleAdminRequest, handleClientApiRequest } from "@/actions/authentication/proxyHelperFunctions";
-import { isActiveFlag } from "@/lib/flags";
 import maintenanceHTML from "./data/maintenanceHTML";
 import { locales, getLocale } from "./lib/locale";
 
@@ -10,7 +9,7 @@ export default async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-url-path", pathname);
 
-  const isActive = await isActiveFlag();
+  const isActive = true;
 
   if (!isActive && pathname !== '/maintenance') {
     if (pathname.startsWith('/api/')) {

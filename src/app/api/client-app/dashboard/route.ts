@@ -4,7 +4,7 @@ import getAdminData from "@/actions/admin/getAdminData";
 export async function GET() {
     try {
         const adminData = await getAdminData();
-        adminData.profilePictureUrl = "/profile.jpg";
+        adminData.profilePictureUrl = "/avatar.png";
 
         return NextResponse.json({
             success: true,

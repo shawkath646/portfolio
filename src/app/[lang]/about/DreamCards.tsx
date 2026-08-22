@@ -1,13 +1,14 @@
 "use client";
 
-import { useInView } from 'react-intersection-observer';
-import { motion } from 'framer-motion';
+import { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { FaGlobeAmericas, FaLaptopCode, FaFeatherAlt } from 'react-icons/fa';
 
 export default function DreamCards() {
-    const { ref, inView } = useInView({
-        triggerOnce: true,
-        threshold: 0.1,
+    const ref = useRef(null);
+    const inView = useInView(ref, {
+        once: true,
+        amount: 0.1,
     });
 
     const goals = [
@@ -40,11 +41,11 @@ export default function DreamCards() {
     const headerVariants = {
         hidden: { opacity: 0, y: -30 },
         visible: {
-            opacity: 1, 
+            opacity: 1,
             y: 0,
-            transition: { 
-                duration: 0.7, 
-                type: "spring" as const 
+            transition: {
+                duration: 0.7,
+                type: "spring" as const
             }
         }
     };
@@ -59,15 +60,15 @@ export default function DreamCards() {
     };
 
     const cardVariants = {
-        hidden: { 
-            opacity: 0, 
-            y: 30 
+        hidden: {
+            opacity: 0,
+            y: 30
         },
-        visible: { 
-            opacity: 1, 
+        visible: {
+            opacity: 1,
             y: 0,
-            transition: { 
-                duration: 0.6, 
+            transition: {
+                duration: 0.6,
                 type: "spring" as const,
                 bounce: 0.3
             }
@@ -88,8 +89,8 @@ export default function DreamCards() {
     };
 
     return (
-        <section 
-            ref={ref} 
+        <section
+            ref={ref}
             className="container mx-auto py-16 px-4 relative z-10"
             aria-labelledby="dreams-heading"
         >
@@ -116,7 +117,7 @@ export default function DreamCards() {
                     </div>
                 </motion.div>
 
-                <motion.p 
+                <motion.p
                     className="text-base font-medium text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
                     initial={{ opacity: 0 }}
                     animate={inView ? { opacity: 1 } : { opacity: 0 }}
@@ -126,7 +127,7 @@ export default function DreamCards() {
                 </motion.p>
             </div>
 
-            <motion.div 
+            <motion.div
                 className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto"
                 variants={containerVariants}
                 initial="hidden"
@@ -141,8 +142,8 @@ export default function DreamCards() {
                     >
                         <div className="h-full relative p-5 rounded-2xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 group">
                             <div className={`absolute top-0 left-0 w-2 h-full bg-linear-to-b ${goal.color}`}></div>
-                            
-                            <motion.div 
+
+                            <motion.div
                                 className="mb-4 flex justify-center"
                                 variants={iconVariants}
                             >
@@ -157,7 +158,7 @@ export default function DreamCards() {
                                 </span>
                             </div>
 
-                            <h3 
+                            <h3
                                 id={goal.id}
                                 className="text-lg font-bold mb-3 text-center text-gray-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
                             >

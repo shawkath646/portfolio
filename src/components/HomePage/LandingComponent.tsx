@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useInView } from "react-intersection-observer";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useAnimation, Variants } from "framer-motion";
+import { motion, useAnimation, Variants, useInView } from "framer-motion";
 import {
     FaCode,
     FaAndroid,
@@ -17,7 +16,6 @@ import {
 } from "react-icons/fa";
 import { IoIosArrowForward, IoIosArrowDown } from "react-icons/io";
 
-// --- Premium "Mask Reveal" Text Animation ---
 const revealWrapper: Variants = {
     hidden: { opacity: 1 },
     visible: {
@@ -56,10 +54,15 @@ type LandingLanguagePack = {
 
 export default function EnhancedLanding({ languagePack }: { languagePack: LandingLanguagePack }) {
     const controls = useAnimation();
-    const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
+    
+    const ref = useRef(null);
+    const inView = useInView(ref, { 
+        once: true, 
+        amount: 0.1 
+    });
+    
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-    // Track mouse for the spotlight effect
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             setMousePos({ x: e.clientX, y: e.clientY });
@@ -101,7 +104,6 @@ export default function EnhancedLanding({ languagePack }: { languagePack: Landin
             ref={ref}
             className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden bg-slate-50 dark:bg-[#050B14]"
         >
-            {/* Interactive Mouse Spotlight Background */}
             <div
                 className="absolute inset-0 z-0 pointer-events-none transition-opacity duration-300"
                 style={{
@@ -109,7 +111,6 @@ export default function EnhancedLanding({ languagePack }: { languagePack: Landin
                 }}
             />
 
-            {/* Ambient Base Gradients */}
             <div className="absolute inset-0 z-0 pointer-events-none opacity-40 dark:opacity-20">
                 <div className="absolute top-[-10%] left-[-10%] w-125 h-125 rounded-full bg-blue-400 blur-[120px]" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-150 h-150 rounded-full bg-cyan-300 blur-[150px]" />
@@ -120,7 +121,6 @@ export default function EnhancedLanding({ languagePack }: { languagePack: Landin
                 itemType="https://schema.org/Person"
                 className="relative z-10 w-full max-w-5xl px-6 flex flex-col items-center text-center mt-12"
             >
-                {/* Profile Badge */}
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -130,7 +130,7 @@ export default function EnhancedLanding({ languagePack }: { languagePack: Landin
                     <div className="absolute inset-0 rounded-full bg-linear-to-r from-blue-500 to-cyan-400 blur-xl opacity-40 group-hover:opacity-60 transition duration-500" />
                     <Image
                         itemProp="image"
-                        src="/profile.jpg"
+                        src="/avatar.png"
                         width={120}
                         height={120}
                         alt={profileImageAlt}
@@ -276,7 +276,6 @@ export default function EnhancedLanding({ languagePack }: { languagePack: Landin
 
             </div>
 
-            {/* Scroll Indicator */}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

@@ -1,7 +1,7 @@
 "use client";
 
-import { useInView } from "react-intersection-observer";
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 
 const timeline = [
     {
@@ -43,9 +43,11 @@ const timeline = [
 ];
 
 export default function EducationFlowChart() {
-    const { ref, inView } = useInView({
-        triggerOnce: true,
-        threshold: 0.1,
+
+    const ref = useRef(null);
+    const inView = useInView(ref, {
+        once: true,
+        amount: 0.1,
     });
 
     const headerVariants = {

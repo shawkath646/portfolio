@@ -30,13 +30,28 @@ export const getLocale = (request: NextRequest): Locale => {
 };
 
 export async function getLanguagePack(
-    lang: string,
+    lang: Locale | string, 
     namespaces: string
 ) {
-    const selectedLocale: Locale = isLocale(lang) ? lang : defaultLocale;
-    const results = await import(`@/language-pack/${selectedLocale}/${namespaces}.json`)
-        .then((m) => m.default)
-        .catch(() => ({}))
+    const selectedLocale: Locale = isLocale(lang) ? (lang as Locale) : defaultLocale;
 
-    return results;
+    try {
+        const langPack = await import(`@/language-pack/${selectedLocale}/${namespaces}.json`);
+        return langPack.default;
+        
+    } catch {         
+        if (selectedLocale === defaultLocale) {
+            throw new Error(`CRITICAL: Default language pack missing. Could not find "${defaultLocale}/${namespaces}.json".`);
+        }
+
+        console.warn(`Language pack missing for "${selectedLocale}/${namespaces}". Falling back to default "${defaultLocale}".`);
+        
+        try {
+            const fallbackPack = await import(`@/language-pack/${defaultLocale}/${namespaces}.json`);
+            return fallbackPack.default;
+            
+        } catch {
+            throw new Error(`CRITICAL: Both requested ("${selectedLocale}") and fallback ("${defaultLocale}") language packs missing for namespace "${namespaces}".`);
+        }
+    }
 }

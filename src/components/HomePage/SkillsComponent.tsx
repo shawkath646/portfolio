@@ -1,13 +1,11 @@
 "use client";
-import React, { memo, useEffect } from "react";
-import { useInView } from "react-intersection-observer";
-import { motion, Variants, useAnimation } from "framer-motion";
+import React, { memo, useEffect, useRef } from "react";
+import { motion, Variants, useAnimation, useInView } from "framer-motion";
 import { FaCode, FaAndroid, FaChartBar, FaVuejs, FaJava, FaChartLine } from "react-icons/fa";
 import { SiReact, SiNextdotjs, SiBootstrap, SiTailwindcss, SiNodedotjs, SiExpress, SiFirebase, SiMongodb, SiPython, SiPandas, SiNumpy, SiJupyter, SiScikitlearn } from "react-icons/si";
 import { TbBrandReactNative } from "react-icons/tb";
 import useReducedMotion from "@/hooks/useReducedMotion";
 
-// Type definitions for improved type safety
 type SkillLeaf = {
   label: string;
   icon: React.ReactNode;
@@ -68,7 +66,6 @@ const SkillItem = memo(({ leaf, index, skillAriaPrefix }: { leaf: SkillLeaf; ind
 });
 SkillItem.displayName = 'SkillItem';
 
-// Memoized skill branch component for better performance
 const SkillBranchComponent = memo(({ branch, skillsInPrefix, skillAriaPrefix }: {
   branch: SkillBranch;
   skillsInPrefix: string;
@@ -109,7 +106,6 @@ const SkillBranchComponent = memo(({ branch, skillsInPrefix, skillAriaPrefix }: 
 });
 SkillBranchComponent.displayName = 'SkillBranchComponent';
 
-// Animation variants with performance optimizations
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
@@ -170,21 +166,19 @@ const itemVariants: Variants = {
 const SkillsComponent = memo(function SkillsComponent({ languagePack }: { languagePack: SkillsLanguagePack }) {
   // Set up intersection observer for lazy loading
   const controls = useAnimation();
-  const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.2,
-    rootMargin: "50px 0px"
-  });
+  const ref = useRef(null);
 
-  // State for loading  
-  // Use our custom hook for reduced motion preference
+    const inView = useInView(ref, { 
+        once: true, 
+        amount: 0.2,
+        margin: "50px 0px",
+    });
+
   const prefersReducedMotion = useReducedMotion(controls);
 
 
-  // Start animations when component comes into view
   useEffect(() => {
     if (inView && !prefersReducedMotion) {
-      // Add a small delay for smoother appearance after page load
       const timer = setTimeout(() => {
         controls.start("visible");
       }, 100);
