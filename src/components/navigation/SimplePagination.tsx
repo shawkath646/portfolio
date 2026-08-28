@@ -2,12 +2,6 @@ import Link from "next/link";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { getLanguagePack } from "@/lib/locale";
 
-type PaginationLanguagePack = {
-    navAriaLabel: string;
-    previous: string;
-    next: string;
-};
-
 type PaginationProps = {
     prevPage?: string;
     nextPage?: string;
@@ -25,7 +19,7 @@ export default async function SimplePagination({
     className = "",
     lang = "en",
 }: PaginationProps) {
-    const paginationLanguagePack: PaginationLanguagePack = await getLanguagePack(lang, "pagination-component");
+    const paginationLanguagePack = await getLanguagePack(lang, "pagination-component");
 
     return (
         <nav

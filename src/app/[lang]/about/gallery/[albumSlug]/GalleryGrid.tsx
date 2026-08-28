@@ -7,14 +7,16 @@ import { FaMapMarkerAlt, FaCalendar } from "react-icons/fa";
 import blurImagePlaceholder from "@/data/blurImagePlaceholder";
 import { GalleryImageType } from "@/types/gallery.types";
 import { formatDateTime } from "@/utils/dateTime";
+import type { Dictionary } from "@/types/dictionary.types";
 
 interface GalleryGridProps {
     albumName: string;
     albumSlug: string;
     images: GalleryImageType[];
+    languagePack?: Partial<Dictionary<"gallery-grid-component">>;
 }
 
-export default function GalleryGrid({ albumName, albumSlug, images }: GalleryGridProps) {
+export default function GalleryGrid({ albumName, albumSlug, images, languagePack = {} }: GalleryGridProps) {
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -43,7 +45,7 @@ export default function GalleryGrid({ albumName, albumSlug, images }: GalleryGri
             initial="hidden"
             animate="visible"
             className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3"
-            aria-label={`Photos from ${albumName} album`}
+            aria-label={languagePack.ariaLabel ? languagePack.ariaLabel.replace('{albumName}', albumName) : `Photos from ${albumName} album`}
         >
             {images.map((image) => (
                 <motion.article key={image.id} variants={itemVariants} className="group relative">

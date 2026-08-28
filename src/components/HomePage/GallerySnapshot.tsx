@@ -4,20 +4,12 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { FiArrowRight, FiCamera } from "react-icons/fi";
 import { GalleryImageType } from "@/types/gallery.types";
-
+import type { Dictionary } from "@/types/dictionary.types";
 
 interface GallerySnapshotProps {
   images: (GalleryImageType & { albumSlug: string })[];
-  languagePack: GallerySnapshotLanguagePack;
+  languagePack: Dictionary<"homepage-gallery-snapshot-component">;
 }
-
-type GallerySnapshotLanguagePack = {
-  title: string;
-  description: string;
-  viewImagePrefix: string;
-  viewAllAriaLabel: string;
-  viewAllText: string;
-};
 
 export default function GallerySnapshot({ images, languagePack }: GallerySnapshotProps) {
   const displayImages = images.slice(0, 14);

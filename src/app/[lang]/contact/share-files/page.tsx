@@ -2,31 +2,45 @@ import { Metadata } from "next";
 import { FiLock, FiUser, FiShare2 } from "react-icons/fi";
 import { getSelfSharedFiles } from "@/actions/share/getSharedFiles";
 import appBaseUrl from "@/data/appBaseUrl";
-import { getLanguagePack } from "@/lib/locale";
+import { locales, resolveLocale, getLanguagePack, defaultLocale } from "@/lib/locale";
 import FileSubmission from "./FileSubmission";
 import UserUploadsList from "./UserUploadsList";
 
+export async function generateMetadata(
+    { params }: { params: Promise<{ lang: string }> }
+): Promise<Metadata> {
+    const { lang } = await params;
+    const resolvedLang = resolveLocale(lang);
+    const dict = await getLanguagePack(resolvedLang, "contact-share-files-page");
 
-export const metadata: Metadata = {
-    title: "Share Files Securely",
-    description: "Easily and securely share documents, images, and media directly with Shawkat Hossain Maruf. Fast, secure file transfer with real-time progress tracking.",
-    keywords: [
-        "secure file drop",
-        "share files",
-        "send documents",
-        "client file upload",
-        "cloud transfer",
-        "portfolio contact",
-        "Shawkat Hossain Maruf"
-    ],
-    alternates: {
-        canonical: new URL("/contact/share-files", appBaseUrl),
-    },
-    robots: {
-        index: true,
-        follow: true
+    const languages: Record<string, string> = {};
+    for (const l of locales) {
+        languages[l] = new URL(`/${l}/contact/share-files`, appBaseUrl).toString();
     }
-};
+    languages["x-default"] = new URL(`/${defaultLocale}/contact/share-files`, appBaseUrl).toString();
+
+    return {
+        title: dict.metadataTitle,
+        description: dict.metadataDescription,
+        keywords: [
+            "secure file drop",
+            "share files",
+            "send documents",
+            "client file upload",
+            "cloud transfer",
+            "portfolio contact",
+            "Shawkat Hossain Maruf"
+        ],
+        alternates: {
+            canonical: new URL(`/${resolvedLang}/contact/share-files`, appBaseUrl),
+            languages,
+        },
+        robots: {
+            index: true,
+            follow: true
+        }
+    };
+}
 
 export default async function SharePage({
     params,
@@ -35,6 +49,7 @@ export default async function SharePage({
 }>) {
 
     const { lang } = await params;
+    const resolvedLang = resolveLocale(lang);
 
     const [
         selfSharedFiles,
@@ -43,9 +58,9 @@ export default async function SharePage({
         userUploadsLanguagePack,
     ] = await Promise.all([
         getSelfSharedFiles(),
-        getLanguagePack(lang, "contact-share-files-page"),
-        getLanguagePack(lang, "contact-share-files-file-submission-component"),
-        getLanguagePack(lang, "contact-share-files-user-uploads-list-component"),
+        getLanguagePack(resolvedLang, "contact-share-files-page"),
+        getLanguagePack(resolvedLang, "contact-share-files-file-submission-component"),
+        getLanguagePack(resolvedLang, "contact-share-files-user-uploads-list-component"),
     ]);
 
     return (

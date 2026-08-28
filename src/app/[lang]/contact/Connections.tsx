@@ -16,45 +16,10 @@ import {
     FaGlobeAmericas
 } from "react-icons/fa";
 import { RiKakaoTalkFill } from "react-icons/ri";
-
-type ContactItemText = {
-    name: string;
-    text: string;
-};
-
-type ConnectionsLanguagePack = {
-    heading: string;
-    subtitle: string;
-    categoriesAriaLabel: string;
-    footerText: string;
-    professional: {
-        title: string;
-        description: string;
-        linkedIn: ContactItemText;
-        github: ContactItemText;
-        email: ContactItemText;
-    };
-    messaging: {
-        title: string;
-        description: string;
-        facebook: ContactItemText;
-        messenger: ContactItemText;
-        kakaoTalk: ContactItemText;
-        telegram: ContactItemText;
-        whatsapp: ContactItemText;
-    };
-    social: {
-        title: string;
-        description: string;
-        facebook: ContactItemText;
-        youtube: ContactItemText;
-        instagram: ContactItemText;
-        tiktok: ContactItemText;
-    };
-};
+import type { Dictionary } from "@/types/dictionary.types";
 
 // Component for connections and contact methods
-export default function Connections({ languagePack }: { languagePack: ConnectionsLanguagePack }) {
+export default function Connections({ languagePack }: { languagePack: Dictionary<"contact-connections-component"> }) {
     const contactSections = [
         {
             title: languagePack.professional.title,

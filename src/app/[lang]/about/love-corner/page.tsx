@@ -5,6 +5,7 @@ import { getAuthSession } from "@/actions/authentication/authActions";
 import { getGenericAuthSession } from "@/actions/genericAuth/authActions";
 import RestrictedPageLogin from "@/components/RestrictedPageLogin";
 import appBaseUrl from "@/data/appBaseUrl";
+import { locales, resolveLocale, getLanguagePack, defaultLocale } from "@/lib/locale";
 import CharacterTimeline from "./CharacterTimeline";
 import LoveCornerHeader from "./LoveCornerHeader";
 import SideCharacters from "./SideCharacters";
@@ -27,39 +28,57 @@ const relationships = [
         name: "Sanjida Jahan Mridula",
         start: "2020-04-01",
         end: "2025-12-31",
-    }
+    },
 ];
 
-export const metadata: Metadata = {
-    title: 'Love Corner | Love and Its Impact on My Life',
-    description: 'Discover how love shaped the life of Shawkat Hossain Maruf (shawkath646), including relationship milestones, emotional growth, resilience, and personal transformation over time.',
-    keywords: [
-        'love corner',
-        'shawkath646 love life',
-        'love and life impact',
-        'relationship timeline',
-        'emotional growth journey',
-        'personal transformation',
-        'shawkat hossain maruf',
-        'love lessons',
-        'commitment and growth'
-    ],
-    alternates: {
-        canonical: new URL("/about/love-corner", appBaseUrl),
-    },
-    openGraph: {
-        title: 'Love Corner - Love and Its Impact on Shawkat Hossain Maruf',
-        description: 'A personal look at how love influenced shawkath646\'s life through relationships, emotional growth, and meaningful life lessons.',
-        type: 'website',
-    },
-    twitter: {
-        card: 'summary_large_image',
-        title: 'Love Corner - Love and Its Impact on My Life',
-        description: 'How love shaped shawkath646\'s life: relationship journey, growth, resilience, and lessons that changed me.',
-    },
-};
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+    const lang = await params.then((p) => p.lang);
+    const resolvedLocale = resolveLocale(lang);
+    const dict = await getLanguagePack(resolvedLocale, "about-love-corner-page");
 
-export default async function LoveCornerPage() {
+    const languages: Record<string, string> = {};
+    for (const l of locales) {
+        languages[l] = new URL(`/${l}/about/love-corner`, appBaseUrl).toString();
+    }
+    languages["x-default"] = new URL(`/${defaultLocale}/about/love-corner`, appBaseUrl).toString();
+
+    return {
+        title: dict.metadata?.title,
+        description: dict.metadata?.description,
+        keywords: dict.metadata?.keywords,
+        alternates: {
+            canonical: new URL(`/${resolvedLocale}/about/love-corner`, appBaseUrl),
+            languages,
+        },
+        openGraph: {
+            title: dict.metadata?.openGraph?.title,
+            description: dict.metadata?.openGraph?.description,
+            type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: dict.metadata?.twitter?.title,
+            description: dict.metadata?.twitter?.description,
+        },
+    };
+}
+
+export default async function LoveCornerPage({
+    params,
+}: {
+    params: Promise<{ lang: string }>;
+}) {
+    const lang = await params.then((p) => p.lang);
+    const resolvedLocale = resolveLocale(lang);
+    const [headerDict, timelineDict, sideCharDict] = await Promise.all([
+        getLanguagePack(resolvedLocale, "about-love-corner-header-component"),
+        getLanguagePack(resolvedLocale, "about-character-timeline-component"),
+        getLanguagePack(resolvedLocale, "about-side-characters-component"),
+    ]);
 
     const [adminSession, genericSession] = await Promise.all([
         getAuthSession(),
@@ -107,12 +126,13 @@ export default async function LoveCornerPage() {
             </div>
 
             <div className="container relative z-10 mx-auto space-y-10">
-                <LoveCornerHeader />
+                <LoveCornerHeader languagePack={headerDict} />
                 <CharacterTimeline
                     dateOfBirth={adminData.dateOfBirth}
                     relationships={relationships}
+                    languagePack={timelineDict}
                 />
-                <SideCharacters />
+                <SideCharacters languagePack={sideCharDict} />
             </div>
         </main>
     );

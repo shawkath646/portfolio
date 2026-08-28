@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { FaMapMarkerAlt, FaCalendar } from "react-icons/fa";
 import { getAlbumBySlug, getImageBySlug } from "@/actions/gallery/getGalleryData";
 import appBaseUrl from "@/data/appBaseUrl";
+import { defaultLocale, getLanguagePack, locales, resolveLocale } from "@/lib/locale";
 import { formatDateTime } from "@/utils/dateTime";
 import GalleryImageViewer from "./GalleryImageViewer";
 
@@ -11,7 +12,8 @@ import GalleryImageViewer from "./GalleryImageViewer";
 export async function generateMetadata(
     { params }: PageProps<'/[lang]/about/gallery/[albumSlug]/[imageSlug]'>
 ): Promise<Metadata> {
-    const { albumSlug, imageSlug } = await params;
+    const { albumSlug, imageSlug, lang: paramsLang } = await params;
+    const lang = resolveLocale(paramsLang);
 
     const albumDetails = await getAlbumBySlug(albumSlug);
     const imageRecord = await getImageBySlug(imageSlug);
@@ -31,6 +33,12 @@ export async function generateMetadata(
 
     const twImageMeta = imageRecord.images.map((img) => img.src);
 
+    const languages: Record<string, string> = {};
+    for (const l of locales) {
+        languages[l] = new URL(`/${l}/about/gallery/${albumSlug}/${imageSlug}`, appBaseUrl).toString();
+    }
+    languages["x-default"] = new URL(`/${defaultLocale}/about/gallery/${albumSlug}/${imageSlug}`, appBaseUrl).toString();
+
     return {
         title: `${imageRecord.title} - ${albumName}`,
         description:
@@ -49,7 +57,8 @@ export async function generateMetadata(
             images: twImageMeta,
         },
         alternates: {
-            canonical: new URL(`/about/gallery/${albumSlug}/${imageSlug}`, appBaseUrl),
+            canonical: new URL(`/${lang}/about/gallery/${albumSlug}/${imageSlug}`, appBaseUrl),
+            languages,
         },
         robots: {
             index: true,
@@ -67,7 +76,13 @@ export async function generateMetadata(
 }
 
 export default async function ImagePage({ params }: PageProps<'/[lang]/about/gallery/[albumSlug]/[imageSlug]'>) {
-    const { albumSlug, imageSlug } = await params;
+    const { albumSlug, imageSlug, lang: paramsLang } = await params;
+    const lang = resolveLocale(paramsLang);
+    const [dict, viewerLanguagePack] = await Promise.all([
+        getLanguagePack(lang, "gallery-image-page"),
+        getLanguagePack(lang, "gallery-image-viewer-component"),
+    ]);
+
     const albumDetails = await getAlbumBySlug(albumSlug);
     const imageRecord = await getImageBySlug(imageSlug);
 
@@ -80,11 +95,11 @@ export default async function ImagePage({ params }: PageProps<'/[lang]/about/gal
         return {
             "@context": "https://schema.org",
             "@type": "ImageObject",
-            "@id": `${appBaseUrl.origin}/about/gallery/${albumSlug}/${imageSlug}#image-${index}`,
+            "@id": `${appBaseUrl}/${lang}/about/gallery/${albumSlug}/${imageSlug}#image-${index}`,
             "name": isMainImage ? imageRecord.title : `${imageRecord.title} - Image ${index + 1}`,
             "description": imageRecord.description || `High-resolution photo from ${albumName} album`,
             "contentUrl": img.src,
-            "url": `${appBaseUrl.origin}/about/gallery/${albumSlug}/${imageSlug}`,
+            "url": `${appBaseUrl}/${lang}/about/gallery/${albumSlug}/${imageSlug}`,
             "thumbnailUrl": img.src,
             "width": img.width,
             "height": img.height,
@@ -92,21 +107,21 @@ export default async function ImagePage({ params }: PageProps<'/[lang]/about/gal
             "datePublished": imageRecord.timestamp.toISOString(),
             "author": {
                 "@type": "Person",
-                "@id": `${appBaseUrl.origin}/#person`,
+                "@id": `${appBaseUrl}/${lang}/#person`,
                 "name": "Shawkat Hossain Maruf",
-                "url": appBaseUrl.origin
+                "url": `${appBaseUrl}/${lang}`
             },
             "creator": {
                 "@type": "Person",
-                "@id": `${appBaseUrl.origin}/#person`
+                "@id": `${appBaseUrl}/${lang}/#person`
             },
             "copyrightHolder": {
                 "@type": "Person",
-                "@id": `${appBaseUrl.origin}/#person`
+                "@id": `${appBaseUrl}/${lang}/#person`
             },
             "copyrightYear": imageRecord.timestamp.getFullYear(),
             "license": "https://creativecommons.org/licenses/by-nc/4.0/",
-            "acquireLicensePage": `${appBaseUrl.origin}/contact`,
+            "acquireLicensePage": `${appBaseUrl}/${lang}/contact`,
 
             ...(imageRecord.location && {
                 "contentLocation": {
@@ -117,15 +132,15 @@ export default async function ImagePage({ params }: PageProps<'/[lang]/about/gal
 
             "isPartOf": {
                 "@type": "ImageGallery",
-                "@id": `${appBaseUrl.origin}/about/gallery/${albumSlug}#gallery`,
+                "@id": `${appBaseUrl}/${lang}/about/gallery/${albumSlug}#gallery`,
                 "name": albumName,
-                "url": `${appBaseUrl.origin}/about/gallery/${albumSlug}`
+                "url": `${appBaseUrl}/${lang}/about/gallery/${albumSlug}`
             },
 
             ...(isMainImage && {
                 "mainEntityOfPage": {
                     "@type": "WebPage",
-                    "@id": `${appBaseUrl.origin}/about/gallery/${albumSlug}/${imageSlug}`
+                    "@id": `${appBaseUrl}/${lang}/about/gallery/${albumSlug}/${imageSlug}`
                 }
             })
         };
@@ -143,7 +158,7 @@ export default async function ImagePage({ params }: PageProps<'/[lang]/about/gal
                 id="main-content"
                 tabIndex={-1}
                 role="main"
-                aria-label="Image details page content"
+                aria-label={dict.ariaLabel?.main}
                 className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 pt-24 pb-16 px-3 sm:px-4 lg:px-6 relative"
             >
                 {/* Animated Background Elements */}
@@ -177,6 +192,7 @@ export default async function ImagePage({ params }: PageProps<'/[lang]/about/gal
                                 <GalleryImageViewer
                                     images={imageRecord.images}
                                     altText={imageRecord.alt || imageRecord.title}
+                                    languagePack={viewerLanguagePack}
                                 />
                             </div>
                         </div>
@@ -186,10 +202,10 @@ export default async function ImagePage({ params }: PageProps<'/[lang]/about/gal
                             <dl className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 sm:p-8 space-y-6 lg:top-28">
                                 <div className="pb-6 border-b border-gray-200 dark:border-gray-700">
                                     <dt className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2 font-bold">
-                                        Description
+                                        {dict.labels?.description}
                                     </dt>
                                     <dd className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed wrap-break-word m-0">
-                                        {imageRecord.description || "No description provided"}
+                                        {imageRecord.description || (dict.emptyState?.description)}
                                     </dd>
                                 </div>
 
@@ -200,7 +216,7 @@ export default async function ImagePage({ params }: PageProps<'/[lang]/about/gal
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <dt className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
-                                                Location
+                                                {dict.labels?.location}
                                             </dt>
                                             <dd className="m-0">
                                                 <Link
@@ -223,7 +239,7 @@ export default async function ImagePage({ params }: PageProps<'/[lang]/about/gal
 
                                     <div className="flex-1 min-w-0">
                                         <dt className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
-                                            Date Captured
+                                            {dict.labels?.dateCaptured}
                                         </dt>
                                         <dd className="m-0">
                                             <time dateTime={imageRecord.timestamp.toISOString()} className="text-xs text-gray-900 dark:text-white">
@@ -236,7 +252,7 @@ export default async function ImagePage({ params }: PageProps<'/[lang]/about/gal
                                 {imageRecord.alt && (
                                     <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                                         <dt className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
-                                            Accessibility
+                                            {dict.labels?.accessibility}
                                         </dt>
                                         <dd className="text-sm text-gray-700 dark:text-gray-300 italic bg-gray-100 dark:bg-gray-700/50 rounded-lg p-3 m-0">
                                             “{imageRecord.alt}”

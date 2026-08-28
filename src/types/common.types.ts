@@ -48,6 +48,7 @@ export interface PersonObj {
   slug: string;
   profile: string;
   mdxUrl: string;
+  shortBio?: string;
   dateOfBirth: Date | null;
   meetOn: Date;
   leftOn: Date | null;

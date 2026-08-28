@@ -5,9 +5,11 @@ import { motion, Variants } from "motion/react";
 import { PiGenderIntersexBold, PiGenderFemaleBold, PiGenderMaleBold } from "react-icons/pi";
 import type { PersonObj } from "@/types/common.types";
 import PersonMeta from "./PersonMeta";
+import type { Dictionary } from "@/types/dictionary.types";
 
 interface ProfileHeaderProps {
     person: PersonObj;
+    languagePack: Dictionary<"person-page">;
 }
 
 const headerVariants: Variants = {
@@ -28,30 +30,30 @@ const childVariants: Variants = {
     visible: { opacity: 1, y: 0, transition: { duration: 0.44, ease: "easeOut" } },
 };
 
-function getGenderDetails(gender: PersonObj["gender"]) {
+function getGenderDetails(gender: PersonObj["gender"], languagePack: Dictionary<"person-page">) {
     if (gender === "male") {
         return {
-            label: "Male",
+            label: languagePack.genderMale,
             icon: PiGenderMaleBold,
         };
     }
 
     if (gender === "female") {
         return {
-            label: "Female",
+            label: languagePack.genderFemale,
             icon: PiGenderFemaleBold,
         };
     }
 
     return {
-        label: "Others",
+        label: languagePack.genderOthers,
         icon: PiGenderIntersexBold,
     };
 }
 
-export default function ProfileHeader({ person }: ProfileHeaderProps) {
+export default function ProfileHeader({ person, languagePack }: ProfileHeaderProps) {
     const isActive = person.leftOn === null;
-    const gender = getGenderDetails(person.gender);
+    const gender = getGenderDetails(person.gender, languagePack);
     const GenderIcon = gender.icon;
 
     return (
@@ -110,7 +112,7 @@ export default function ProfileHeader({ person }: ProfileHeaderProps) {
             </div>
 
             <motion.div variants={childVariants}>
-                <PersonMeta person={person} />
+                <PersonMeta person={person} languagePack={languagePack} />
             </motion.div>
         </motion.section>
     );

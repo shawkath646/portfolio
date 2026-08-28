@@ -1,0 +1,16 @@
+{
+  "title": "JavaScript Required",
+  "description": "This website requires JavaScript to function properly. Please enable JavaScript in your browser settings to access all features and content.",
+  "whyNeededTitle": "Why is JavaScript needed?",
+  "whyNeededDesc": "This portfolio uses modern web technologies including Next.js and React, which require JavaScript for interactive features, animations, and dynamic content loading.",
+  "howToEnableTitle": "How to enable JavaScript:",
+  "chromeEdge": "Chrome/Edge:",
+  "chromeEdgeSteps": "Settings → Privacy and Security → Site Settings → JavaScript → Enable",
+  "firefox": "Firefox:",
+  "firefoxType": "Type",
+  "firefoxAddressBar": "in the address bar → Search for",
+  "firefoxSetTrue": "→ Set to true",
+  "safari": "Safari:",
+  "safariSteps": "Preferences → Security → Enable JavaScript",
+  "footerNote": "After enabling JavaScript, please reload this page to continue."
+}

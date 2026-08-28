@@ -1,3 +1,8 @@
 {
-    "mainAriaLabel": "Contact page with various ways to connect and get in touch"
+    "mainAriaLabel": "Contact page with various ways to connect and get in touch",
+    "metaTitle": "Contact and Get in Touch",
+    "metaDescription": "Get in touch with Shawkat Hossain Maruf for web development projects, software engineering opportunities, collaborations, or networking. Available through LinkedIn, email, GitHub, and various messaging platforms.",
+    "metaKeywords": [
+        "contact"
+    ]
 }

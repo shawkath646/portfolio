@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { IconType } from "react-icons";
 import { motion, useAnimation, Variants, useInView } from "framer-motion";
+import type { Dictionary } from "@/types/dictionary.types";
 import {
     FaTrophy,
     FaMedal,
@@ -23,64 +24,6 @@ interface Achievement {
     color: string;
     category: "academic" | "professional" | "certification" | "project";
 }
-
-// Achievement data
-const achievements: Achievement[] = [
-    {
-        id: "1",
-        title: "Sejong University Admission",
-        description: "Admitted to Computer Science and Engineering program at Sejong University, Seoul",
-        date: "2023",
-        icon: FaGraduationCap,
-        color: "from-blue-500 to-cyan-500",
-        category: "academic"
-    },
-    {
-        id: "2",
-        title: "4+ Years of Development",
-        description: "Successfully completed numerous real-world projects spanning web and mobile development",
-        date: "2020 - Present",
-        icon: FaCode,
-        color: "from-purple-500 to-pink-500",
-        category: "professional"
-    },
-    {
-        id: "3",
-        title: "10+ Real-Life Projects",
-        description: "Designed and deployed production-ready applications serving real users",
-        date: "2020 - 2024",
-        icon: FaRocket,
-        color: "from-orange-500 to-red-500",
-        category: "project"
-    },
-    {
-        id: "4",
-        title: "Full Stack Mastery",
-        description: "Proficient in modern web technologies including Next.js, React, TypeScript, and Firebase",
-        date: "2022",
-        icon: FaStar,
-        color: "from-green-500 to-emerald-500",
-        category: "professional"
-    },
-    {
-        id: "5",
-        title: "Android Development",
-        description: "Built native Android applications with Kotlin and modern Android architecture",
-        date: "2021",
-        icon: FaMedal,
-        color: "from-indigo-500 to-blue-500",
-        category: "professional"
-    },
-    {
-        id: "6",
-        title: "Academic Excellence",
-        description: "Maintaining strong academic performance while building practical software solutions",
-        date: "2023 - Present",
-        icon: FaTrophy,
-        color: "from-yellow-500 to-amber-500",
-        category: "academic"
-    }
-];
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -202,7 +145,7 @@ function AchievementCard({ achievement, index }: { achievement: Achievement; ind
     );
 }
 
-export default function Achievements() {
+export default function Achievements({ languagePack }: { languagePack: Dictionary<"about-achievements-component"> }) {
     const controls = useAnimation();
 
     const ref = useRef(null);
@@ -216,6 +159,63 @@ export default function Achievements() {
             controls.start("visible");
         }
     }, [controls, inView]);
+
+    const achievements: Achievement[] = [
+        {
+            id: "1",
+            title: languagePack.achievement1Title || "Sejong University Admission",
+            description: languagePack.achievement1Description || "Admitted to Computer Science and Engineering program at Sejong University, Seoul",
+            date: languagePack.achievement1Date || "2023",
+            icon: FaGraduationCap,
+            color: "from-blue-500 to-cyan-500",
+            category: "academic"
+        },
+        {
+            id: "2",
+            title: languagePack.achievement2Title || "4+ Years of Development",
+            description: languagePack.achievement2Description || "Successfully completed numerous real-world projects spanning web and mobile development",
+            date: languagePack.achievement2Date || "2020 - Present",
+            icon: FaCode,
+            color: "from-purple-500 to-pink-500",
+            category: "professional"
+        },
+        {
+            id: "3",
+            title: languagePack.achievement3Title || "10+ Real-Life Projects",
+            description: languagePack.achievement3Description || "Designed and deployed production-ready applications serving real users",
+            date: languagePack.achievement3Date || "2020 - 2024",
+            icon: FaRocket,
+            color: "from-orange-500 to-red-500",
+            category: "project"
+        },
+        {
+            id: "4",
+            title: languagePack.achievement4Title || "Full Stack Mastery",
+            description: languagePack.achievement4Description || "Proficient in modern web technologies including Next.js, React, TypeScript, and Firebase",
+            date: languagePack.achievement4Date || "2022",
+            icon: FaStar,
+            color: "from-green-500 to-emerald-500",
+            category: "professional"
+        },
+        {
+            id: "5",
+            title: languagePack.achievement5Title || "Android Development",
+            description: languagePack.achievement5Description || "Built native Android applications with Kotlin and modern Android architecture",
+            date: languagePack.achievement5Date || "2021",
+            icon: FaMedal,
+            color: "from-indigo-500 to-blue-500",
+            category: "professional"
+        },
+        {
+            id: "6",
+            title: languagePack.achievement6Title || "Academic Excellence",
+            description: languagePack.achievement6Description || "Maintaining strong academic performance while building practical software solutions",
+            date: languagePack.achievement6Date || "2023 - Present",
+            icon: FaTrophy,
+            color: "from-yellow-500 to-amber-500",
+            category: "academic"
+        }
+    ];
 
     return (
         <section
@@ -263,14 +263,16 @@ export default function Achievements() {
                         id="achievements-title"
                         className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mb-3"
                     >
-                        Achievements &
-                        <span className="block mt-1 bg-linear-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
-                            Milestones
-                        </span>
+                        {languagePack.heading || "Achievements &"}
+                        {languagePack.headingHighlight && (
+                            <span className="block mt-1 bg-linear-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
+                                {languagePack.headingHighlight}
+                            </span>
+                        )}
                     </h2>
 
                     <p className="text-sm text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                        Key accomplishments and milestones in my journey as a developer and student
+                        {languagePack.subtitle || "Key accomplishments and milestones in my journey as a developer and student"}
                     </p>
 
                     {/* Decorative line */}
@@ -319,7 +321,7 @@ export default function Achievements() {
                     <div className="inline-flex items-center gap-2 mt-10 px-4 py-2 bg-linear-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-full">
                         <FaCertificate className="text-sm text-purple-600 dark:text-purple-400" />
                         <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">
-                            More achievements coming soon...
+                            {languagePack.moreAchievementsText || "More achievements coming soon..."}
                         </span>
                         <FaStar className="text-yellow-500 dark:text-yellow-400" />
                     </div>

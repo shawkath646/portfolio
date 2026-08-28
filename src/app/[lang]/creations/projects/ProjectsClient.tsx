@@ -4,6 +4,7 @@ import { motion, Variants } from 'framer-motion';
 import { FaUser, FaBriefcase, FaBook, FaHeart, FaRocket, FaFolder, FaCode } from 'react-icons/fa';
 import { ProjectType } from '@/types/creations.types';
 import ProjectCard from './ProjectCard';
+import type { Dictionary } from '@/types/dictionary.types';
 
 
 const categoryConfig = {
@@ -114,10 +115,12 @@ export default function ProjectsClient({
   projects,
   totalProjects,
   currentPage,
+  languagePack,
 }: {
   projects: ProjectType[];
   totalProjects: number;
   currentPage: number;
+  languagePack: Dictionary<"projects-client-component"> & { cardLanguagePack: Dictionary<"projects-card-component"> };
 }) {
   const projectsData = categorizeProjects(projects);
   const [selectedCategory, setSelectedCategory] = useState<keyof CategorizedProjects | 'All'>('All');
@@ -148,12 +151,11 @@ export default function ProjectsClient({
           </div>
 
           <h1 className="mb-3 text-2xl font-black leading-tight text-transparent bg-clip-text bg-linear-to-r from-blue-700 via-indigo-600 to-cyan-600 dark:from-blue-300 dark:via-indigo-300 dark:to-cyan-300 md:text-3xl lg:text-4xl">
-            Shawkat Hossain Maruf&apos;s Projects
+            {languagePack.heading}
           </h1>
 
           <p className="mx-auto max-w-3xl text-sm leading-relaxed text-gray-700 dark:text-gray-300 md:text-base">
-            Explore <strong>{totalProjects} open-source repositories</strong> on GitHub by <strong>shawkath646</strong> -
-            Full-stack developer specializing in React, Next.js, TypeScript, and mobile development
+            {languagePack.subtitlePart1} <strong>{totalProjects}</strong> {languagePack.subtitlePart2}
           </p>
         </div>
       </motion.header>
@@ -192,7 +194,7 @@ export default function ProjectsClient({
                 aria-label={`Filter by ${category} projects (${count} projects)`}
               >
                 <Icon className="text-base" aria-hidden="true" />
-                <span>{category}</span>
+                <span>{category === 'All' ? languagePack.filterAll : category === 'Public Release' ? languagePack.filterPublic : category === 'Personal' ? languagePack.filterPersonal : category === 'Client Work' ? languagePack.filterClientWork : category === 'Voluntary' ? languagePack.filterVoluntary : category === 'Assignments' ? languagePack.filterAssignments : languagePack.filterUncategorized}</span>
                 <span className={`
                     px-1.5 py-0.5 rounded-full text-xs font-bold
                     ${selectedCategory === category
@@ -220,7 +222,7 @@ export default function ProjectsClient({
       >
         {filteredProjects.length > 0 ? (
           filteredProjects.map((project: CategorizedProject & { category: string }) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard key={project.id} project={project} languagePack={languagePack.cardLanguagePack} />
           ))
         ) : (
           <motion.div
@@ -230,7 +232,7 @@ export default function ProjectsClient({
           >
             <FaFolder className="text-5xl text-gray-400 mx-auto mb-3" aria-hidden="true" />
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              No projects found in this category
+              {languagePack.noProjectsFound}
             </p>
           </motion.div>
         )}

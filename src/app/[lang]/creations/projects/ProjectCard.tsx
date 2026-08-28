@@ -54,7 +54,9 @@ const platformColors = {
         "bg-linear-to-br from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-500",
 };
 
-const ProjectCard = memo(({ project }: { project: ProjectType }) => {
+import type { Dictionary } from "@/types/dictionary.types";
+
+const ProjectCard = memo(({ project, languagePack }: { project: ProjectType; languagePack: Dictionary<"projects-card-component"> }) => {
     const langColor = project.language ? languageColors[project.language] : null;
 
     const ProjectIcon =
@@ -102,10 +104,10 @@ const ProjectCard = memo(({ project }: { project: ProjectType }) => {
                                 aria-hidden="true"
                                 title={
                                     project.platform === "web"
-                                        ? "Web Application"
+                                        ? languagePack.webApp
                                         : project.platform === "android"
-                                            ? "Android App"
-                                            : "Code Project"
+                                            ? languagePack.androidApp
+                                            : languagePack.codeProject
                                 }
                             />
                         </div>
@@ -118,7 +120,7 @@ const ProjectCard = memo(({ project }: { project: ProjectType }) => {
                             <div className="flex items-center gap-2">
                                 {project.archived && (
                                     <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded-full">
-                                        📦 Archived
+                                        📦 {languagePack.archived}
                                     </span>
                                 )}
 
@@ -132,7 +134,7 @@ const ProjectCard = memo(({ project }: { project: ProjectType }) => {
 
                     {/* Description */}
                     <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2 leading-relaxed h-18">
-                        {project.description || "No description provided"}
+                        {project.description || languagePack.noDescription}
                     </p>
 
                     {/* Topics */}
@@ -155,7 +157,7 @@ const ProjectCard = memo(({ project }: { project: ProjectType }) => {
 
                                 {extraTopics > 0 && (
                                     <span className="px-2.5 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                                        +{extraTopics} more
+                                        {languagePack.moreCount.replace('{count}', extraTopics.toString())}
                                     </span>
                                 )}
                             </div>

@@ -1,0 +1,19 @@
+{
+    "albumNotFound": "Album Not Found",
+    "noPhotosYet": "No Photos Yet",
+    "photoCount": "{count} photo/photos",
+    "pageLabel": "Page {current} of {total}",
+    "ariaLabel": {
+        "main": "Album page content"
+    },
+    "labels": {
+        "photo": "photo",
+        "photos": "photos",
+        "page": "Page",
+        "of": "of"
+    },
+    "emptyState": {
+        "title": "No Photos Yet",
+        "description": "This album doesn't have any photos yet."
+    }
+}

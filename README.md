@@ -409,7 +409,7 @@ Three special pages under `/about` require temporary password access:
 - Visitors need temporary password from admin
 - Passwords can have expiration dates and usage limits
 - Generate passwords from `/admin/security` panel
-- Beautiful login UI with CloudBurst Lab branding
+- Beautiful login UI with clouburstlab branding
 - SEO-friendly (search engines can index, but content requires login)
 - IP-based rate limiting and anti-spoofing protection
 
@@ -607,10 +607,10 @@ The project is compatible with any platform supporting Next.js:
 
 <div align="center">
 
-<img src="https://cloudburstlab.vercel.app/api/branding/logo?variant=transparent" alt="Cloudburst Lab" width="200" />
+<img src="https://cloudburstlab.vercel.app/api/branding/logo?variant=transparent" alt="clouburstlab" width="200" />
 
 
-**Cloudburst Lab** is a digital innovation studio focused on creating exceptional web and mobile applications. We specialize in modern JavaScript frameworks, cloud technologies, and user-centric design principles.
+**clouburstlab** is a digital innovation studio focused on creating exceptional web and mobile applications. We specialize in modern JavaScript frameworks, cloud technologies, and user-centric design principles.
 
 <br />
 

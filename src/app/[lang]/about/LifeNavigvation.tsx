@@ -3,18 +3,9 @@
 import Link from 'next/link';
 import { motion, Variants } from 'framer-motion';
 import { FiArrowUpRight, FiUser, FiHeart, FiUsers } from 'react-icons/fi';
+import type { Dictionary } from '@/types/dictionary.types';
 
-type LifeNavigationLanguagePack = {
-    heading: string;
-    description: string;
-    links: {
-        personalLife: string;
-        loveCorner: string;
-        friendsCorner: string;
-    };
-};
-
-const LifeNavigation = ({ languagePack }: { languagePack: LifeNavigationLanguagePack }) => {
+const LifeNavigation = ({ languagePack }: { languagePack: Dictionary<"about-life-navigation-component"> }) => {
     const containerVariants: Variants = {
         hidden: { opacity: 0, y: 15 },
         visible: {

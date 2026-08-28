@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import SimplePagination from '@/components/navigation/SimplePagination';
 import appBaseUrl from '@/data/appBaseUrl';
-import { getLanguagePack } from '@/lib/locale';
+import { locales, resolveLocale, getLanguagePack, defaultLocale } from '@/lib/locale';
 import Achievements from "./Achievements";
 import DreamCards from "./DreamCards";
 import EducationFlowChart from "./EducationFlowChart";
@@ -9,31 +9,35 @@ import GalleryNavigation from "./GalleryNavigation";
 import LifeNavigation from './LifeNavigvation';
 import WorkExperience from "./WorkExperience";
 
+export async function generateMetadata({
+  params,
+}: Readonly<{
+  params: Promise<{ lang: string }>;
+}>): Promise<Metadata> {
+  const { lang } = await params;
+  const locale = resolveLocale(lang);
+  const dict = await getLanguagePack(locale, "about-page");
 
-export const metadata: Metadata = {
-  title: "About me",
-  description: "Learn about Shawkat Hossain Maruf, a 20-year-old Computer Science student at Sejong University with a passion for software engineering, web development, and creating innovative solutions. Discover my academic journey, technical skills, work experience, and aspirations.",
-  keywords: [
-    "Shawkat Hossain Maruf",
-    "About Shawkat Hossain",
-    "Software Engineer",
-    "Web Developer",
-    "Sejong University",
-    "Computer Science Student",
-    "Developer Portfolio",
-    "Personal Journey",
-    "Tech Career",
-    "Student Developer",
-    "Software Development",
-  ],
-  alternates: {
-    canonical: new URL('/about', appBaseUrl),
-  },
-  pagination: {
-    previous: appBaseUrl,
-    next: new URL("/creations", appBaseUrl)
+  const languages: Record<string, string> = {};
+  for (const l of locales) {
+      languages[l] = new URL(`/${l}/about`, appBaseUrl).toString();
   }
-};
+  languages["x-default"] = new URL(`/${defaultLocale}/about`, appBaseUrl).toString();
+
+  return {
+    title: dict.metaTitle,
+    description: dict.metaDescription,
+    keywords: dict.metaKeywords,
+    alternates: {
+      canonical: new URL(`/${locale}/about`, appBaseUrl),
+      languages,
+    },
+    pagination: {
+      previous: new URL(`/${locale}`, appBaseUrl).toString(),
+      next: new URL(`/${locale}/creations`, appBaseUrl).toString()
+    }
+  };
+}
 
 export default async function About({
   params,
@@ -41,10 +45,20 @@ export default async function About({
   params: Promise<{ lang: string }>;
 }>) {
   const { lang } = await params;
-
-  const [lifeNavigationLanguagePack, galleryNavigationLanguagePack] = await Promise.all([
+  const [
+    lifeNavigationLanguagePack,
+    galleryNavigationLanguagePack,
+    dreamCardsLanguagePack,
+    achievementsLanguagePack,
+    educationLanguagePack,
+    workExperienceLanguagePack
+  ] = await Promise.all([
     getLanguagePack(lang, "about-life-navigation-component"),
     getLanguagePack(lang, "about-gallery-navigation-component"),
+    getLanguagePack(lang, "about-dream-cards-component"),
+    getLanguagePack(lang, "about-achievements-component"),
+    getLanguagePack(lang, "about-education-component"),
+    getLanguagePack(lang, "about-work-experience-component"),
   ]);
 
   return (
@@ -62,10 +76,10 @@ export default async function About({
 
       {/* Content with updated order */}
       <LifeNavigation languagePack={lifeNavigationLanguagePack} />
-      <DreamCards />
-      <EducationFlowChart />
-      <WorkExperience />
-      <Achievements />
+      <DreamCards languagePack={dreamCardsLanguagePack} />
+      <EducationFlowChart languagePack={educationLanguagePack} />
+      <WorkExperience languagePack={workExperienceLanguagePack} />
+      <Achievements languagePack={achievementsLanguagePack} />
       <GalleryNavigation languagePack={galleryNavigationLanguagePack} />
 
       <SimplePagination

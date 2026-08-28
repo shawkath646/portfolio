@@ -2,12 +2,14 @@
 
 import { motion } from "motion/react";
 import { FiAlertCircle } from "react-icons/fi";
+import type { Dictionary } from "@/types/dictionary.types";
 
 interface ErrorFallbackProps {
     message: string;
+    languagePack?: Dictionary<"error-fallback-component">;
 }
 
-export default function ErrorFallback({ message }: ErrorFallbackProps) {
+export default function ErrorFallback({ message, languagePack }: ErrorFallbackProps) {
     return (
         <motion.section
             initial={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -22,7 +24,7 @@ export default function ErrorFallback({ message }: ErrorFallbackProps) {
                 <FiAlertCircle className="text-lg sm:text-xl" aria-hidden="true" />
             </div>
             <p className="flex-1 text-sm font-medium leading-relaxed">
-                Component Error: {message}
+                {languagePack?.componentErrorPrefix ?? "Component Error: "}{message}
             </p>
         </motion.section>
     );

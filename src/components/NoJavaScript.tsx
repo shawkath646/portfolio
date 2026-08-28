@@ -1,4 +1,8 @@
-export default function NoJavaScript() {
+import { getLanguagePack } from "@/lib/locale";
+
+export default async function NoJavaScript({ lang }: { lang: string }) {
+    const languagePack = await getLanguagePack<"no-javascript-component">(lang, "no-javascript-component");
+
     return (
         <noscript>
             <div style={{
@@ -70,7 +74,7 @@ export default function NoJavaScript() {
                             marginBottom: '1rem',
                             lineHeight: '1.2'
                         }}>
-                            JavaScript Required
+                            {languagePack.title}
                         </h1>
 
                         {/* Description */}
@@ -83,7 +87,7 @@ export default function NoJavaScript() {
                             marginLeft: 'auto',
                             marginRight: 'auto'
                         }}>
-                            This website requires JavaScript to function properly. Please enable JavaScript in your browser settings to access all features and content.
+                            {languagePack.description}
                         </p>
 
                         {/* Info box */}
@@ -126,14 +130,14 @@ export default function NoJavaScript() {
                                         fontWeight: '600',
                                         marginBottom: '0.5rem'
                                     }}>
-                                        Why is JavaScript needed?
+                                        {languagePack.whyNeededTitle}
                                     </p>
                                     <p style={{
                                         fontSize: '0.875rem',
                                         color: '#1e40af',
                                         lineHeight: '1.5'
                                     }}>
-                                        This portfolio uses modern web technologies including Next.js and React, which require JavaScript for interactive features, animations, and dynamic content loading.
+                                        {languagePack.whyNeededDesc}
                                     </p>
                                 </div>
                             </div>
@@ -153,7 +157,7 @@ export default function NoJavaScript() {
                                 color: '#1e293b',
                                 marginBottom: '1rem'
                             }}>
-                                How to enable JavaScript:
+                                {languagePack.howToEnableTitle}
                             </h2>
                             <ol style={{
                                 fontSize: '0.875rem',
@@ -163,25 +167,25 @@ export default function NoJavaScript() {
                                 margin: 0
                             }}>
                                 <li style={{ marginBottom: '0.5rem' }}>
-                                    <strong style={{ color: '#475569' }}>Chrome/Edge:</strong> Settings → Privacy and Security → Site Settings → JavaScript → Enable
+                                    <strong style={{ color: '#475569' }}>{languagePack.chromeEdge}</strong> {languagePack.chromeEdgeSteps}
                                 </li>
                                 <li style={{ marginBottom: '0.5rem' }}>
-                                    <strong style={{ color: '#475569' }}>Firefox:</strong> Type <code style={{ 
+                                    <strong style={{ color: '#475569' }}>{languagePack.firefox}</strong> {languagePack.firefoxType} <code style={{ 
                                         backgroundColor: '#e2e8f0',
                                         padding: '0.125rem 0.375rem',
                                         borderRadius: '0.25rem',
                                         fontFamily: 'monospace',
                                         fontSize: '0.8125rem'
-                                    }}>about:config</code> in the address bar → Search for <code style={{ 
+                                    }}>about:config</code> {languagePack.firefoxAddressBar} <code style={{ 
                                         backgroundColor: '#e2e8f0',
                                         padding: '0.125rem 0.375rem',
                                         borderRadius: '0.25rem',
                                         fontFamily: 'monospace',
                                         fontSize: '0.8125rem'
-                                    }}>javascript.enabled</code> → Set to true
+                                    }}>javascript.enabled</code> {languagePack.firefoxSetTrue}
                                 </li>
                                 <li>
-                                    <strong style={{ color: '#475569' }}>Safari:</strong> Preferences → Security → Enable JavaScript
+                                    <strong style={{ color: '#475569' }}>{languagePack.safari}</strong> {languagePack.safariSteps}
                                 </li>
                             </ol>
                         </div>
@@ -193,7 +197,7 @@ export default function NoJavaScript() {
                             marginTop: '2rem',
                             fontStyle: 'italic'
                         }}>
-                            After enabling JavaScript, please reload this page to continue.
+                            {languagePack.footerNote}
                         </p>
                     </div>
                 </div>

@@ -1,61 +1,16 @@
-import nextVitals from 'eslint-config-next/core-web-vitals'
-import nextTs from 'eslint-config-next/typescript'
-import importPlugin from 'eslint-plugin-import'
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 
-const lintConfig = [
-    ...nextVitals,
-    ...nextTs,
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+  ]),
+]);
 
-    {
-        ignores: [
-            '.next/**',
-            'out/**',
-            'build/**',
-            'next-env.d.ts',
-            'node_modules/**',
-            'server.js',
-        ],
-    },
-
-    {
-        plugins: {
-            import: importPlugin,
-        },
-        rules: {
-            '@typescript-eslint/no-unused-vars': 'warn',
-            'no-unused-vars': 'off',
-
-            'import/order': [
-                'warn',
-                {
-                    groups: [
-                        'builtin',
-                        'external',
-                        'internal',
-                        ['parent', 'sibling'],
-                        'index',
-                        'object',
-                        'type',
-                    ],
-                    pathGroups: [
-                        { pattern: 'react', group: 'external', position: 'before' },
-                        { pattern: 'react-**', group: 'external', position: 'before' },
-                        { pattern: 'next', group: 'external', position: 'before' },
-                        { pattern: 'next/**', group: 'external', position: 'before' },
-                        { pattern: '@/**', group: 'internal', position: 'after' },
-                    ],
-                    pathGroupsExcludedImportTypes: ['builtin'],
-                    'newlines-between': 'never',
-                    alphabetize: { order: 'asc', caseInsensitive: true },
-                    warnOnUnassignedImports: false,
-                },
-            ],
-
-            'import/first': 'error',
-            'import/newline-after-import': 'warn',
-            'import/no-duplicates': 'error',
-        },
-    },
-];
-
-export default lintConfig;
+export default eslintConfig;

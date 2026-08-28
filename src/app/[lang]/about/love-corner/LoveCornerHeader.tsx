@@ -1,8 +1,9 @@
 "use client";
 import { motion } from "motion/react";
 import { FiHeart } from "react-icons/fi";
+import type { Dictionary } from "@/types/dictionary.types";
 
-export default function LoveCornerHeader() {
+export default function LoveCornerHeader({ languagePack = {} }: { languagePack?: Partial<Dictionary<"about-love-corner-header-component">> }) {
 
     return (
         <motion.header
@@ -19,11 +20,11 @@ export default function LoveCornerHeader() {
                     <FiHeart className="text-xl text-white" />
                 </motion.div>
                 <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-gray-800 via-purple-800 to-pink-800 dark:from-white dark:via-purple-200 dark:to-pink-200 bg-clip-text text-transparent">
-                    Love Corner
+                    {languagePack.heading || "Love Corner"}
                 </h1>
             </div>
             <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed text-sm">
-                Love? Maybe it&apos;s blank or glitched on my destiny.
+                {languagePack.subtitle || "Love? Maybe it's blank or glitched on my destiny."}
             </p>
         </motion.header>
     );

@@ -35,6 +35,7 @@ export default function LoginWithDevices({ reachableDevices, redirectUrl }: Logi
     // Open modal when reachable devices are detected
      
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsOpen(reachableDevicesCount > 0);
     }, [reachableDevicesCount]);
 

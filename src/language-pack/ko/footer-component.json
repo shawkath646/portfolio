@@ -9,8 +9,8 @@
     "warningText": "⚠️ 작성자의 허락 없이 이미지나 콘텐츠를 복사하지 마세요. 이는 사이버 범죄로 간주될 수 있습니다!",
     "websiteBuiltByText": "웹사이트 제작",
     "copyrightText": "Copyright © {brandName} 2025 ~ {currentYear}. All rights reserved.",
-    "logoAlt": "Cloudburst Lab",
-    "brandName": "Cloudburst Lab",
+    "logoAlt": "clouburstlab",
+    "brandName": "clouburstlab",
     "quickLinks": {
         "adminPanel": "관리자 패널",
         "sitemap": "사이트맵",

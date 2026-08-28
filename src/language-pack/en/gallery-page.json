@@ -1,0 +1,10 @@
+{
+    "title": "Photo Gallery",
+    "description": "Explore my collection...",
+    "pageLabel": "Page {current} of {total}",
+    "metaTitle": "Photography Gallery",
+    "metaDescription": "Explore Shawkat Hossain Maruf's photo gallery.",
+    "mainAriaLabel": "Gallery page content",
+    "heroTitle": "Photo Gallery",
+    "heroSubtitle": "Explore my collection of captured moments, organized in albums"
+}

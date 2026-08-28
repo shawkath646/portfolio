@@ -6,15 +6,18 @@ import blurImagePlaceholder from "@/data/blurImagePlaceholder";
 import { GalleryImageItemType } from "@/types/gallery.types";
 import { formatDateTime } from "@/utils/dateTime";
 import { formatFileSize } from "@/utils/string";
+import type { Dictionary } from "@/types/dictionary.types";
 
 interface GalleryImageViewerProps {
     images: GalleryImageItemType[];
     altText: string;
+    languagePack?: Partial<Dictionary<"gallery-image-viewer-component">>;
 }
 
 export default function GalleryImageViewer({
     images,
     altText,
+    languagePack = {},
 }: GalleryImageViewerProps) {
     const [activeIndex, setActiveIndex] = useState(0);
 
@@ -60,21 +63,21 @@ export default function GalleryImageViewer({
             {/* NEW: Comprehensive Metadata Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/90 dark:bg-slate-900/80 px-4 py-3 text-xs shadow-sm">
                 <div className="flex flex-col space-y-1">
-                    <span className="font-semibold text-slate-500 dark:text-slate-400">Dimensions</span>
+                    <span className="font-semibold text-slate-500 dark:text-slate-400">{languagePack.dimensions || "Dimensions"}</span>
                     <span className="font-medium text-slate-900 dark:text-slate-100">
                         {activeWidth.toLocaleString()} x {activeHeight.toLocaleString()} px
                     </span>
                 </div>
                 
                 <div className="flex flex-col space-y-1">
-                    <span className="font-semibold text-slate-500 dark:text-slate-400">File Size</span>
+                    <span className="font-semibold text-slate-500 dark:text-slate-400">{languagePack.fileSize || "File Size"}</span>
                     <span className="font-medium text-slate-900 dark:text-slate-100">
                         {formatFileSize(activeImage?.size)}
                     </span>
                 </div>
 
                 <div className="flex flex-col space-y-1 col-span-2 sm:col-span-2">
-                    <span className="font-semibold text-slate-500 dark:text-slate-400">Date</span>
+                    <span className="font-semibold text-slate-500 dark:text-slate-400">{languagePack.date || "Date"}</span>
                     <span className="font-medium text-slate-900 dark:text-slate-100">
                         {formatDateTime(activeImage.timestamp)}
                     </span>
@@ -84,7 +87,7 @@ export default function GalleryImageViewer({
             {images.length > 1 && (
                 <div className="space-y-2">
                     <p className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                        Image Set ({images.length})
+                        {languagePack.imageSet || "Image Set"} ({images.length})
                     </p>
                     <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
                         {images.map((imageItem, index) => (

@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { FaBars } from "react-icons/fa";
 import { RxCross2 } from "react-icons/rx";
 import { isLocale } from "@/lib/locale";
+import type { Dictionary } from "@/types/dictionary.types";
 
 const navigation = [
     { key: "home", href: "/" },
@@ -18,7 +19,6 @@ const navigation = [
 
 type NavKey = (typeof navigation)[number]["key"];
 type NavItemConfig = (typeof navigation)[number];
-type NavLanguagePack = Partial<Record<NavKey | `${NavKey}-desc` | "top-text", string>>;
 
 const OutsideClickHandler = ({
     open,
@@ -90,14 +90,16 @@ const NavItem = ({
     currentPath: string;
     isMobile?: boolean;
     onClose?: () => void;
-    navLanguagePack: NavLanguagePack;
+    navLanguagePack: Dictionary<"navbar">;
 }) => {
     const normalizedPath = normalizePath(currentPath);
     const currentLocale = getLocaleFromPath(currentPath);
     const localizedHref = getLocalizedHref(item.href, currentLocale);
-    const itemLabel = navLanguagePack[item.key] ?? item.key;
-    const itemDescription = navLanguagePack[`${item.key}-desc`];
-    const itemAriaLabel = itemDescription ? `${itemLabel}: ${itemDescription}` : itemLabel;
+    
+    // Type assertion because key is dynamic, but we know it's one of the valid keys
+    const itemLabel = navLanguagePack[item.key as keyof Dictionary<"navbar">] ?? item.key;
+    const itemDescription = navLanguagePack[`${item.key}-desc` as keyof Dictionary<"navbar">];
+    const itemAriaLabel = itemDescription ? `${itemLabel}: ${itemDescription}` : itemLabel as string;
 
     const isActive =
         item.href === "/"
@@ -118,9 +120,9 @@ const NavItem = ({
             `}
             aria-current={isActive ? 'page' : undefined}
             aria-label={itemAriaLabel}
-            title={itemDescription}
+            title={itemDescription as string}
         >
-            <span className="relative z-10">{itemLabel}</span>
+            <span className="relative z-10">{itemLabel as string}</span>
 
             {!isMobile && (
                 <span
@@ -140,7 +142,7 @@ const NavItem = ({
     );
 };
 
-export default function Navbar({ navLanguagePack }: { navLanguagePack: NavLanguagePack }) {
+export default function Navbar({ navLanguagePack }: { navLanguagePack: Dictionary<"navbar"> }) {
     const currentPath = usePathname();
     const currentLocale = getLocaleFromPath(currentPath);
     const brandHref = getLocalizedHref("/", currentLocale);
@@ -155,7 +157,7 @@ export default function Navbar({ navLanguagePack }: { navLanguagePack: NavLangua
             ref={navRef}
             role="navigation"
             className="fixed left-0 top-0 w-full z-50 bg-white/70 dark:bg-[#0a192f]/80 backdrop-blur shadow-sm transition-all duration-300"
-            aria-label="Main navigation"
+            aria-label={navLanguagePack.mainNavigationAriaLabel}
         >
             {({ open, close }) => (
                 <>
@@ -176,7 +178,7 @@ export default function Navbar({ navLanguagePack }: { navLanguagePack: NavLangua
 
                             <nav
                                 className="hidden md:flex space-x-1"
-                                aria-label="Main menu"
+                                aria-label={navLanguagePack.mainMenuAriaLabel}
                                 role="navigation"
                             >
                                 <ul className="flex space-x-1" role="menubar">
@@ -195,7 +197,7 @@ export default function Navbar({ navLanguagePack }: { navLanguagePack: NavLangua
                                 <DisclosureButton
                                     id={disclosureButtonId}
                                     className="inline-flex items-center justify-center rounded-md p-2 text-gray-800 dark:text-gray-100 hover:bg-blue-100 dark:hover:bg-[#112240] focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors duration-200"
-                                    aria-label={open ? "Close main menu" : "Open main menu"}
+                                    aria-label={open ? navLanguagePack.closeMenuAriaLabel : navLanguagePack.openMenuAriaLabel}
                                     aria-expanded={open}
                                     aria-controls={disclosurePanelId}
                                 >
@@ -241,7 +243,7 @@ export default function Navbar({ navLanguagePack }: { navLanguagePack: NavLangua
                                 >
                                     <nav
                                         className="px-4 pt-2 pb-4 space-y-1"
-                                        aria-label="Mobile menu"
+                                        aria-label={navLanguagePack.mobileMenuAriaLabel}
                                         role="navigation"
                                     >
                                         {navigation.map((item) => (

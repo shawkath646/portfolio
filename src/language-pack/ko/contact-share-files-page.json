@@ -5,5 +5,7 @@
     "featuresAriaLabel": "업로드 기능",
     "featureSecureEncrypted": "안전한 암호화 전송",
     "featureMultiUpload": "여러 파일 업로드",
-    "featureMaxPerFile": "파일당 최대 500MB"
+    "featureMaxPerFile": "파일당 최대 500MB",
+    "metadataTitle": "Share Files Securely",
+    "metadataDescription": "Easily and securely share documents, images, and media directly with Shawkat Hossain Maruf. Fast, secure file transfer with real-time progress tracking."
 }

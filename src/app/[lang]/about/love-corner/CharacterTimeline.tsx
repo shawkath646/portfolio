@@ -36,9 +36,12 @@ type RelationshipMetrics = RelationshipSegment & {
     barColor: [string, string];
 };
 
+import type { Dictionary } from "@/types/dictionary.types";
+
 interface CharacterTimelineProps {
     dateOfBirth: Date;
     relationships: RelationshipSegment[];
+    languagePack?: Partial<Dictionary<"about-character-timeline-component">>;
 }
 
 interface TooltipState {
@@ -58,6 +61,7 @@ interface TimelineContainerProps {
     onOpenTooltip: (relationship: RelationshipMetrics, x: number, y: number) => void;
     onMoveTooltip: (x: number, y: number) => void;
     onCloseTooltip: () => void;
+    languagePack?: Partial<Dictionary<"about-character-timeline-component">>;
 }
 
 interface TimelineAxisProps {
@@ -81,6 +85,7 @@ interface RelationshipBarProps {
 
 interface FloatingTooltipProps {
     tooltip: TooltipState;
+    languagePack?: Partial<Dictionary<"about-character-timeline-component">>;
 }
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
@@ -92,7 +97,7 @@ const toStartOfDay = (dateValue: string | Date): Date => {
 };
 
 
-const formatDuration = (start: Date, end: Date) => {
+const formatDuration = (start: Date, end: Date, languagePack?: Partial<Dictionary<"about-character-timeline-component">>) => {
     let months = (end.getFullYear() - start.getFullYear()) * 12;
     months += end.getMonth() - start.getMonth();
 
@@ -105,18 +110,18 @@ const formatDuration = (start: Date, end: Date) => {
     const remainingMonths = normalizedMonths % 12;
 
     if (years === 0 && remainingMonths === 0) {
-        return "Less than 1 month";
+        return languagePack?.lessThanOneMonth || "Less than 1 month";
     }
 
     if (years > 0 && remainingMonths > 0) {
-        return `${years}y ${remainingMonths}m`;
+        return languagePack?.yearsAndMonths ? languagePack.yearsAndMonths.replace('{years}', years.toString()).replace('{months}', remainingMonths.toString()) : `${years}y ${remainingMonths}m`;
     }
 
     if (years > 0) {
-        return years === 1 ? "1 year" : `${years} years`;
+        return years === 1 ? (languagePack?.oneYear || "1 year") : (languagePack?.years ? languagePack.years.replace('{years}', years.toString()) : `${years} years`);
     }
 
-    return remainingMonths === 1 ? "1 month" : `${remainingMonths} months`;
+    return remainingMonths === 1 ? (languagePack?.oneMonth || "1 month") : (languagePack?.months ? languagePack.months.replace('{months}', remainingMonths.toString()) : `${remainingMonths} months`);
 };
 
 const getPositionPercent = (date: Date, start: Date, end: Date) => {
@@ -249,8 +254,8 @@ RelationshipBar.displayName = "RelationshipBar";
 const MemoRelationshipBar = memo(RelationshipBar);
 
 
-const FloatingTooltip = ({ tooltip }: FloatingTooltipProps) => {
-    const durationText = formatDuration(tooltip.relationship.startDate, tooltip.relationship.endDate);
+const FloatingTooltip = ({ tooltip, languagePack }: FloatingTooltipProps) => {
+    const durationText = formatDuration(tooltip.relationship.startDate, tooltip.relationship.endDate, languagePack);
 
     return (
         <motion.div
@@ -292,6 +297,7 @@ const TimelineContainer = ({
     onOpenTooltip,
     onMoveTooltip,
     onCloseTooltip,
+    languagePack,
 }: TimelineContainerProps) => {
     const rowHeight = 44;
     const rowStart = 10;
@@ -307,7 +313,7 @@ const TimelineContainer = ({
 
             <div className="relative z-10">
                 <div className="mb-6 flex items-center justify-between gap-3">
-                    <p className="text-xs uppercase tracking-[0.26em] text-rose-100/70">Love Timeline</p>
+                    <p className="text-xs uppercase tracking-[0.26em] text-rose-100/70">{languagePack?.loveTimeline || "Love Timeline"}</p>
                 </div>
 
                 <div className="custom-scrollbar overflow-x-hidden pb-4">
@@ -339,14 +345,14 @@ const TimelineContainer = ({
             </div>
 
             <AnimatePresence>
-                {tooltip && <FloatingTooltip tooltip={tooltip} />}
+                {tooltip && <FloatingTooltip tooltip={tooltip} languagePack={languagePack} />}
             </AnimatePresence>
         </section>
     );
 };
 
 
-export default function CharacterTimeline({ dateOfBirth, relationships }: CharacterTimelineProps) {
+export default function CharacterTimeline({ dateOfBirth, relationships, languagePack }: CharacterTimelineProps) {
     const [tooltip, setTooltip] = useState<TooltipState | null>(null);
     const shouldReduceMotion = useReducedMotion();
 
@@ -418,6 +424,7 @@ export default function CharacterTimeline({ dateOfBirth, relationships }: Charac
             onOpenTooltip={handleOpenTooltip}
             onMoveTooltip={handleMoveTooltip}
             onCloseTooltip={handleCloseTooltip}
+            languagePack={languagePack}
         />
     );
 }

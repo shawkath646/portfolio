@@ -144,7 +144,7 @@ export const deleteAlbum = async (
             const batch = db.batch();
             const chunk = docs.slice(i, i + 500);
 
-            chunk.forEach((doc: any) => {
+            chunk.forEach((doc) => {
                 batch.update(doc.ref, {
                     albumId: null,
                 });

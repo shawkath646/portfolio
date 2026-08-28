@@ -4,6 +4,7 @@ import { FiFolder } from "react-icons/fi";
 import { getAlbumBySlug, getImageFromAlbum } from "@/actions/gallery/getGalleryData";
 import SimplePagination from "@/components/navigation/SimplePagination";
 import appBaseUrl from "@/data/appBaseUrl";
+import { locales, resolveLocale, defaultLocale } from "@/lib/locale";
 import { buildCursorUrl } from "@/utils/cursor";
 import { formatDateTime } from "@/utils/dateTime";
 import { getSingleSearchParam } from "@/utils/string";
@@ -13,7 +14,8 @@ export async function generateMetadata(
     { params, searchParams }: PageProps<'/[lang]/about/gallery/[albumSlug]'>
 ): Promise<Metadata> {
 
-    const { albumSlug } = await params;
+    const { albumSlug, lang: rawLang } = await params;
+    const locale = resolveLocale(rawLang);
     const albumDetails = await getAlbumBySlug(albumSlug);
 
     if (!albumDetails) {
@@ -32,7 +34,7 @@ export async function generateMetadata(
 
     const imagesResponse = await getImageFromAlbum(albumDetails.id, startAfter);
 
-    const baseUrl = `/about/gallery/${albumSlug}`;
+    const baseUrl = `/${locale}/about/gallery/${albumSlug}`;
 
     const previous = buildCursorUrl(baseUrl, imagesResponse.prevStartAfter);
     const next = buildCursorUrl(baseUrl, imagesResponse.nextStartAfter);
@@ -41,6 +43,16 @@ export async function generateMetadata(
 
     const description = `View ${albumDetails.imageCount} ${albumDetails.imageCount === 1 ? "photo" : "photos"
         } from the ${albumDetails.name} album. Captured moments and memories from ${formatDateTime(albumDetails.timestamp)}.`;
+
+    const languages: Record<string, string> = {};
+    for (const l of locales) {
+        languages[l] = startAfter
+            ? new URL(`/${l}/about/gallery/${albumSlug}?startAfter=${startAfter}`, appBaseUrl).toString()
+            : new URL(`/${l}/about/gallery/${albumSlug}`, appBaseUrl).toString();
+    }
+    languages["x-default"] = startAfter
+        ? new URL(`/${defaultLocale}/about/gallery/${albumSlug}?startAfter=${startAfter}`, appBaseUrl).toString()
+        : new URL(`/${defaultLocale}/about/gallery/${albumSlug}`, appBaseUrl).toString();
 
     return {
         title,
@@ -56,6 +68,7 @@ export async function generateMetadata(
                 startAfter
                     ? new URL(`${baseUrl}?startAfter=${startAfter}`, appBaseUrl)
                     : new URL(baseUrl, appBaseUrl),
+            languages,
         },
 
         keywords: [

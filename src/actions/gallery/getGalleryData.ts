@@ -49,7 +49,7 @@ const getUnknownAlbum = cache(async (): Promise<GalleryAlbumType> => {
     const unknownCount = countSnapshot.data().count;
 
 
-    const previewImages = previewSnapshot.docs.map((doc: any) => doc.id);
+    const previewImages = previewSnapshot.docs.map((doc) => doc.id);
 
     return {
         id: "unknown-album",
@@ -78,7 +78,7 @@ export const getAllAlbums = cache(
             ? pagedSnapshot.docs.slice(0, ALBUMS_PAGE_LIMIT)
             : pagedSnapshot.docs;
 
-        const albums: GalleryAlbumType[] = docs.map((doc: any) => {
+        const albums: GalleryAlbumType[] = docs.map((doc) => {
             const album = doc.data() as GalleryAlbumType;
             album.timestamp = timestampToDate(album.timestamp);
             return album;
@@ -119,7 +119,7 @@ export const getAllAlbums = cache(
 export const getAdminAlbumsList = async (): Promise<GalleryAlbumType[]> => {
     const albumSnapshot = await db.collection("gallery-albums").orderBy("name", "asc").get();
 
-    const albums: GalleryAlbumType[] = albumSnapshot.docs.map((doc: any) => {
+    const albums: GalleryAlbumType[] = albumSnapshot.docs.map((doc) => {
         const album = doc.data() as GalleryAlbumType;
         album.timestamp = timestampToDate(album.timestamp);
 
@@ -194,7 +194,7 @@ export const getGallerySnapshot = cache(
             db.collection("gallery-images").get(),
         ]);
 
-        const albums: GalleryAlbumType[] = albumSnapshot.docs.map((doc: any) => {
+        const albums: GalleryAlbumType[] = albumSnapshot.docs.map((doc) => {
             const data = doc.data() as Omit<GalleryAlbumType, "images">;
             data.timestamp = timestampToDate(data.timestamp);
 
@@ -253,8 +253,8 @@ export const getLatestGalleryImages = cache(
         const albumIds = [
             ...new Set(
                 latestImages
-                    .map((img: any) => img.albumId)
-                    .filter((id: any): id is string => Boolean(id))
+                    .map((img) => img.albumId)
+                    .filter((id): id is string => Boolean(id))
             ),
         ];
 
@@ -263,14 +263,14 @@ export const getLatestGalleryImages = cache(
 
         const albumSlugMap = new Map<string, string>();
 
-        albumSnapshots.forEach((doc: any) => {
+        albumSnapshots.forEach((doc) => {
             if (doc.exists) {
                 const data = doc.data();
                 albumSlugMap.set(doc.id, data?.slug || "unknown-album");
             }
         });
 
-        return latestImages.map((img: any) => ({
+        return latestImages.map((img) => ({
             ...img,
             albumSlug: img.albumId
                 ? albumSlugMap.get(img.albumId) || "unknown-album"
@@ -348,7 +348,7 @@ export const getAlbumPreviewImages = cache(
 
         const imageMap = new Map<string, GalleryImageType>();
 
-        snapshots.forEach((doc: any) => {
+        snapshots.forEach((doc) => {
             if (doc.exists) {
                 imageMap.set(doc.id, normalizeImageData(doc));
             }

@@ -1,6 +1,7 @@
 "use client";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
+import type { Dictionary } from "@/types/dictionary.types";
 
 interface ContactFormValues {
     fullName: string;
@@ -9,33 +10,7 @@ interface ContactFormValues {
     message: string;
 }
 
-type ContactFormLanguagePack = {
-    sectionAriaLabel: string;
-    formAriaLabel: string;
-    heading: string;
-    fullNameLabel: string;
-    fullNamePlaceholder: string;
-    fullNameRequired: string;
-    fullNameMinLength: string;
-    emailLabel: string;
-    emailPlaceholder: string;
-    emailRequired: string;
-    emailInvalid: string;
-    subjectLabel: string;
-    subjectPlaceholder: string;
-    subjectRequired: string;
-    subjectMinLength: string;
-    messageLabel: string;
-    messagePlaceholder: string;
-    messageRequired: string;
-    messageMinLength: string;
-    messageMaxLength: string;
-    sendingLabel: string;
-    sendButtonLabel: string;
-    successMessage: string;
-};
-
-export default function ContactForm({ languagePack }: { languagePack: ContactFormLanguagePack }) {
+export default function ContactForm({ languagePack }: { languagePack: Dictionary<"contact-form-component"> }) {
     const {
         register,
         handleSubmit,

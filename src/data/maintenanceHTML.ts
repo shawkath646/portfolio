@@ -3,7 +3,7 @@ const maintenanceHTML = `<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Site Under Maintenance | Cloudburst Lab</title>
+    <title>Site Under Maintenance | clouburstlab</title>
     <style>
         :root { 
             --bg-color: #0f172a; 
@@ -63,13 +63,13 @@ const maintenanceHTML = `<!DOCTYPE html>
 </head>
 <body>
     <div class="maintenance-container">
-        <img src="https://cloudburstlab.vercel.app/api/branding/logo?varient=transparent" alt="Cloudburst Lab Logo" class="brand-logo">
+        <img src="https://cloudburstlab.vercel.app/api/branding/logo?varient=transparent" alt="clouburstlab Logo" class="brand-logo">
         
         <h1>System Under Maintenance</h1>
         <p>We're currently performing scheduled updates to improve our platform. Everything will be back online shortly. Thank you for your patience!</p>
                 
         <div class="footer">
-            Maintained by <strong>Cloudburst Lab</strong><br>
+            Maintained by <strong>clouburstlab</strong><br>
             Developer: @shawkath646
         </div>
     </div>

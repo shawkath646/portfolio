@@ -13,5 +13,19 @@
     "ctaViewWorks": "View my works",
     "scrollText": "Scroll",
     "profileImageAlt": "Portrait of Shawkat Hossain Maruf",
-    "profileAriaLabel": "Shawkat Hossain Maruf"
+    "profileAriaLabel": "Shawkat Hossain Maruf",
+    "metaTitle": "Shawkat Hossain Maruf - Full-Stack Developer & Software Engineer",
+    "metaDescription": "Full-stack developer and Computer Science student at Sejong University specializing in React, Next.js, TypeScript, and Android development. Building modern web applications and mobile solutions with cutting-edge technologies.",
+    "metaKeywords": [
+        "Shawkat Hossain Maruf",
+        "shawkath646",
+        "Full-Stack Developer",
+        "Software Engineer",
+        "React",
+        "Next.js",
+        "TypeScript",
+        "Android Developer",
+        "Sejong University",
+        "Web Development"
+    ]
 }

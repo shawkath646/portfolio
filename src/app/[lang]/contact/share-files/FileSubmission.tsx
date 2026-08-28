@@ -9,6 +9,7 @@ import { useToast } from "@/components/Toast";
 import getErrorMessage from "@/utils/getErrorMessage";
 import runWithConcurrency from "@/utils/runWithConcurrency";
 import { formatFileSize } from "@/utils/string";
+import type { Dictionary } from "@/types/dictionary.types";
 
 interface UploadProgress {
     fileId: string;
@@ -25,31 +26,7 @@ interface UploadProgress {
 const MAX_FILE_SIZE_MB = 500;
 const CONCURRENCY_LIMIT = 3;
 
-type FileSubmissionLanguagePack = {
-    senderNameRequiredWarning: string;
-    senderNamePlaceholder: string;
-    globalNotePlaceholder: string;
-    statusHeader: string;
-    statusText: {
-        pending: string;
-        generatingUrl: string;
-        uploading: string;
-        finalizing: string;
-        completed: string;
-        error: string;
-    };
-    allUploadedTitle: string;
-    uploadedCountSingle: string;
-    uploadedCountPlural: string;
-    adminPanelHint: string;
-    uploadMoreButton: string;
-    uploadingButton: string;
-    uploadButtonSingle: string;
-    uploadButtonPlural: string;
-    clearAllButton: string;
-};
-
-export default function FileSubmission({ languagePack }: { languagePack: FileSubmissionLanguagePack }) {
+export default function FileSubmission({ languagePack }: { languagePack: Dictionary<"contact-share-files-file-submission-component"> }) {
     const { InputCanvas, PreviewPane } = useEasyDragDrop();
     const [files, setFiles] = useState<FileObject[]>([]);
     const [globalNote, setGlobalNote] = useState("");

@@ -1,9 +1,5 @@
-"use server";
 import { cache } from "react";
 import appBaseUrl from "@/data/appBaseUrl";
-import { db } from "@/lib/firebase";
-import getSocialLinks from "./getSocialLinks";
-
 
 interface ImageObject {
   "@type": "ImageObject";
@@ -58,7 +54,7 @@ interface WebPage {
   "@id": string;
 }
 
-export interface PersonSchema {
+interface PersonSchema {
   "@type": "Person";
   "@id"?: string;
   name: string;
@@ -80,7 +76,7 @@ export interface PersonSchema {
   mainEntityOfPage?: WebPage;
 }
 
-export interface WebSiteSchema {
+interface WebSiteSchema {
   "@type": "WebSite";
   "@id": string;
   url: string;
@@ -90,50 +86,139 @@ export interface WebSiteSchema {
   };
 }
 
-export interface GraphSchema {
+interface GraphSchema {
   "@context": "https://schema.org";
   "@graph": [WebSiteSchema, PersonSchema];
 }
 
+const basePersonData: PersonSchema = {
+  "@type": "Person",
+  name: "Shawkat Hossain Maruf",
+  alternateName: ["shawkath646", "SH Maruf"],
+  url: appBaseUrl,
+  email: "hello@shawkath646.dev",
+  image: {
+    "@type": "ImageObject",
+    url: `${appBaseUrl}/avatar.png`,
+    width: 400,
+    height: 400,
+  },
+  jobTitle: [
+    "Full-stack Web Developer",
+    "Android App Developer",
+    "Freelancer/Remote Worker",
+    "Computer Science Student",
+  ],
+  alumniOf: [
+    {
+      "@type": "CollegeOrUniversity",
+      name: "Sejong University",
+      sameAs: "https://www.sejong.ac.kr",
+      department: "Computer Science and Engineering",
+    },
+    {
+      "@type": "HighSchool",
+      name: "Narsingdi Model College",
+      sameAs: "https://narsingdimodelcollege.codetreebd.com",
+    },
+    {
+      "@type": "HighSchool",
+      name: "Monohardi Government Pilot Model High School",
+      sameAs: "http://www.monohardimphs.edu.bd",
+    },
+  ],
+  knowsLanguage: [
+    { "@type": "Language", name: "Bengali", alternateName: "bn" },
+    { "@type": "Language", name: "English", alternateName: "en" },
+    { "@type": "Language", name: "Korean", alternateName: "ko" },
+    { "@type": "Language", name: "Hindi", alternateName: "hi" },
+  ],
+  description:
+    "Shawkat Hossain Maruf is a software engineer who enthusiastic about creating robust cloud ecosystems, scalable architectures, and secure web applications. Currently living in Seoul, South Korea, he is studying for degree in Computer Science Engineering at Sejong University.",
+  gender: "Male",
+  birthDate: "2005-12-30",
+  nationality: { "@type": "Country", name: "Bangladesh" },
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "South Korea",
+    addressLocality: "Seoul",
+    addressRegion: "Seoul",
+  },
+  mainEntityOfPage: { "@type": "WebPage", "@id": appBaseUrl },
+  worksFor: [
+    {
+      "@type": "Organization",
+      name: "Freelance",
+      description: "Independent software development services",
+      url: appBaseUrl,
+    },
+    {
+      "@type": "OrganizationRole",
+      roleName: "Founder & CEO",
+      startDate: "2024-01",
+      worksFor: {
+        "@type": "Organization",
+        name: "clouburstlab",
+        description: "AI-based startup software development and digital solutions company",
+        url: "https://clouburstlab.com",
+      },
+    },
+  ],
+  knowsAbout: [
+    "JavaScript",
+    "TypeScript",
+    "Python",
+    "C Programming",
+    "CPP",
+    "React.js",
+    "Next.js",
+    "Node.js",
+    "React Native",
+    "ElectronJS",
+    "Firebase",
+    "Microsoft Azure",
+    "MongoDB",
+    "Data Analysis",
+    "Machine Learning",
+    "UI/UX Design",
+    "Cloud Infrastructure",
+    "Scalable Applications",
+    "Software Engineering"
+  ],
+};
 
-const getJsonLd = cache(async (): Promise<GraphSchema | null> => {
-  try {
-    const socialLinks = await getSocialLinks();
-    const socialLinksArray = Object.values(socialLinks)
-      .filter((link): link is string => typeof link === 'string' && link.trim() !== '');
+const getJsonLd = cache((): GraphSchema => {
+  const personId = new URL("/#person", appBaseUrl).toString();
+  const websiteId = new URL("/#website", appBaseUrl).toString();
 
-    const docRef = await db.collection("site-config").doc("jsonLd").get();
+  const personData: PersonSchema = {
+    ...basePersonData,
+    "@id": personId,
+    url: appBaseUrl,
+    sameAs: [
+      ...(basePersonData.sameAs ?? []),
+      "mailto:hello@shawkath646.dev",
+      "https://fb.shawkath646.dev",
+      "https://ig.shawkath646.dev",
+      "https://yt.shawkath646.dev",
+      "https://tg.shawkath646.dev",
+      "https://li.shawkath646.dev",
+      "https://gh.shawkath646.dev",
+    ],
+  };
 
-    if (!docRef.exists) return null;
+  const websiteData: WebSiteSchema = {
+    "@type": "WebSite",
+    "@id": websiteId,
+    url: appBaseUrl,
+    name: personData.name,
+    publisher: { "@id": personId },
+  };
 
-    const personData = docRef.data() as PersonSchema;
-
-    const personId = new URL("/#person", appBaseUrl).toString();
-    const websiteId = new URL("/#website", appBaseUrl).toString();
-
-    personData["@type"] = "Person";
-    personData["@id"] = personId;
-    personData.sameAs = [...(personData.sameAs || []), ...socialLinksArray];
-    personData.url = appBaseUrl.toString();
-
-    const websiteData: WebSiteSchema = {
-      "@type": "WebSite",
-      "@id": websiteId,
-      url: appBaseUrl.toString(),
-      name: personData.name,
-      publisher: {
-        "@id": personId
-      }
-    };
-
-    return {
-      "@context": "https://schema.org",
-      "@graph": [websiteData, personData]
-    };
-  } catch (error) {
-    console.error("Error fetching JSON-LD:", error);
-    return null;
-  }
+  return {
+    "@context": "https://schema.org",
+    "@graph": [websiteData, personData],
+  };
 });
 
 export default getJsonLd;

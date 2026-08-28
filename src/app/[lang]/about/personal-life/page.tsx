@@ -4,27 +4,44 @@ import { getAuthSession } from "@/actions/authentication/authActions";
 import { getGenericAuthSession } from "@/actions/genericAuth/authActions";
 import RestrictedPageLogin from "@/components/RestrictedPageLogin";
 import appBaseUrl from "@/data/appBaseUrl";
+import { locales, resolveLocale, getLanguagePack, defaultLocale } from '@/lib/locale';
 
-export const metadata: Metadata = {
-    title: 'Personal Life',
-    description: 'A private window into my routines, mindset, and the everyday choices that shape my life beyond code.',
-    keywords: ['personal life', 'daily routine', 'self growth', 'mindset', 'life reflections'],
-    alternates: {
-        canonical: new URL("/about/personal-life", appBaseUrl),
-    },
-    openGraph: {
-        title: 'Personal Life - Shawkat Hossain Maruf',
-        description: 'A private window into my routines, mindset, and the everyday choices that shape my life beyond code.',
-        type: 'website',
-    },
-    twitter: {
-        card: 'summary_large_image',
-        title: 'Personal Life - Shawkat Hossain Maruf',
-        description: 'A private window into my routines, mindset, and the everyday choices that shape my life beyond code.',
-    },
-};
+export async function generateMetadata({ params }: PageProps<'/[lang]/about/personal-life'>): Promise<Metadata> {
+    const { lang } = await params;
+    const locale = resolveLocale(lang);
+    const dict = await getLanguagePack(locale, 'about-personal-life-page');
+    
+    const languages: Record<string, string> = {};
+    for (const l of locales) {
+        languages[l] = new URL(`/${l}/about/personal-life`, appBaseUrl).toString();
+    }
+    languages['x-default'] = new URL(`/${defaultLocale}/about/personal-life`, appBaseUrl).toString();
 
-export default async function PersonalLifePage() {
+    return {
+        title: dict.heading,
+        description: dict.paragraph1,
+        keywords: ['personal life', 'daily routine', 'self growth', 'mindset', 'life reflections'],
+        alternates: {
+            canonical: new URL(`/${locale}/about/personal-life`, appBaseUrl),
+            languages
+        },
+        openGraph: {
+            title: `${dict.heading} - Shawkat Hossain Maruf`,
+            description: dict.paragraph1,
+            type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: `${dict.heading} - Shawkat Hossain Maruf`,
+            description: dict.paragraph1,
+        },
+    };
+}
+
+export default async function PersonalLifePage({ params }: PageProps<'/[lang]/about/personal-life'>) {
+    const { lang } = await params;
+    const locale = resolveLocale(lang);
+    const dict = await getLanguagePack(locale, 'about-personal-life-page');
 
     const [adminSession, genericSession] = await Promise.all([
         getAuthSession(),
@@ -35,7 +52,7 @@ export default async function PersonalLifePage() {
         return (
             <RestrictedPageLogin
                 accessScope="personal_life"
-                title="Personal Life"
+                title={dict.heading}
                 description="Enter the password to view my personal information"
                 icon={<FiBook className="text-2xl text-white" />}
             />
@@ -57,10 +74,10 @@ export default async function PersonalLifePage() {
                         <FiBook className="text-3xl text-white" />
                     </div>
                     <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                        Personal Life
+                        {dict.heading}
                     </h1>
                     <p className="text-xl text-gray-300">
-                        The daily rhythm behind who I am
+                        {dict.paragraph1}
                     </p>
                 </header>
 
@@ -109,7 +126,7 @@ export default async function PersonalLifePage() {
 
                     <section>
                         <h2 className="text-2xl font-bold text-white mb-4">
-                            Principles I Try To Live By
+                            {dict.principles}
                         </h2>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="bg-white/5 rounded-lg p-5">

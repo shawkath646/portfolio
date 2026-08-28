@@ -1,0 +1,42 @@
+{
+    "metaTitle": "Creations",
+    "metaDescription": "Explore my projects, journals, research work, and experiments. A collection of ideas and explorations in software development and technology.",
+    "metaKeywords": [
+        "Projects",
+        "Portfolio",
+        "Creations"
+    ],
+    "heroTitle": "Creations",
+    "heroSubtitle": "A collection of projects, ideas, and explorations I've worked on. From web applications to research investigations, discover what I've been building.",
+    "categoriesHeading": "Creation Categories",
+    "mainAriaLabel": "Creations page content",
+    "statusActive": "Active",
+    "statusComingSoon": "Coming Soon",
+    "ctaExplore": "Explore",
+    "ctaComingSoon": "Coming soon",
+    "categoryProjects": "Projects",
+    "categoryProjectsDesc": "Showcasing web applications, full-stack projects, and technical implementations.",
+    "categoryJournals": "Journals",
+    "categoryJournalsDesc": "Personal insights, technical reflections, and learning experiences.",
+    "categoryResearch": "Research Papers",
+    "categoryResearchDesc": "Academic research, technical deep-dives, and investigative studies.",
+    "categoryExperiments": "Experiments",
+    "categoryExperimentsDesc": "Prototypes, proof-of-concepts, and experimental implementations.",
+    "paginationPrevLabel": "About",
+    "paginationNextLabel": "Blogs",
+    "metadata": {
+        "title": "Creations",
+        "description": "My creations",
+        "keywords": [
+            "creations"
+        ],
+        "openGraph": {
+            "title": "Creations",
+            "description": "My creations"
+        },
+        "twitter": {
+            "title": "Creations",
+            "description": "My creations"
+        }
+    }
+}

@@ -1,0 +1,6 @@
+{
+  "emptyTitle": "No Albums Yet",
+  "emptySubtitle": "Check back later for new photo albums!",
+  "viewAlbumAriaLabel": "View {name} album with {count} photos",
+  "photosAriaLabel": "{count} photos"
+}

@@ -3,17 +3,7 @@ import { useRef, useEffect } from "react";
 import { Patrick_Hand } from "next/font/google";
 import { motion, useAnimation , useInView } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-
-type TaskBoardLanguagePack = {
-  heading: string;
-  taskListAriaLabel: string;
-  priorities: {
-    high: string;
-    medium: string;
-    low: string;
-  };
-  tasks: Task[];
-};
+import type { Dictionary } from "@/types/dictionary.types";
 
 // Load font once
 const patrickHand = Patrick_Hand({ subsets: ["latin"], weight: "400" });
@@ -22,7 +12,7 @@ const patrickHand = Patrick_Hand({ subsets: ["latin"], weight: "400" });
 interface Task {
   id: number;
   text: string;
-  priority: 'high' | 'medium' | 'low';
+  priority: string;
 }
 
 // Priority mapping for better accessibility and maintainability
@@ -54,7 +44,7 @@ const TaskItem = ({
   priorityLabel: string,
 }) => {
   // Get priority color and label from the map
-  const priority = PRIORITY_MAP[task.priority];
+  const priority = PRIORITY_MAP[task.priority as keyof typeof PRIORITY_MAP] || PRIORITY_MAP.low;
   
   // Prioritize animation controls for efficiency
   const controls = useAnimation();
@@ -105,7 +95,7 @@ const TaskItem = ({
   );
 };
 
-const TasksBoard = ({ languagePack }: { languagePack: TaskBoardLanguagePack }) => {
+const TasksBoard = ({ languagePack }: { languagePack: Dictionary<"homepage-task-board-component"> }) => {
   // Animation controls
   const controls = useAnimation();
   const prefersReducedMotion = useReducedMotion(controls);
@@ -181,7 +171,7 @@ const TasksBoard = ({ languagePack }: { languagePack: TaskBoardLanguagePack }) =
             task={task} 
             index={idx}
             prefersReducedMotion={prefersReducedMotion}
-            priorityLabel={languagePack.priorities[task.priority]}
+            priorityLabel={languagePack.priorities[task.priority as keyof typeof languagePack.priorities] || task.priority}
           />
         ))}
       </ul>

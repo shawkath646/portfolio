@@ -1,31 +1,36 @@
 import type { Metadata } from 'next';
 import ShareFilesSection from '@/components/HomePage/ShareFilesSection';
 import appBaseUrl from '@/data/appBaseUrl';
-import { getLanguagePack } from '@/lib/locale';
+import { getLanguagePack, locales, resolveLocale, defaultLocale } from '@/lib/locale';
 import BuyMeACoffee from "./BuyMeACoffee";
 import Connections from "./Connections";
 import ContactForm from "./ContactForm";
 
-export const metadata: Metadata = {
-  title: "Contact and Get in Touch",
-  description: "Get in touch with Shawkat Hossain Maruf for web development projects, software engineering opportunities, collaborations, or networking. Available through LinkedIn, email, GitHub, and various messaging platforms.",
-  keywords: [
-    "Contact Shawkat Hossain",
-    "Hire Web Developer",
-    "Software Engineer Contact",
-    "Freelance Developer Contact",
-    "Full Stack Developer Contact",
-    "Project Collaboration",
-    "Developer for Hire",
-    "Contact Form",
-    "Professional Networking",
-    "Web Development Services",
-    "Software Development Inquiry",
-  ],
-  alternates: {
-    canonical: new URL('/contact', appBaseUrl)
+export async function generateMetadata({
+  params,
+}: Readonly<{
+  params: Promise<{ lang: string }>;
+}>): Promise<Metadata> {
+  const { lang } = await params;
+  const locale = resolveLocale(lang);
+  const dict = await getLanguagePack(locale, "contact-page");
+
+  const languages: Record<string, string> = {};
+  for (const l of locales) {
+      languages[l] = new URL(`/${l}/contact`, appBaseUrl).toString();
   }
-};
+  languages["x-default"] = new URL(`/${defaultLocale}/contact`, appBaseUrl).toString();
+
+  return {
+    title: dict.metaTitle,
+    description: dict.metaDescription,
+    keywords: dict.metaKeywords,
+    alternates: {
+      canonical: new URL(`/${locale}/contact`, appBaseUrl),
+      languages,
+    }
+  };
+}
 
 export default async function ContactPage({
   params,

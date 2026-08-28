@@ -5,6 +5,7 @@ import { FaCode, FaAndroid, FaChartBar, FaVuejs, FaJava, FaChartLine } from "rea
 import { SiReact, SiNextdotjs, SiBootstrap, SiTailwindcss, SiNodedotjs, SiExpress, SiFirebase, SiMongodb, SiPython, SiPandas, SiNumpy, SiJupyter, SiScikitlearn } from "react-icons/si";
 import { TbBrandReactNative } from "react-icons/tb";
 import useReducedMotion from "@/hooks/useReducedMotion";
+import type { Dictionary } from "@/types/dictionary.types";
 
 type SkillLeaf = {
   label: string;
@@ -15,37 +16,6 @@ type SkillBranch = {
   label: string;
   icon: React.ReactNode;
   children: SkillLeaf[];
-};
-
-type SkillsLanguagePack = {
-  title: string;
-  description: string;
-  categoriesAriaLabel: string;
-  footerText: string;
-  skillsInPrefix: string;
-  skillAriaPrefix: string;
-  branchWeb: string;
-  branchAndroid: string;
-  branchData: string;
-  webReact: string;
-  webVue: string;
-  webNext: string;
-  webBootstrap: string;
-  webTailwind: string;
-  webNode: string;
-  webExpress: string;
-  webFirebase: string;
-  webMongo: string;
-  androidReactNative: string;
-  androidJava: string;
-  androidExpo: string;
-  androidFirebase: string;
-  dataPython: string;
-  dataPandas: string;
-  dataNumpy: string;
-  dataJupyter: string;
-  dataSklearn: string;
-  dataMatplotlib: string;
 };
 
 // Memoized individual skill item component for better performance
@@ -163,7 +133,7 @@ const itemVariants: Variants = {
   }),
 };
 
-const SkillsComponent = memo(function SkillsComponent({ languagePack }: { languagePack: SkillsLanguagePack }) {
+const SkillsComponent = memo(function SkillsComponent({ languagePack }: { languagePack: Dictionary<"homepage-skills-component"> }) {
   // Set up intersection observer for lazy loading
   const controls = useAnimation();
   const ref = useRef(null);

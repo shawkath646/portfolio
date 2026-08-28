@@ -34,24 +34,13 @@ interface Video {
     publishedAt: string;
 }
 
+import type { Dictionary } from "@/types/dictionary.types";
+
 interface YoutubeGridProps {
     channel: Channel;
     videos: Video[];
-    languagePack: YoutubeGridLanguagePack;
+    languagePack: Dictionary<"homepage-youtube-grid-component">;
 }
-
-type YoutubeGridLanguagePack = {
-    title: string;
-    description: string;
-    channelInfoAriaLabel: string;
-    channelLogoSuffix: string;
-    channelHandle: string;
-    subscribeAriaLabel: string;
-    subscribeButtonText: string;
-    recentVideosAriaLabel: string;
-    watchPrefix: string;
-    thumbnailPrefix: string;
-};
 
 export default function YoutubeGrid({ channel, videos, languagePack }: YoutubeGridProps) {
     return (

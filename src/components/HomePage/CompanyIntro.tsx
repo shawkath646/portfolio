@@ -4,18 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, useAnimation, useInView, Variants } from "framer-motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { Dictionary } from "@/types/dictionary.types";
 
-type CompanyIntroLanguagePack = {
-    visionBadge: string;
-    headingLead: string;
-    brandName: string;
-    description: string;
-    externalLinksAriaLabel: string;
-    learnMoreText: string;
-    logoAlt: string;
-};
 
-const CompanyIntro = memo(function CompanyIntro({ languagePack }: { languagePack: CompanyIntroLanguagePack }) {
+const CompanyIntro = memo(function CompanyIntro({ languagePack }: { languagePack: Dictionary<"homepage-company-intro-component"> }) {
     const controls = useAnimation();
     const prefersReducedMotion = useReducedMotion(controls);
     const ref = useRef(null);
@@ -84,19 +76,23 @@ const CompanyIntro = memo(function CompanyIntro({ languagePack }: { languagePack
                                 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white flex flex-wrap items-center gap-x-3 gap-y-2"
                                 variants={itemVariants}
                             >
-                                <Image
-                                    src="https://cloudburstlab.vercel.app/api/branding/logo?variant=transparent"
-                                    height={32}
-                                    width={80}
-                                    alt={languagePack.logoAlt}
-                                    className="object-contain h-8 w-20"
-                                    priority
-                                />
                                 {languagePack.headingLead}
+                                <Image
+                                    src="https://assets.clouburstlab.com/branding/icon_dark.png"
+                                    height={35}
+                                    width={200}
+                                    alt={languagePack.logoAlt}
+                                    className="object-contain h-10 w-48 hidden dark:block"
+                                />
 
-                                <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600 dark:from-cyan-400 dark:to-purple-400">
-                                    {languagePack.brandName}
-                                </span>
+                                <Image
+                                    src="https://assets.clouburstlab.com/branding/icon_dark.png"
+                                    height={35}
+                                    width={200}
+                                    alt={languagePack.logoAlt}
+                                    className="object-contain h-10 w-48 block dark:hidden"
+                                />
+                                
                             </motion.h2>
                         </div>
 
@@ -114,7 +110,7 @@ const CompanyIntro = memo(function CompanyIntro({ languagePack }: { languagePack
                             aria-label={languagePack.externalLinksAriaLabel}
                         >
                             <Link
-                                href="https://cloudburstlab.vercel.app"
+                                href="https://clouburstlab.com"
                                 className="text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-500 transition-colors"
                             >
                                 {languagePack.learnMoreText}

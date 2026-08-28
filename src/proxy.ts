@@ -1,32 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleAdminRequest, handleClientApiRequest } from "@/actions/authentication/proxyHelperFunctions";
-import maintenanceHTML from "./data/maintenanceHTML";
 import { locales, getLocale } from "./lib/locale";
-
 
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-url-path", pathname);
-
-  const isActive = true;
-
-  if (!isActive && pathname !== '/maintenance') {
-    if (pathname.startsWith('/api/')) {
-      return NextResponse.json(
-        { error: 'Service unavailable due to maintenance' },
-        { status: 503 }
-      );
-    }
-
-    return new NextResponse(maintenanceHTML, {
-      status: 503,
-      headers: {
-        'Content-Type': 'text/html; charset=utf-8',
-        'Retry-After': '3600',
-      },
-    });
-  }
 
   if (pathname.startsWith("/admin")) {
     return handleAdminRequest(request, requestHeaders);
@@ -37,6 +15,20 @@ export default async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith('/api/')) {
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
+
+  // If someone visits /en/embedded-card or /ko/embedded-card (e.g. from browser cache or old link), redirect to /embedded-card
+  for (const l of locales) {
+    if (pathname === `/${l}/embedded-card` || pathname.startsWith(`/${l}/embedded-card/`)) {
+      const cleanPath = pathname.replace(`/${l}`, "");
+      const newUrl = new URL(cleanPath, request.url);
+      newUrl.search = request.nextUrl.search;
+      return NextResponse.redirect(newUrl, { status: 307 });
+    }
+  }
+
+  if (pathname.startsWith('/embedded-card')) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
@@ -52,8 +44,11 @@ export default async function middleware(request: NextRequest) {
 
     newUrl.search = request.nextUrl.search;
 
-    return NextResponse.redirect(newUrl, { status: 308 });
+    return NextResponse.redirect(newUrl, { status: 307 });
   }
+
+  requestHeaders.set("x-pathname", pathname);
+  requestHeaders.set("x-search", request.nextUrl.search);
 
   return NextResponse.next({
     request: { headers: requestHeaders },
@@ -62,6 +57,6 @@ export default async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|_next/data|favicon.ico|manifest.webmanifest|robots.txt|sitemap.xml|\\.well-known|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|webmanifest)$).*)',
+    '/((?!_next/static|_next/image|_next/data|embedded-card|favicon.ico|manifest.webmanifest|robots.txt|sitemap.xml|opengraph-image\\.png|\\.well-known|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|webmanifest)$).*)',
   ],
 };

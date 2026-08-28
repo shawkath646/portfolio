@@ -13,36 +13,40 @@ import TasksBoard from "@/components/HomePage/TaskBoard";
 import YoutubeGrid from "@/components/HomePage/YoutubeGrid";
 import SimplePagination from "@/components/navigation/SimplePagination";
 import appBaseUrl from '@/data/appBaseUrl';
-import { getLanguagePack } from '@/lib/locale';
+import { locales, resolveLocale, getLanguagePack, defaultLocale } from "@/lib/locale";
 
-export const metadata: Metadata = {
-  title: {
-    absolute: "Shawkat Hossain Maruf - Full-Stack Developer & Software Engineer"
-  },
-  description: "Full-stack developer and Computer Science student at Sejong University specializing in React, Next.js, TypeScript, and Android development. Building modern web applications and mobile solutions with cutting-edge technologies.",
-  keywords: [
-    "Shawkat Hossain Maruf",
-    "shawkath646",
-    "Full Stack Developer",
-    "Software Engineer",
-    "Web Developer Portfolio",
-    "React Developer",
-    "Next.js Developer",
-    "Android Developer",
-    "Computer Science Student",
-    "Sejong University",
-    "Web Development",
-    "Software Development",
-    "Portfolio Website",
-    "Tech Projects",
-  ],
-  alternates: {
-    canonical: appBaseUrl.origin,
-  },
-  pagination: {
-    next: new URL("/about", appBaseUrl)
+export async function generateMetadata({
+  params,
+}: Readonly<{
+  params: Promise<{ lang: string }>;
+}>): Promise<Metadata> {
+  const { lang } = await params;
+  const locale = resolveLocale(lang);
+
+  const dict = await getLanguagePack(locale, "homepage-landing-component");
+
+  const languages: Record<string, string> = {};
+  for (const l of locales) {
+    languages[l] = new URL(`/${l}`, appBaseUrl).toString();
   }
-};
+  languages["x-default"] = new URL(`/${defaultLocale}`, appBaseUrl).toString();
+
+  return {
+    title: {
+      absolute: dict.metaTitle
+    },
+    description: dict.metaDescription,
+    keywords: dict.metaKeywords,
+    alternates: {
+      canonical: new URL(`/${locale}`, appBaseUrl),
+      languages,
+    },
+    pagination: {
+      next: new URL(`/${locale}/about`, appBaseUrl)
+    }
+  };
+}
+
 
 export default async function Home({
   params,

@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  pageExtensions: ["js", "jsx", "ts", "tsx"],
   reactStrictMode: true,
   reactCompiler: true,
   experimental: {
@@ -35,7 +34,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "cloudburstlab.vercel.app",
+        hostname: "assets.clouburstlab.com",
         port: "",
         pathname: "/**",
       },
@@ -53,10 +52,31 @@ const nextConfig: NextConfig = {
       {
         source: "/index",
         destination: "/",
-        permanent: true
-      }
-    ]
-  }
+        permanent: true,
+      },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        source: "/embedded-card(.*)",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "frame-ancestors *;",
+          },
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*",
+          },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET, OPTIONS",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

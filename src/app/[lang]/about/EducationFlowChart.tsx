@@ -2,53 +2,54 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import type { Dictionary } from "@/types/dictionary.types";
 
-const timeline = [
-    {
-        name: "Sejong University",
-        address: "Gwanjin-gu, Seoul, South Korea",
-        subject: "Computer Science and Engineering",
-        period: "03 March 2025 – Present",
-        result: "Ongoing",
-        type: "University",
-        id: "edu-sejong"
-    },
-    {
-        name: "Narsingdi Model College",
-        address: "West Brahmondi, Narsingdi Sadar, Narsingdi, Bangladesh",
-        subject: "Science",
-        period: "02 March 2022 – 16 November 2023",
-        result: "GPA 4.25 out of 5.00",
-        type: "High School",
-        id: "edu-college"
-    },
-    {
-        name: "Monohardi Govt. Pilot Model High School",
-        address: "Monohardi, Narsingdi, Bangladesh",
-        subject: "Science",
-        period: "01 January 2016 – 30 December 2021",
-        result: "GPA 5.00 out of 5.00",
-        type: "Secondary School",
-        id: "edu-highschool"
-    },
-    {
-        name: "Narandi Jahanara Govt. Primary School",
-        address: "Narandi, Monohardi, Narsingdi, Bangladesh",
-        subject: "Science",
-        period: "05 April 2014 – 30 December 2015",
-        result: "GPA 5.00 out of 5.00",
-        type: "Elementary School",
-        id: "edu-primary"
-    },
-];
-
-export default function EducationFlowChart() {
+export default function EducationFlowChart({ languagePack }: { languagePack: Dictionary<"about-education-component"> }) {
 
     const ref = useRef(null);
     const inView = useInView(ref, {
         once: true,
         amount: 0.1,
     });
+
+    const timeline = [
+        {
+            name: languagePack.timeline1Institution || "Sejong University",
+            address: languagePack.timeline1Location || "Gwanjin-gu, Seoul, South Korea",
+            subject: languagePack.timeline1Department || "Computer Science and Engineering",
+            period: languagePack.timeline1DateRange || "03 March 2025 – Present",
+            result: languagePack.timeline1Result || "Ongoing",
+            type: languagePack.timeline1Type || "University",
+            id: "edu-sejong"
+        },
+        {
+            name: languagePack.timeline2Institution || "Narsingdi Model College",
+            address: languagePack.timeline2Location || "West Brahmondi, Narsingdi Sadar, Narsingdi, Bangladesh",
+            subject: languagePack.timeline2Department || "Science",
+            period: languagePack.timeline2DateRange || "02 March 2022 – 16 November 2023",
+            result: languagePack.timeline2Result || "GPA 4.25 out of 5.00",
+            type: languagePack.timeline2Type || "High School",
+            id: "edu-college"
+        },
+        {
+            name: languagePack.timeline3Institution || "Monohardi Govt. Pilot Model High School",
+            address: languagePack.timeline3Location || "Monohardi, Narsingdi, Bangladesh",
+            subject: languagePack.timeline3Department || "Science",
+            period: languagePack.timeline3DateRange || "01 January 2016 – 30 December 2021",
+            result: languagePack.timeline3Result || "GPA 5.00 out of 5.00",
+            type: languagePack.timeline3Type || "Secondary School",
+            id: "edu-highschool"
+        },
+        {
+            name: languagePack.timeline4Institution || "Narandi Jahanara Govt. Primary School",
+            address: languagePack.timeline4Location || "Narandi, Monohardi, Narsingdi, Bangladesh",
+            subject: languagePack.timeline4Department || "Science",
+            period: languagePack.timeline4DateRange || "05 April 2014 – 30 December 2015",
+            result: languagePack.timeline4Result || "GPA 5.00 out of 5.00",
+            type: languagePack.timeline4Type || "Elementary School",
+            id: "edu-primary"
+        },
+    ];
 
     const headerVariants = {
         hidden: { opacity: 0, y: -30 },
@@ -144,7 +145,7 @@ export default function EducationFlowChart() {
                             animate={inView ? "visible" : "hidden"}
                             className="text-base sm:text-lg md:text-xl font-bold tracking-wide bg-linear-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent"
                         >
-                            MY Academic Journey
+                            {languagePack.heading || "MY Academic Journey"}
                         </motion.h2>
                     </div>
                 </div>
@@ -247,7 +248,7 @@ export default function EducationFlowChart() {
 
                                             <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                                                 <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-                                                    <span className="font-semibold">🎓 Result:</span> {edu.result}
+                                                    <span className="font-semibold">{languagePack.resultLabel || "🎓 Result:"}</span> {edu.result}
                                                 </p>
 
                                                 <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
@@ -318,7 +319,7 @@ export default function EducationFlowChart() {
 
                                         <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 space-y-1.5">
                                             <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
-                                                <span className="font-semibold">🎓 Result:</span> {edu.result}
+                                                <span className="font-semibold">{languagePack.resultLabel || "🎓 Result:"}</span> {edu.result}
                                             </p>
 
                                             <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">

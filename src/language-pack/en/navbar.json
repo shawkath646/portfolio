@@ -9,5 +9,10 @@
     "blogs": "Blogs",
     "blogs-desc": "Read my thoughts and tutorials",
     "contact": "Contact",
-    "contact-desc": "Get in touch with me"
+    "contact-desc": "Get in touch with me",
+    "closeMenuAriaLabel": "Close main menu",
+    "openMenuAriaLabel": "Open main menu",
+    "mainNavigationAriaLabel": "Main navigation",
+    "mainMenuAriaLabel": "Main menu",
+    "mobileMenuAriaLabel": "Mobile menu"
 }

@@ -1,3 +1,8 @@
 {
-    "mainAriaLabel": "연락 및 소통 수단이 포함된 문의 페이지"
+    "mainAriaLabel": "연락 및 소통 수단이 포함된 문의 페이지",
+    "metaTitle": "Contact and Get in Touch",
+    "metaDescription": "Get in touch with Shawkat Hossain Maruf for web development projects, software engineering opportunities, collaborations, or networking. Available through LinkedIn, email, GitHub, and various messaging platforms.",
+    "metaKeywords": [
+        "contact"
+    ]
 }

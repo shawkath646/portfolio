@@ -2,14 +2,9 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { FiShare2 } from "react-icons/fi";
+import type { Dictionary } from "@/types/dictionary.types";
 
-type ShareFilesLanguagePack = {
-    title: string;
-    description: string;
-    linkAriaLabel: string;
-};
-
-export default function ShareFilesSection({ languagePack }: { languagePack: ShareFilesLanguagePack }) {
+export default function ShareFilesSection({ languagePack }: { languagePack: Dictionary<"homepage-share-files-component"> }) {
     return (
         <section
             aria-labelledby="share-files-title"

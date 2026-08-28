@@ -2,13 +2,15 @@
 
 import type { ReactNode } from "react";
 import { motion } from "motion/react";
+import type { Dictionary } from "@/types/dictionary.types";
 
 interface PersonBodyProps {
     isLoveTimeline: boolean;
     children: ReactNode;
+    languagePack: Dictionary<"person-page">;
 }
 
-export default function PersonBody({ isLoveTimeline, children }: PersonBodyProps) {
+export default function PersonBody({ isLoveTimeline, children, languagePack }: PersonBodyProps) {
     return (
         <div className="space-y-8">
             {isLoveTimeline && (
@@ -19,7 +21,7 @@ export default function PersonBody({ isLoveTimeline, children }: PersonBodyProps
                     className="inline-flex items-center gap-2 rounded-full border border-rose-400/25 bg-rose-500/10 px-4 py-2 text-xs font-semibold tracking-wide text-rose-700 dark:text-rose-200"
                 >
                     <span aria-hidden="true">❤️</span>
-                    A chapter from the love timeline
+                    {languagePack.chapterLabel}
                 </motion.p>
             )}
 

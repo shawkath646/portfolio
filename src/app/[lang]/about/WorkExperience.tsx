@@ -2,52 +2,54 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 
-const workExperience = [
-    {
-        title: "Freelance Full-Stack Developer",
-        company: "CloudBurst Lab",
-        location: "Remote",
-        period: "January 2023 – Present",
-        type: "Freelance",
-        description: "Building modern web applications using Next.js, React, and Node.js. Delivering custom solutions for clients worldwide.",
-        achievements: [
-            "Developed 10+ production-ready web applications",
-            "Maintained 99% client satisfaction rate",
-            "Specialized in React, Next.js, and TypeScript"
-        ],
-        id: "work-cloudburst"
-    },
-    {
-        title: "Android App Developer",
-        company: "Self-Employed",
-        location: "Remote",
-        period: "June 2021 – December 2022",
-        type: "Freelance",
-        description: "Created custom Android applications with focus on user experience and performance optimization.",
-        achievements: [
-            "Published 5+ apps on Google Play Store",
-            "Achieved 10,000+ combined downloads",
-            "Implemented Firebase and modern Android architectures"
-        ],
-        id: "work-android"
-    },
-    {
-        title: "Web Developer Intern",
-        company: "Local Tech Startup",
-        location: "Dhaka, Bangladesh",
-        period: "January 2021 – May 2021",
-        type: "Internship",
-        description: "Assisted in developing responsive websites and learned industry best practices.",
-        achievements: [
-            "Contributed to 3 client projects",
-            "Learned modern web development workflows",
-            "Gained experience with Git and team collaboration"
-        ],
-        id: "work-intern"
-    },
-];
+import type { Dictionary } from "@/types/dictionary.types";
 
-export default function WorkExperience() {
+export default function WorkExperience({ languagePack }: { languagePack: Dictionary<"about-work-experience-component"> }) {
+    const workExperience = [
+        {
+            title: languagePack.work1Title,
+            company: languagePack.work1Company,
+            location: languagePack.work1Location,
+            period: languagePack.work1Dates,
+            type: languagePack.work1Type,
+            description: languagePack.work1Description,
+            achievements: [
+                languagePack.work1Achievement1,
+                languagePack.work1Achievement2,
+                languagePack.work1Achievement3
+            ],
+            id: "work-cloudburst"
+        },
+        {
+            title: languagePack.work2Title,
+            company: languagePack.work2Company,
+            location: languagePack.work2Location,
+            period: languagePack.work2Dates,
+            type: languagePack.work2Type,
+            description: languagePack.work2Description,
+            achievements: [
+                languagePack.work2Achievement1,
+                languagePack.work2Achievement2,
+                languagePack.work2Achievement3
+            ],
+            id: "work-android"
+        },
+        {
+            title: languagePack.work3Title || "Web Developer Intern",
+            company: languagePack.work3Company || "Local Tech Startup",
+            location: languagePack.work3Location || "Dhaka, Bangladesh",
+            period: languagePack.work3Dates || "January 2021 – May 2021",
+            type: languagePack.work3Type || "Internship",
+            description: languagePack.work3Description || "Assisted in developing responsive websites and learned industry best practices.",
+            achievements: [
+                languagePack.work3Achievement1 || "Contributed to 3 client projects",
+                languagePack.work3Achievement2 || "Learned modern web development workflows",
+                languagePack.work3Achievement3 || "Gained experience with Git and team collaboration"
+            ],
+            id: "work-intern"
+        },
+    ];
+
     const ref = useRef(null);
     const inView = useInView(ref, {
         once: true,
@@ -148,7 +150,7 @@ export default function WorkExperience() {
                             animate={inView ? "visible" : "hidden"}
                             className="text-base sm:text-lg md:text-xl font-bold tracking-wide bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-500 bg-clip-text text-transparent"
                         >
-                            MY Professional Journey
+                            {languagePack.heading || "MY Professional Journey"}
                         </motion.h2>
                     </div>
                 </div>
@@ -254,7 +256,7 @@ export default function WorkExperience() {
 
                                             <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                                                 <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">
-                                                    Key Achievements:
+                                                    {languagePack.keyAchievementsLabel}:
                                                 </p>
                                                 <ul className="space-y-1.5">
                                                     {work.achievements.map((achievement, i) => (
@@ -336,7 +338,7 @@ export default function WorkExperience() {
 
                                         <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 space-y-2">
                                             <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-                                                Key Achievements:
+                                                {languagePack.keyAchievementsLabel}:
                                             </p>
                                             <ul className="space-y-1.5">
                                                 {work.achievements.map((achievement, i) => (

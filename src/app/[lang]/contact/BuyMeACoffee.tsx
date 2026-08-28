@@ -1,35 +1,9 @@
 "use client";
 import { motion } from "framer-motion";
 import { FaCoffee, FaGift, FaHeart } from "react-icons/fa";
+import type { Dictionary } from "@/types/dictionary.types";
 
-type BuyMeACoffeeLanguagePack = {
-  heading: string;
-  intro: string;
-  supportOptionsAriaLabel: string;
-  footerText: string;
-  options: {
-    coffee: {
-      title: string;
-      description: string;
-      buttonLabel: string;
-      buttonAriaLabel: string;
-    };
-    gift: {
-      title: string;
-      description: string;
-      buttonLabel: string;
-      buttonAriaLabel: string;
-    };
-    love: {
-      title: string;
-      description: string;
-      buttonLabel: string;
-      buttonAriaLabel: string;
-    };
-  };
-};
-
-export default function BuyMeACoffee({ languagePack }: { languagePack: BuyMeACoffeeLanguagePack }) {
+export default function BuyMeACoffee({ languagePack }: { languagePack: Dictionary<"contact-buy-me-a-coffee-component"> }) {
   const donationOptions = [
     {
       ...languagePack.options.coffee,

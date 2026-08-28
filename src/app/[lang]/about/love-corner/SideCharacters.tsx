@@ -29,10 +29,13 @@ type TooltipState = {
 	y: number;
 };
 
+import type { Dictionary } from "@/types/dictionary.types";
+
 type SideCharactersContainerProps = {
 	characters?: SideCharacter[];
 	title?: string;
 	subtitle?: string;
+	languagePack?: Partial<Dictionary<"about-side-characters-component">>;
 };
 
 type SideCharacterCardProps = {
@@ -42,10 +45,12 @@ type SideCharacterCardProps = {
 	onOpenTooltip: (character: SideCharacter, x: number, y: number) => void;
 	onMoveTooltip: (x: number, y: number) => void;
 	onCloseTooltip: () => void;
+	languagePack?: Partial<Dictionary<"about-side-characters-component">>;
 };
 
 type SideCharacterTooltipProps = {
 	tooltip: TooltipState;
+	languagePack?: Partial<Dictionary<"about-side-characters-component">>;
 };
 
 const DEFAULT_COLORS: [string, string] = ["#64748b", "#334155"];
@@ -131,9 +136,9 @@ const resolveCardStyle = (character: SideCharacter, index: number) => {
 	return { rotation, yOffset, zIndex, duration, delay };
 };
 
-const formatType = (type: string) => {
+const formatType = (type: string, languagePack?: Partial<Dictionary<"about-side-characters-component">>) => {
 	if (!type) {
-		return "Unknown";
+		return languagePack?.unknown || "Unknown";
 	}
 
 	return type.charAt(0).toUpperCase() + type.slice(1);
@@ -171,7 +176,7 @@ const getTooltipPosition = (cursorX: number, cursorY: number) => {
 	return { x, y };
 };
 
-const SideCharacterTooltip = ({ tooltip }: SideCharacterTooltipProps) => {
+const SideCharacterTooltip = ({ tooltip, languagePack }: SideCharacterTooltipProps) => {
 	const gradient = tooltip.character.color ?? DEFAULT_COLORS;
 
 	return (
@@ -197,7 +202,7 @@ const SideCharacterTooltip = ({ tooltip }: SideCharacterTooltipProps) => {
 
 				<div className="min-w-0">
 					<p className="truncate text-sm font-semibold text-white">{tooltip.character.name}</p>
-					<p className="text-xs uppercase tracking-[0.16em] text-white/65">{formatType(tooltip.character.type)}</p>
+					<p className="text-xs uppercase tracking-[0.16em] text-white/65">{formatType(tooltip.character.type, languagePack)}</p>
 					<p className="mt-1.5 text-xs text-white/75">
 						{formatDateTime(new Date(tooltip.character.date), DATE_FORMAT_OPTIONS)}
 					</p>
@@ -217,6 +222,7 @@ const SideCharacterCard = ({
 	onOpenTooltip,
 	onMoveTooltip,
 	onCloseTooltip,
+	languagePack
 }: SideCharacterCardProps) => {
 	const gradient = character.color ?? DEFAULT_COLORS;
 	const styleSeed = resolveCardStyle(character, index);
@@ -247,7 +253,7 @@ const SideCharacterCard = ({
 				onOpenTooltip(character, rect.left + rect.width / 2, rect.top - 16);
 			}}
 			onBlur={onCloseTooltip}
-			aria-label={`${character.name} ${formatType(character.type)} on ${formatDateTime(new Date(character.date), DATE_FORMAT_OPTIONS)}`}
+			aria-label={`${character.name} ${formatType(character.type, languagePack)} on ${formatDateTime(new Date(character.date), DATE_FORMAT_OPTIONS)}`}
 		>
 			<motion.div
 				className="absolute inset-0 rounded-full opacity-45 transition-opacity duration-300 group-hover:opacity-75"
@@ -282,7 +288,7 @@ const SideCharacterCard = ({
 				</div>
 				<span className="h-1 w-1 rounded-full bg-white/35" />
 				<span className="truncate text-[10px] uppercase tracking-[0.12em] text-white/65">
-					{formatType(character.type)}
+					{formatType(character.type, languagePack)}
 				</span>
 			</div>
 		</motion.button>
@@ -293,7 +299,8 @@ const MemoSideCharacterCard = memo(SideCharacterCard);
 
 export function SideCharactersContainer({
 	characters = sideCharacters,
-	subtitle = "Small moments that passed quickly but left a trace.",
+	subtitle,
+	languagePack = {}
 }: SideCharactersContainerProps) {
 	const reduceMotion = useReducedMotion() === true;
 	const [tooltip, setTooltip] = useState<TooltipState | null>(null);
@@ -327,8 +334,8 @@ export function SideCharactersContainer({
 			</div>
 
 			<div className="relative z-10 mb-3">
-				<h3 className="text-[10px] uppercase tracking-[0.24em] text-rose-100/60">Memory Characters</h3>
-				<p className="mt-1 text-xs text-white/68 sm:text-sm">{subtitle}</p>
+				<h3 className="text-[10px] uppercase tracking-[0.24em] text-rose-100/60">{languagePack.memoryCharacters || "Memory Characters"}</h3>
+				<p className="mt-1 text-xs text-white/68 sm:text-sm">{subtitle || languagePack.subtitle || "Small moments that passed quickly but left a trace."}</p>
 			</div>
 
 			<motion.div
@@ -355,17 +362,18 @@ export function SideCharactersContainer({
 						onOpenTooltip={openTooltip}
 						onMoveTooltip={moveTooltip}
 						onCloseTooltip={closeTooltip}
+						languagePack={languagePack}
 					/>
 				))}
 			</motion.div>
 
-			<AnimatePresence>{tooltip && <SideCharacterTooltip tooltip={tooltip} />}</AnimatePresence>
+			<AnimatePresence>{tooltip && <SideCharacterTooltip tooltip={tooltip} languagePack={languagePack} />}</AnimatePresence>
 		</section>
 	);
 }
 
-export default function SideCharacters() {
-	return <SideCharactersContainer />;
+export default function SideCharacters(props: SideCharactersContainerProps) {
+	return <SideCharactersContainer {...props} />;
 }
 
 export { sideCharacters };

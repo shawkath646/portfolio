@@ -1,0 +1,15 @@
+{
+  "passwordMissingError": "Please enter your password.",
+  "recaptchaError": "reCAPTCHA verification failed. Please try again.",
+  "unexpectedError": "An unexpected error occurred.",
+  "accessPasswordLabel": "Access Password",
+  "accessPasswordPlaceholder": "Enter access password",
+  "hidePasswordAriaLabel": "Hide password",
+  "showPasswordAriaLabel": "Show password",
+  "retryInPrefix": "Retry in ",
+  "retryInSuffix": "s",
+  "unlockAccess": "Unlock Access",
+  "requestPassword": "Request password",
+  "securedBy": "Secured by",
+  "logoAlt": "clouburstlab Transparent Logo"
+}

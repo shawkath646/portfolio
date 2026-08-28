@@ -1,8 +1,10 @@
 import type { PersonObj } from "@/types/common.types";
 import { formatDateTime } from "@/utils/dateTime";
+import type { Dictionary } from "@/types/dictionary.types";
 
 interface PersonMetaProps {
     person: PersonObj;
+    languagePack: Dictionary<"person-page">;
 }
 
 function calculateDuration(start: Date, end: Date) {
@@ -22,7 +24,7 @@ function calculateDuration(start: Date, end: Date) {
     return parts.join(" ");
 }
 
-export default function PersonMeta({ person }: PersonMetaProps) {
+export default function PersonMeta({ person, languagePack }: PersonMetaProps) {
     const isActive = person.leftOn === null;
     const timelineEnd = person.leftOn ?? new Date();
     const duration = calculateDuration(person.meetOn, timelineEnd);
@@ -30,19 +32,19 @@ export default function PersonMeta({ person }: PersonMetaProps) {
     return (
         <div className="grid gap-3 rounded-2xl border border-foreground/10 bg-foreground/4 p-4 text-sm sm:grid-cols-3 sm:p-5">
             <div>
-                <p className="text-foreground/60">Met on</p>
+                <p className="text-foreground/60">{languagePack.metOn}</p>
                 <p className="mt-1 font-medium text-foreground">{formatDateTime(person.meetOn)}</p>
             </div>
 
             <div>
-                <p className="text-foreground/60">Left on</p>
+                <p className="text-foreground/60">{languagePack.leftOn}</p>
                 <p className="mt-1 font-medium text-foreground">
-                    {person.leftOn ? formatDateTime(person.leftOn) : "Still ongoing"}
+                    {person.leftOn ? formatDateTime(person.leftOn) : languagePack.stillOngoing}
                 </p>
             </div>
 
             <div>
-                <p className="text-foreground/60">Timeline</p>
+                <p className="text-foreground/60">{languagePack.timeline}</p>
                 <p className={`mt-1 font-medium ${isActive ? "text-emerald-600 dark:text-emerald-300" : "text-foreground"}`}>
                     {duration}
                 </p>
@@ -58,7 +60,7 @@ export default function PersonMeta({ person }: PersonMetaProps) {
                         style={{ width: isActive ? "100%" : "68%" }}
                     />
                 </div>
-                <p className="mt-2 text-xs text-foreground/60">from first meeting to {isActive ? "today" : "farewell"}</p>
+                <p className="mt-2 text-xs text-foreground/60">{languagePack.timelineDescription}</p>
             </div>
         </div>
     );

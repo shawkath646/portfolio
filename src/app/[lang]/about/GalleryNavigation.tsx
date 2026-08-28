@@ -3,16 +3,9 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FiCamera, FiArrowRight } from "react-icons/fi";
+import type { Dictionary } from "@/types/dictionary.types";
 
-type GalleryNavigationLanguagePack = {
-    badge: string;
-    headingPrefix: string;
-    headingHighlight: string;
-    description: string;
-    ctaText: string;
-};
-
-export default function GalleryNavigation({ languagePack }: { languagePack: GalleryNavigationLanguagePack }) {
+export default function GalleryNavigation({ languagePack }: { languagePack: Dictionary<"about-gallery-navigation-component"> }) {
     return (
         <section className="relative py-12 px-4 sm:px-6 lg:px-8">
             <div className="container mx-auto">

@@ -2,29 +2,37 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import SimplePagination from '@/components/navigation/SimplePagination';
 import appBaseUrl from '@/data/appBaseUrl';
+import { locales, resolveLocale, getLanguagePack, defaultLocale } from '@/lib/locale';
 
-export const metadata: Metadata = {
-    title: "Creations",
-    description: "Explore my projects, journals, research work, and experiments. A collection of ideas and explorations in software development and technology.",
-    keywords: [
-        "Projects",
-        "Portfolio",
-        "Creations",
-        "Research",
-        "Experiments",
-        "Software Projects",
-        "Developer Work",
-        "Technical Projects",
-        "Portfolio Projects",
-    ],
-    alternates: {
-        canonical: new URL("/creations", appBaseUrl),
-    },
-    pagination: {
-        previous: new URL("/about", appBaseUrl),
-        next: new URL("/blogs", appBaseUrl)
+export async function generateMetadata({
+    params,
+}: Readonly<{
+    params: Promise<{ lang: string }>;
+}>): Promise<Metadata> {
+    const { lang } = await params;
+    const locale = resolveLocale(lang);
+    const dict = await getLanguagePack(locale, "creations-page");
+
+    const languages: Record<string, string> = {};
+    for (const l of locales) {
+        languages[l] = new URL(`/${l}/creations`, appBaseUrl).toString();
     }
-};
+    languages["x-default"] = new URL(`/${defaultLocale}/creations`, appBaseUrl).toString();
+
+    return {
+        title: dict.metaTitle,
+        description: dict.metaDescription,
+        keywords: dict.metaKeywords,
+        alternates: {
+            canonical: new URL(`/${locale}/creations`, appBaseUrl),
+            languages,
+        },
+        pagination: {
+            previous: new URL(`/${locale}/about`, appBaseUrl).toString(),
+            next: new URL(`/${locale}/blogs`, appBaseUrl).toString(),
+        }
+    };
+}
 
 interface CreationCategory {
     id: string;

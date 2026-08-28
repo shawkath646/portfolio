@@ -4,28 +4,50 @@ import { getAuthSession } from "@/actions/authentication/authActions";
 import { getGenericAuthSession } from "@/actions/genericAuth/authActions";
 import RestrictedPageLogin from "@/components/RestrictedPageLogin";
 import appBaseUrl from "@/data/appBaseUrl";
+import { locales, resolveLocale, getLanguagePack, defaultLocale } from "@/lib/locale";
 
-export const metadata: Metadata = {
-    title: 'Friends Corner',
-    description: 'Memories, gratitude, and lessons from the friendships that helped shape my life and character.',
-    keywords: ['friends corner', 'friendship', 'memories', 'gratitude', 'relationships'],
-    alternates: {
-        canonical: new URL('/about/friends-corner', appBaseUrl),
-    },
-    openGraph: {
-        title: 'Friends Corner - Shawkat Hossain Maruf',
-        description: 'Memories, gratitude, and lessons from the friendships that helped shape my life and character.',
-        type: 'website',
-    },
-    twitter: {
-        card: 'summary_large_image',
-        title: 'Friends Corner - Shawkat Hossain Maruf',
-        description: 'Memories, gratitude, and lessons from the friendships that helped shape my life and character.',
-    },
-};
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+    const lang = await params.then((p) => p.lang);
+    const resolvedLocale = resolveLocale(lang);
+    const dict = await getLanguagePack(resolvedLocale, "about-friends-corner-page");
+    const languages: Record<string, string> = {};
+    for (const l of locales) {
+        languages[l] = new URL(`/${l}/about/friends-corner`, appBaseUrl).toString();
+    }
+    languages["x-default"] = new URL(`/${defaultLocale}/about/friends-corner`, appBaseUrl).toString();
 
-export default async function FriendsCornerPage() {
+    return {
+        title: dict.metadata?.title,
+        description: dict.metadata?.description,
+        keywords: dict.metadata?.keywords,
+        alternates: {
+            canonical: new URL(`/${resolvedLocale}/about/friends-corner`, appBaseUrl),
+            languages,
+        },
+        openGraph: {
+            title: dict.metadata?.openGraph?.title,
+            description: dict.metadata?.openGraph?.description,
+            type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: dict.metadata?.twitter?.title,
+            description: dict.metadata?.twitter?.description,
+        },
+    };
+}
 
+export default async function FriendsCornerPage({
+    params,
+}: {
+    params: Promise<{ lang: string }>;
+}) {
+    const lang = await params.then((p) => p.lang);
+    const resolvedLocale = resolveLocale(lang);
     const [adminSession, genericSession] = await Promise.all([
         getAuthSession(),
         getGenericAuthSession("friends_corner")

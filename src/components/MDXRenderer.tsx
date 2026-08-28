@@ -1,8 +1,10 @@
 import { ComponentPropsWithoutRef } from "react";
 import { compileMDX } from "next-mdx-remote/rsc";
+import { getLanguagePack } from "@/lib/locale";
 
 interface MdxRendererProps {
   mdxSource: string;
+  lang: string;
 }
 
 const components = {
@@ -126,12 +128,12 @@ const components = {
     <img
       className="max-w-full h-auto rounded-md box-content border dark:border-[#30363d]"
       {...props}
-      alt={props.alt || "MDX Image"}
     />
   ),
 };
 
-export default async function MDXRenderer({ mdxSource }: MdxRendererProps) {
+export default async function MDXRenderer({ mdxSource, lang }: MdxRendererProps) {
+  const languagePack = await getLanguagePack<"mdx-renderer-component">(lang, "mdx-renderer-component");
 
   const response = await fetch(mdxSource, {
     next: { revalidate: 60 * 60 },
@@ -140,9 +142,9 @@ export default async function MDXRenderer({ mdxSource }: MdxRendererProps) {
   if (!response.ok) {
     return (
       <div className="rounded-2xl border border-amber-400/35 bg-amber-500/10 p-5 text-amber-900 dark:text-amber-200">
-        <h2 className="text-lg font-semibold">Story unavailable</h2>
+        <h2 className="text-lg font-semibold">{languagePack.storyUnavailable}</h2>
         <p className="mt-2 text-sm opacity-90">
-          `Unable to fetch MDX (${response.status})`
+          {`${languagePack.fetchErrorPrefix} (${response.status})`}
         </p>
       </div>
     );

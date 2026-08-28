@@ -10,6 +10,7 @@ import { handleGenericLogin } from "@/actions/genericAuth/authActions";
 import restrictedLoginPageMessages from "@/data/restrictedLoginPageMessages.json";
 import { useCooldown } from "@/hooks/useCooldown";
 import { AccessScopeLabel } from "@/types/genericAuth.types";
+import type { Dictionary } from "@/types/dictionary.types";
 import RecaptchaV3Client, { RecaptchaV3Handle } from "../lib/GoogleRecaptchaV3/RecaptchaV3Client";
 
 const accessScopeMessageMap: Record<AccessScopeLabel, keyof typeof restrictedLoginPageMessages> = {
@@ -20,16 +21,18 @@ const accessScopeMessageMap: Record<AccessScopeLabel, keyof typeof restrictedLog
 
 interface RestrictedPageLoginProps {
     accessScope: AccessScopeLabel;
-    title: string;
-    description: string;
+    title?: string;
+    description?: string;
     icon?: React.ReactNode;
+    languagePack?: Dictionary<"restricted-page-login-component">;
 }
 
 export default function RestrictedPageLogin({
     accessScope,
     title,
     description,
-    icon
+    icon,
+    languagePack
 }: RestrictedPageLoginProps) {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -52,7 +55,7 @@ export default function RestrictedPageLogin({
 
         const password = inputRef.current?.value;
         if (!password) {
-            setError("Please enter your password.");
+            setError((languagePack?.passwordMissingError || "Password required"));
             return;
         }
 
@@ -78,9 +81,9 @@ export default function RestrictedPageLogin({
             router.refresh();
         } catch (err) {
             if (err instanceof Error && err.message === "recaptcha") {
-                setError("reCAPTCHA verification failed. Please try again.");
+                setError((languagePack?.recaptchaError || "reCAPTCHA failed"));
             } else {
-                setError("An unexpected error occurred.");
+                setError((languagePack?.unexpectedError || "An error occurred"));
             }
             startCooldown();
         } finally {
@@ -128,20 +131,20 @@ export default function RestrictedPageLogin({
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <FiLock className="h-4 w-4 text-gray-400 dark:text-slate-500 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors" />
                                 </div>
-                                <label htmlFor="access-password" className="sr-only">Access Password</label>
+                                <label htmlFor="access-password" className="sr-only">{(languagePack?.accessPasswordLabel || "Password")}</label>
                                 <input
                                     id="access-password"
                                     type={showPassword ? "text" : "password"}
                                     autoComplete="current-password"
                                     ref={inputRef}
                                     required
-                                    placeholder="Enter access password"
+                                    placeholder={(languagePack?.accessPasswordPlaceholder || "Enter password")}
                                     className="w-full pl-9 pr-10 py-2.5 bg-white dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                    aria-label={showPassword ? (languagePack?.hidePasswordAriaLabel || "Hide password") : (languagePack?.showPasswordAriaLabel || "Show password")}
                                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-white transition-colors cursor-pointer"
                                 >
                                     {showPassword ? <FiEyeOff className="h-4 w-4" /> : <FiEye className="h-4 w-4" />}
@@ -200,11 +203,11 @@ export default function RestrictedPageLogin({
                                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : isCoolingDown ? (
                                 <>
-                                    Retry in {cooldown}s
+                                    {(languagePack?.retryInPrefix || "Retry in ")}{cooldown}{(languagePack?.retryInSuffix || "s")}
                                 </>
                             ) : (
                                 <>
-                                    Unlock Access <FiArrowRight className="opacity-70" />
+                                    {(languagePack?.unlockAccess || "Unlock")} <FiArrowRight className="opacity-70" />
                                 </>
                             )}
                         </button>
@@ -212,16 +215,16 @@ export default function RestrictedPageLogin({
                         {/* Footer Links */}
                         <div className="pt-4 mt-2 flex items-center justify-between text-xs text-gray-400 dark:text-slate-500 border-t border-gray-100 dark:border-slate-800/50 transition-colors">
                             <Link href="/contact#contact-me" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1">
-                                Request password
+                                {languagePack?.requestPassword || "Request password"}
                             </Link>
                             <a href="https://cloudburstlab.vercel.app" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-gray-600 dark:hover:text-slate-300 transition-colors opacity-70">
                                 <span className="scale-75 origin-right">
                                     <FiShield />
                                 </span>
-                                Secured by
+                                {languagePack?.securedBy || "Secured by"}
                                 <Image
                                     src="https://cloudburstlab.vercel.app/api/branding/logo?variant=transparent"
-                                    alt="Cloudburst Lab Transparent Logo"
+                                    alt={languagePack?.logoAlt || "Logo"}
                                     height={25}
                                     width={48}
                                     className="w-12 h-6.25"

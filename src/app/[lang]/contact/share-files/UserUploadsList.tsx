@@ -5,16 +5,9 @@ import { FiFile, FiClock, FiFileText, FiInbox } from "react-icons/fi";
 import { SharedFileType } from "@/types/share.types";
 import { formatRelativeTime } from "@/utils/dateTime";
 import { formatFileSize } from "@/utils/string";
+import type { Dictionary } from "@/types/dictionary.types";
 
-type UserUploadsLanguagePack = {
-    title: string;
-    uploadedCountSingle: string;
-    uploadedCountPlural: string;
-    emptyTitle: string;
-    emptyDescription: string;
-};
-
-export default function UserUploadsList({ sharedFiles, languagePack }: { sharedFiles: SharedFileType[]; languagePack: UserUploadsLanguagePack }) {
+export default function UserUploadsList({ sharedFiles, languagePack }: { sharedFiles: SharedFileType[]; languagePack: Dictionary<"contact-share-files-user-uploads-list-component"> }) {
     const uploadedCountText = sharedFiles.length === 1
         ? languagePack.uploadedCountSingle
         : languagePack.uploadedCountPlural.replace("{count}", String(sharedFiles.length));

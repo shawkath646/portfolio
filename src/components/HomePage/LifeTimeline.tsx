@@ -4,21 +4,12 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { FaCalendarDay, FaCompass, FaArrowsAltH } from "react-icons/fa";
 import { LifeEvent } from "@/types/common.types";
+import type { Dictionary } from "@/types/dictionary.types";
 
 interface LifeTimelineProps {
     lifeEvents: LifeEvent[];
-    languagePack: LifeTimelineLanguagePack;
+    languagePack: Dictionary<"homepage-life-timeline-component">;
 }
-
-type LifeTimelineLanguagePack = {
-    heading: string;
-    exploreHint: string;
-    showDetailsPrefix: string;
-    statusToday: string;
-    statusPassedThisYear: string;
-    statusComingUp: string;
-    monthLocale: string;
-};
 
 type TooltipPlacement = "top" | "bottom";
 

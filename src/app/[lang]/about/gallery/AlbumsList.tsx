@@ -5,13 +5,15 @@ import { FaFolder, FaImage } from "react-icons/fa";
 import { GalleryAlbumType, GalleryImageType } from "@/types/gallery.types";
 import { formatDateTime } from "@/utils/dateTime";
 import AlbumPreview from "./AlbumPreview";
+import type { Dictionary } from "@/types/dictionary.types";
 
 interface AlbumsListProps {
     albumList: GalleryAlbumType[];
     previewImages: Map<string, GalleryImageType>;
+    languagePack?: Partial<Dictionary<"gallery-albums-list-component">>;
 }
 
-export default function AlbumsList({ albumList, previewImages }: AlbumsListProps) {
+export default function AlbumsList({ albumList, previewImages, languagePack = {} }: AlbumsListProps) {
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -49,10 +51,10 @@ export default function AlbumsList({ albumList, previewImages }: AlbumsListProps
                     <FaFolder className="text-4xl text-gray-400 dark:text-gray-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-                    No Albums Yet
+                    {languagePack.emptyTitle || "No Albums Yet"}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                    Check back later for new photo albums!
+                    {languagePack.emptySubtitle || "Check back later for new photo albums!"}
                 </p>
             </motion.div>
         );
@@ -67,46 +69,56 @@ export default function AlbumsList({ albumList, previewImages }: AlbumsListProps
             role="list"
         >
             <AnimatePresence>
-                {albumList.map((album) => (
-                    <motion.li
-                        key={album.id}
-                        variants={itemVariants}
-                        whileHover={{ y: -4, scale: 1.02 }}
-                        layout
-                    >
-                        <article className="h-full">
-                            <Link
-                                href={`/about/gallery/${album.slug}`}
-                                className="group block bg-white/30 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg shadow-md hover:shadow-xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-all duration-300 h-full"
-                                aria-label={`View ${album.name} album with ${album.imageCount ?? 0} photos`}
-                            >
-                                {/* Album Preview - Folder-style with latest images */}
-                                <figure className="relative bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-                                    <AlbumPreview previewImages={album.previewImages
-                                        .map(id => previewImages.get(id))
-                                        .filter((img): img is GalleryImageType => img !== undefined)
-                                    } />
-                                </figure>
+                {albumList.map((album) => {
+                    const ariaLabel = languagePack.viewAlbumAriaLabel
+                        ? languagePack.viewAlbumAriaLabel.replace('{name}', album.name).replace('{count}', String(album.imageCount ?? 0))
+                        : `View ${album.name} album with ${album.imageCount ?? 0} photos`;
+                        
+                    const photosLabel = languagePack.photosAriaLabel
+                        ? languagePack.photosAriaLabel.replace('{count}', String(album.imageCount ?? 0))
+                        : `${album.imageCount} photos`;
 
-                                {/* Album Info */}
-                                <div className="p-3">
-                                    <h3 className="text-xs font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate mb-1">
-                                        {album.name}
-                                    </h3>
-                                    <div className="flex items-center justify-between text-[10px] text-gray-700 dark:text-gray-300">
-                                        <div className="flex items-center gap-1" aria-label={`${album.imageCount} photos`}>
-                                            <FaImage className="text-[9px]" aria-hidden="true" />
-                                            <span>{album.imageCount}</span>
+                    return (
+                        <motion.li
+                            key={album.id}
+                            variants={itemVariants}
+                            whileHover={{ y: -4, scale: 1.02 }}
+                            layout
+                        >
+                            <article className="h-full">
+                                <Link
+                                    href={`/about/gallery/${album.slug}`}
+                                    className="group block bg-white/30 dark:bg-gray-800/30 backdrop-blur-sm rounded-lg shadow-md hover:shadow-xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-all duration-300 h-full"
+                                    aria-label={ariaLabel}
+                                >
+                                    {/* Album Preview - Folder-style with latest images */}
+                                    <figure className="relative bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+                                        <AlbumPreview previewImages={album.previewImages
+                                            .map(id => previewImages.get(id))
+                                            .filter((img): img is GalleryImageType => img !== undefined)
+                                        } />
+                                    </figure>
+
+                                    {/* Album Info */}
+                                    <div className="p-3">
+                                        <h3 className="text-xs font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate mb-1">
+                                            {album.name}
+                                        </h3>
+                                        <div className="flex items-center justify-between text-[10px] text-gray-700 dark:text-gray-300">
+                                            <div className="flex items-center gap-1" aria-label={photosLabel}>
+                                                <FaImage className="text-[9px]" aria-hidden="true" />
+                                                <span>{album.imageCount}</span>
+                                            </div>
+                                            <span className="font-medium" aria-hidden="true">
+                                                {formatDateTime(album.timestamp)}
+                                            </span>
                                         </div>
-                                        <span className="font-medium" aria-hidden="true">
-                                            {formatDateTime(album.timestamp)}
-                                        </span>
                                     </div>
-                                </div>
-                            </Link>
-                        </article>
-                    </motion.li>
-                ))}
+                                </Link>
+                            </article>
+                        </motion.li>
+                    )
+                })}
             </AnimatePresence>
         </motion.ul>
     );

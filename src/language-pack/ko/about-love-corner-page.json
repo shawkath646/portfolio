@@ -1,0 +1,21 @@
+{
+    "header": "Love Corner",
+    "timelineLabel": "Timeline",
+    "sideCharacterLabel": "Side Characters",
+    "metadata": {
+        "title": "Love Corner",
+        "description": "My love corner",
+        "keywords": [
+            "love",
+            "corner"
+        ],
+        "openGraph": {
+            "title": "Love Corner",
+            "description": "My love corner"
+        },
+        "twitter": {
+            "title": "Love Corner",
+            "description": "My love corner"
+        }
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "description": "Description",
+    "noDescription": "No description provided",
+    "location": "Location",
+    "dateCaptured": "Date Captured",
+    "accessibility": "Accessibility",
+    "unknownAlbum": "Unknown Album",
+    "ariaLabel": {
+        "main": "Image details page content"
+    },
+    "labels": {
+        "description": "Description",
+        "location": "Location",
+        "dateCaptured": "Date Captured",
+        "accessibility": "Accessibility"
+    },
+    "emptyState": {
+        "description": "No description provided"
+    }
+}

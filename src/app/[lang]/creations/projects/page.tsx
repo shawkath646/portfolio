@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { locales, resolveLocale, getLanguagePack, defaultLocale } from '@/lib/locale';
 import getProjectsData from '@/actions/creations/getProjectsData';
 import NumberPagination from '@/components/navigation/NumberPagination';
 import appBaseUrl from '@/data/appBaseUrl';
@@ -7,8 +8,12 @@ import ProjectsClient from './ProjectsClient';
 const PROJECTS_PER_PAGE = 20;
 
 export async function generateMetadata(
-  { searchParams }: PageProps<'/[lang]/creations/projects'>
+  { params, searchParams }: PageProps<'/[lang]/creations/projects'>
 ): Promise<Metadata> {
+
+  const { lang } = await params;
+  const locale = resolveLocale(lang);
+  const dict = await getLanguagePack(locale, 'projects-page');
 
   const requestedPage = Number((await searchParams).page) || 1;
 
@@ -17,9 +22,9 @@ export async function generateMetadata(
     limit: PROJECTS_PER_PAGE,
   });
 
-  const { page, totalPages, totalItems } = projectsData;
+  const { page, totalPages } = projectsData;
 
-  const baseUrl = "/creations/projects";
+  const baseUrl = `/${locale}/creations/projects`;
 
   const previous =
     page > 1
@@ -33,22 +38,29 @@ export async function generateMetadata(
       ? `${baseUrl}?page=${page + 1}`
       : null;
 
+  const languages: Record<string, string> = {};
+  for (const l of locales) {
+      languages[l] = new URL(`/${l}/creations/projects`, appBaseUrl).toString();
+  }
+  languages["x-default"] = new URL(`/${defaultLocale}/creations/projects`, appBaseUrl).toString();
+
   return {
     title:
       page > 1
-        ? `Projects Portfolio (Page ${page})`
-        : "Projects Portfolio",
+        ? `${dict.metaTitle} (Page ${page})`
+        : dict.metaTitle,
 
     description:
       page > 1
-        ? `Page ${page} of ${totalPages} showcasing projects by Shawkat Hossain Maruf (shawkath646) including React, Next.js, TypeScript and open-source work.`
-        : `Browse ${totalItems} projects by Shawkat Hossain Maruf (shawkath646) - Full-stack developer specializing in React, Next.js and TypeScript.`,
+        ? `${dict.metaDescription} - Page ${page} of ${totalPages}`
+        : dict.metaDescription,
 
     alternates: {
       canonical:
         page > 1
           ? new URL(`${baseUrl}?page=${page}`, appBaseUrl)
           : new URL(baseUrl, appBaseUrl),
+      languages
     },
 
     pagination: {
@@ -70,13 +82,25 @@ export async function generateMetadata(
   };
 }
 
-export default async function ProjectsPage({ searchParams }: PageProps<'/[lang]/creations/projects'>) {
+export default async function ProjectsPage({ searchParams, params }: PageProps<'/[lang]/creations/projects'>) {
   const requestedPage = Number((await searchParams).page) || 1;
+  const lang = await params.then((p) => p.lang);
+  const resolvedLang = resolveLocale(lang);
 
-  const projectsData = await getProjectsData({
-    page: requestedPage,
-    limit: PROJECTS_PER_PAGE,
-  });
+  const [projectsData, clientDict, cardDict, paginationDict] = await Promise.all([
+      getProjectsData({
+        page: requestedPage,
+        limit: PROJECTS_PER_PAGE,
+      }),
+      getLanguagePack(resolvedLang, "projects-client-component"),
+      getLanguagePack(resolvedLang, "projects-card-component"),
+      getLanguagePack(resolvedLang, "number-pagination-component")
+  ]);
+
+  const clientLanguagePack = {
+      ...clientDict,
+      cardLanguagePack: cardDict,
+  };
 
   return (
     <main
@@ -97,6 +121,7 @@ export default async function ProjectsPage({ searchParams }: PageProps<'/[lang]/
         projects={projectsData.projects}
         totalProjects={projectsData.totalItems}
         currentPage={projectsData.page}
+        languagePack={clientLanguagePack}
       />
 
       <div className="container mx-auto relative z-10 w-full">
@@ -104,6 +129,7 @@ export default async function ProjectsPage({ searchParams }: PageProps<'/[lang]/
           basePath="/creations/projects"
           currentPage={projectsData.page}
           totalPages={projectsData.totalPages}
+          languagePack={paginationDict}
         />
       </div>
     </main>

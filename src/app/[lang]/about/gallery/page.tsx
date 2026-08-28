@@ -3,32 +3,46 @@ import { FiFolder } from "react-icons/fi";
 import { getAlbumPreviewImages, getAllAlbums } from "@/actions/gallery/getGalleryData";
 import SimplePagination from "@/components/navigation/SimplePagination";
 import appBaseUrl from "@/data/appBaseUrl";
+import { locales, resolveLocale, defaultLocale } from "@/lib/locale";
 import { buildCursorUrl } from "@/utils/cursor";
 import { getSingleSearchParam } from "@/utils/string";
 import AlbumsList from "./AlbumsList";
 
 
-export async function generateMetadata({ searchParams }: PageProps<'/[lang]/about/gallery'>): Promise<Metadata> {
-  const params = await searchParams;
-  const startAfter = getSingleSearchParam(params.startAfter);
+export async function generateMetadata({ params, searchParams }: PageProps<'/[lang]/about/gallery'>): Promise<Metadata> {
+  const { lang } = await params;
+  const locale = resolveLocale(lang);
+  const searchParamsObj = await searchParams;
+  const startAfter = getSingleSearchParam(searchParamsObj.startAfter);
 
   const albumsResponse = await getAllAlbums(startAfter);
 
   const title = "Photography Gallery";
   const description = `Explore Shawkat Hossain Maruf's photography gallery showcasing captured moments, travel experiences, and creative work organized in albums.`;
 
-  const basePath = "/about/gallery";
+  const basePath = `/${locale}/about/gallery`;
 
   const previous = buildCursorUrl(basePath, albumsResponse.prevStartAfter);
   const next = buildCursorUrl(basePath, albumsResponse.nextStartAfter);
+
+  const languages: Record<string, string> = {};
+  for (const l of locales) {
+      languages[l] = startAfter 
+        ? new URL(`/${l}/about/gallery?startAfter=${startAfter}`, appBaseUrl).toString()
+        : new URL(`/${l}/about/gallery`, appBaseUrl).toString();
+  }
+  languages["x-default"] = startAfter
+    ? new URL(`/${defaultLocale}/about/gallery?startAfter=${startAfter}`, appBaseUrl).toString()
+    : new URL(`/${defaultLocale}/about/gallery`, appBaseUrl).toString();
 
   return {
     title,
     description,
     alternates: {
       canonical: startAfter
-        ? new URL(`/about/gallery?startAfter=${startAfter}`, appBaseUrl)
-        : new URL("/about/gallery", appBaseUrl),
+        ? new URL(`/${locale}/about/gallery?startAfter=${startAfter}`, appBaseUrl)
+        : new URL(`/${locale}/about/gallery`, appBaseUrl),
+      languages,
     },
     pagination: {
       previous,

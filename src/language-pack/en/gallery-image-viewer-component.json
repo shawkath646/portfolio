@@ -1,0 +1,8 @@
+{
+  "dimensions": "Dimensions",
+  "fileSize": "File Size",
+  "date": "Date",
+  "imageSet": "Image Set",
+  "showImageAriaLabel": "Show image {number}",
+  "thumbnailAlt": "{altText} thumbnail {number}"
+}

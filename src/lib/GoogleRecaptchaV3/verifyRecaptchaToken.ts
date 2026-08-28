@@ -35,16 +35,16 @@ export default async function verifyRecaptchaToken(
         if (!res.ok) {
             return {
                 success: false,
-                message: "Failed to verify reCAPTCHA.",
+                message: `reCAPTCHA Enterprise assessment request failed with status ${res.status}.`,
             };
         }
 
-        const data = (await res.json()) as RecaptchaEnterpriseAssessment;
+        const data: RecaptchaEnterpriseAssessment = await res.json();
 
         if (!data.tokenProperties?.valid) {
             return {
                 success: false,
-                message: "Invalid reCAPTCHA token.",
+                message: `Invalid reCAPTCHA token: ${data.tokenProperties?.invalidReason ?? "Unknown reason"}`,
             };
         }
 
@@ -55,7 +55,8 @@ export default async function verifyRecaptchaToken(
             };
         }
 
-        if (data.tokenProperties.hostname && data.tokenProperties.hostname !== appBaseUrl.hostname) {
+        const expectedHostname = new URL(appBaseUrl).hostname;
+        if (data.tokenProperties.hostname && data.tokenProperties.hostname !== expectedHostname) {
             return {
                 success: false,
                 message: "Invalid reCAPTCHA hostname.",

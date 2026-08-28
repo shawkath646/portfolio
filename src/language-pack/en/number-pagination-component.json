@@ -1,0 +1,8 @@
+{
+  "navigationAriaLabel": "Pagination Navigation",
+  "previousPageAriaLabel": "Previous Page",
+  "previous": "Previous",
+  "goToPageAriaLabelPrefix": "Go to page",
+  "nextPageAriaLabel": "Next Page",
+  "next": "Next"
+}

@@ -1,11 +1,14 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import appBaseUrl from "@/data/appBaseUrl";
 import { isLocale } from "@/lib/locale";
+import appBaseUrl from "@/data/appBaseUrl";
 
+interface BreadcrumbJsonLdProps {
+    homeName?: string;
+}
 
-export default function BreadcrumbJsonLd() {
+export default function BreadcrumbJsonLd({ homeName = "Home" }: BreadcrumbJsonLdProps) {
     const pathname = usePathname();
 
     if (!pathname || pathname === "/") {
@@ -22,14 +25,14 @@ export default function BreadcrumbJsonLd() {
     }
 
     const baseUrl = locale
-        ? `${appBaseUrl.origin}/${locale}`
-        : appBaseUrl.origin;
+        ? `${appBaseUrl}/${locale}`
+        : appBaseUrl;
 
     const itemListElement = [
         {
             "@type": "ListItem",
             position: 1,
-            name: "Home",
+            name: homeName,
             item: baseUrl,
         },
     ];

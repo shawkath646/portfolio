@@ -34,25 +34,19 @@ const revealWord: Variants = {
     },
 };
 
-type LandingLanguagePack = {
-    mainTitle: string;
-    bioItem1: string;
-    bioItem2: string;
-    bioItem3: string;
-    bioItem4: string;
-    skillItem1: string;
-    skillItem2: string;
-    skillItem3: string;
-    skillItem4: string;
-    skillItem5: string;
-    ctaDownloadCv: string;
-    ctaViewWorks: string;
-    scrollText: string;
-    profileImageAlt: string;
-    profileAriaLabel: string;
+import type { Dictionary } from "@/types/dictionary.types";
+
+const badgeVariants: Variants = {
+    hidden: { y: "100%", opacity: 0, rotateZ: -10 },
+    visible: {
+        y: "0%",
+        opacity: 1,
+        rotateZ: 0,
+        transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }, // Apple-style easing
+    },
 };
 
-export default function EnhancedLanding({ languagePack }: { languagePack: LandingLanguagePack }) {
+export default function EnhancedLanding({ languagePack }: { languagePack: Dictionary<"homepage-landing-component"> }) {
     const controls = useAnimation();
     
     const ref = useRef(null);

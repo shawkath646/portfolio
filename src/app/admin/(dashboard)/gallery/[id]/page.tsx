@@ -8,6 +8,8 @@ import { getSingleSearchParam } from "@/utils/string";
 import GalleryGrid from "./GalleryGrid";
 import GalleryHeader from "./GalleryHeader";
 
+const DynamicImageViewModal = dynamic(() => import("./ImageViewModal"));
+
 
 export const generateMetadata = async (
     { params, searchParams }: PageProps<'/admin/gallery/[id]'>
@@ -49,8 +51,6 @@ export default async function GalleryPage({ params, searchParams }: PageProps<'/
     }
 
     const selectedImage = imagesResponse.images.find(img => img.id === selectedImageId);
-
-    const DynamicImageViewModal = dynamic(() => import("./ImageViewModal"));
 
     return (
         <main

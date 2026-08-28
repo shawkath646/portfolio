@@ -1,64 +1,19 @@
-"use client";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-import { isLocale, locales, type Locale } from "@/lib/locale";
+import { type Locale } from "@/lib/locale";
+import type { Dictionary } from "@/types/dictionary.types";
+import LocaleSwitcher from "../LocaleSwitcher";
+import { Suspense } from "react";
 
-type FooterLanguagePack = {
-  quickLinksTitle: string;
-  siteFooterAriaLabel: string;
-  footerNavigationAriaLabel: string;
-  languageSwitcherTitle: string;
-  languageSwitcherAriaLabel: string;
-  languageEnglish: string;
-  languageKorean: string;
-  warningText: string;
-  websiteBuiltByText: string;
-  copyrightText: string;
-  logoAlt: string;
-  brandName: string;
-  quickLinks: {
-    adminPanel: string;
-    sitemap: string;
-    privacyPolicy: string;
-    termsOfService: string;
-  };
-};
-
-export default function Footer({ languagePack }: { languagePack: FooterLanguagePack }) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
+export default async function Footer({
+  languagePack,
+  locale,
+}: {
+  languagePack: Dictionary<"footer-component">;
+  locale: Locale;
+}) {
   const currentYear = new Date().getFullYear();
-  const pathSegments = pathname.split("/").filter(Boolean);
-  const currentLocale: Locale =
-    pathSegments.length > 0 && isLocale(pathSegments[0])
-      ? pathSegments[0]
-      : "en";
 
-  const pathWithoutLocale =
-    pathSegments.length > 0 && isLocale(pathSegments[0])
-      ? `/${pathSegments.slice(1).join("/")}`
-      : pathname;
-
-  const normalizedPath =
-    pathWithoutLocale === "" ? "/" : pathWithoutLocale;
-
-  const queryString = searchParams.toString();
-
-  const buildLocaleHref = (targetLocale: Locale) => {
-    const targetPath =
-      normalizedPath === "/"
-        ? `/${targetLocale}`
-        : `/${targetLocale}${normalizedPath}`;
-
-    return queryString ? `${targetPath}?${queryString}` : targetPath;
-  };
-
-  const localeOptions: Array<{ code: Locale; label: string }> = [
-    { code: "en", label: languagePack.languageEnglish },
-    { code: "ko", label: languagePack.languageKorean },
-  ];
   const quickLinks = [
     { name: languagePack.quickLinks.adminPanel, href: "/admin" },
     { name: languagePack.quickLinks.sitemap, href: "/sitemap.xml" },
@@ -93,82 +48,68 @@ export default function Footer({ languagePack }: { languagePack: FooterLanguageP
             ))}
           </nav>
 
-          <div className="mt-5 flex flex-col items-center sm:items-start gap-2">
-            <h4 className="text-xs font-semibold tracking-wide uppercase text-blue-200/90">
-              {languagePack.languageSwitcherTitle}
-            </h4>
-            <div
-              className="inline-flex rounded-full border border-blue-300/25 bg-blue-950/30 p-1"
-              role="group"
-              aria-label={languagePack.languageSwitcherAriaLabel}
-            >
-              {localeOptions.map((localeOption) => {
-                const isActive = currentLocale === localeOption.code;
-
-                return (
-                  <Link
-                    key={localeOption.code}
-                    href={buildLocaleHref(localeOption.code)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
-                      isActive
-                        ? "bg-linear-to-r from-blue-500 to-cyan-400 text-white shadow-md"
-                        : "text-blue-100/90 hover:text-white hover:bg-white/10"
-                    }`}
-                    aria-current={isActive ? "true" : undefined}
-                    aria-label={localeOption.label}
-                  >
-                    {localeOption.label}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
+          <Suspense fallback={<p>Loading...</p>}>
+            <LocaleSwitcher
+              languagePack={{
+                languageSwitcherAriaLabel: languagePack.languageSwitcherAriaLabel,
+                languageSwitcherTitle: languagePack.languageSwitcherTitle,
+                languageEnglish: languagePack.languageEnglish,
+                languageKorean: languagePack.languageKorean
+              }}
+              locale={locale}
+            />
+          </Suspense>
         </div>
 
-        {/* Divider */}
         <div className="border-t border-gray-700/50 my-6"></div>
 
-        {/* Notice Section */}
         <div className="mb-6 text-center">
           <p className="text-xs sm:text-sm text-yellow-200/90 font-medium leading-relaxed max-w-4xl mx-auto">
             {languagePack.warningText}
           </p>
         </div>
 
-        {/* Divider */}
         <div className="border-t border-gray-700/50 my-6"></div>
 
-        {/* Bottom Section */}
         <div className="space-y-3 text-center text-xs sm:text-sm text-gray-400">
           <p className="flex flex-wrap items-center justify-center gap-1">
             <span>{languagePack.websiteBuiltByText}</span>
-            <a
-              href="https://github.com/shawkath646"
+            <Link
+              href="https://gh.shawkath646.dev"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-200"
             >
               shawkath646
-            </a>
+            </Link>
             <span>&</span>
-            <a
-              href="https://cloudburstlab.vercel.app"
+            <Link
+              href="https://clouburstlab.com"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center hover:opacity-80 transition-opacity duration-200"
             >
               <Image
-                src="https://cloudburstlab.vercel.app/api/branding/logo?variant=transparent"
+                src="https://assets.clouburstlab.com/branding/icon_light.png"
                 alt={languagePack.logoAlt}
-                width={64}
-                height={32}
-                className="h-8 w-16"
+                width={200}
+                height={35}
+                className="h-4 w-32 block dark:hidden"
               />
-            </a>
+              <Image
+                src="https://assets.clouburstlab.com/branding/icon_dark.png"
+                alt={languagePack.logoAlt}
+                width={200}
+                height={35}
+                className="h-4 w-32 hidden dark:block"
+              />
+            </Link>
           </p>
 
           <p className="text-gray-500">
-            {languagePack.copyrightText.replace("{currentYear}", String(currentYear)).replace("{brandName}", languagePack.brandName)}
+            {languagePack.copyrightText
+              .replace("{currentYear}", String(currentYear))
+              .replace("{brandName}", languagePack.brandName)}
           </p>
         </div>
       </div>

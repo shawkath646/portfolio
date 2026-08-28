@@ -1,0 +1,21 @@
+{
+    "heading": "Friends Corner",
+    "paragraph1": "Paragraph 1",
+    "values": "Values",
+    "metadata": {
+        "title": "Friends Corner",
+        "description": "My friends",
+        "keywords": [
+            "friends",
+            "corner"
+        ],
+        "openGraph": {
+            "title": "Friends Corner",
+            "description": "My friends"
+        },
+        "twitter": {
+            "title": "Friends Corner",
+            "description": "My friends"
+        }
+    }
+}

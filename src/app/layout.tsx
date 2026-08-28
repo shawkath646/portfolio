@@ -1,47 +1,23 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { headers } from "next/headers";
-import Link from "next/link";
-import { Analytics } from "@vercel/analytics/next";
-import NoJavaScript from "@/components/NoJavaScript";
-import { ToastProvider } from "@/components/Toast";
+import type { Metadata, Viewport } from "next";
+import "@/styles/globals.css";
 import appBaseUrl from "@/data/appBaseUrl";
-import { getLocaleFromPath } from "@/lib/locale";
-import "../styles/globals.css";
 
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-  preload: true,
-  fallback: ["system-ui", "arial"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
-  preload: true,
-  fallback: ["ui-monospace", "monospace"],
-});
-
-export const viewport = {
+export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#3b82f6' },
-    { media: '(prefers-color-scheme: dark)', color: '#0a192f' },
+    { media: "(prefers-color-scheme: light)", color: "#3b82f6" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a192f" },
   ],
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(appBaseUrl),
   title: {
-    default: "Shawkat Hossain Maruf - Full-Stack Developer & Software Engineer",
+    default: "Shawkat Hossain Maruf | Full-Stack Software Engineer",
     template: "%s | Shawkat Hossain Maruf",
   },
   description:
     "Full-stack developer and Computer Science student at Sejong University specializing in React, Next.js, TypeScript, and Android development. Building modern web applications and mobile solutions with cutting-edge technologies.",
   applicationName: "Shawkat Hossain Maruf Portfolio",
-  metadataBase: appBaseUrl,
   generator: "Next.js",
   referrer: "origin-when-cross-origin",
   keywords: [
@@ -64,10 +40,7 @@ export const metadata: Metadata = {
     "Freelancer",
     "Remote Worker",
   ],
-  authors: {
-    name: "Shawkat Hossain Maruf",
-    url: appBaseUrl,
-  },
+  authors: { name: "Shawkat Hossain Maruf", url: appBaseUrl },
   creator: "Shawkat Hossain Maruf",
   publisher: "Shawkat Hossain Maruf",
   category: "Technology",
@@ -95,42 +68,35 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-video-preview": -1,
     },
-  }
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    alternateLocale: ["ko_KR"],
+    url: appBaseUrl,
+    siteName: "Shawkat Hossain Maruf",
+    title: "Shawkat Hossain Maruf | Full-Stack Software Engineer",
+    description:
+      "Full-stack developer and Computer Science student at Sejong University specializing in React, Next.js, TypeScript, and Android development.",
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Shawkat Hossain Maruf Portfolio",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Shawkat Hossain Maruf | Full-Stack Software Engineer",
+    description:
+      "Full-stack developer and Computer Science student at Sejong University specializing in React, Next.js, TypeScript, and Android development.",
+    creator: "@shawkath646",
+    images: ["/opengraph-image.png"],
+  },
 };
 
-
-
-
-export default async function RootLayout({
-  children,
-}: Readonly<LayoutProps<"/">>) {
-  const requestHeaders = await headers();
-  const lang = getLocaleFromPath(requestHeaders.get("x-url-path"));
-
-  return (
-    <html
-      lang={lang}
-      className="scroll-smooth"
-      data-scroll-behavior="smooth"
-    >
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300`}
-      >
-        <NoJavaScript />
-
-        <Link
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50 transition-all focus:ring-2 focus:ring-blue-400"
-        >
-          Skip to main content
-        </Link>
-
-        <ToastProvider>
-          {children}
-        </ToastProvider>
-
-        <Analytics />
-      </body>
-    </html>
-  );
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return children;
 }

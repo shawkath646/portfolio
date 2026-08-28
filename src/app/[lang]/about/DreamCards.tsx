@@ -3,8 +3,9 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { FaGlobeAmericas, FaLaptopCode, FaFeatherAlt } from 'react-icons/fa';
+import type { Dictionary } from '@/types/dictionary.types';
 
-export default function DreamCards() {
+export default function DreamCards({ languagePack }: { languagePack: Dictionary<"about-dream-cards-component"> }) {
     const ref = useRef(null);
     const inView = useInView(ref, {
         once: true,
@@ -14,25 +15,22 @@ export default function DreamCards() {
     const goals = [
         {
             icon: <FaGlobeAmericas className="text-2xl" />,
-            title: "Exploring every corner of the earth",
-            description:
-                "I want to reach every corner of the world and witness the beauty Allah has created for us. I admire nature—from the top of mountains to the bed of the sea.",
+            title: languagePack.goal1Title || "Exploring every corner of the earth",
+            description: languagePack.goal1Description || "I want to reach every corner of the world and witness the beauty Allah has created for us. I admire nature—from the top of mountains to the bed of the sea.",
             id: "dream-explore",
             color: "from-emerald-400 to-teal-500"
         },
         {
             icon: <FaLaptopCode className="text-2xl" />,
-            title: "Be a software engineer",
-            description:
-                "Coding and developing applications is an addiction to me. I aim to build my career in the software engineering field. I'm already working hard to master web development, but I know the race is long, especially with the rise of AI.",
+            title: languagePack.goal2Title || "Be a software engineer",
+            description: languagePack.goal2Description || "Coding and developing applications is an addiction to me. I aim to build my career in the software engineering field. I'm already working hard to master web development, but I know the race is long, especially with the rise of AI.",
             id: "dream-engineer",
             color: "from-blue-400 to-indigo-500"
         },
         {
             icon: <FaFeatherAlt className="text-2xl" />,
-            title: "Keeping a scratch before I die",
-            description:
-                "I want to leave a footprint before I leave this earth. People may forget quickly, but I still believe I'll live on through my online presence, my portfolio, my soft behavior, and the people I've helped.",
+            title: languagePack.goal3Title || "Keeping a scratch before I die",
+            description: languagePack.goal3Description || "I want to leave a footprint before I leave this earth. People may forget quickly, but I still believe I'll live on through my online presence, my portfolio, my soft behavior, and the people I've helped.",
             id: "dream-legacy",
             color: "from-purple-400 to-pink-500"
         },
@@ -111,7 +109,7 @@ export default function DreamCards() {
                                 animate={inView ? "visible" : "hidden"}
                                 className="text-lg sm:text-xl font-bold tracking-wide bg-linear-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent"
                             >
-                                My Dreams & Aspirations
+                                {languagePack.heading || "My Dreams & Aspirations"}
                             </motion.h2>
                         </div>
                     </div>
@@ -123,7 +121,7 @@ export default function DreamCards() {
                     animate={inView ? { opacity: 1 } : { opacity: 0 }}
                     transition={{ delay: 0.3 }}
                 >
-                    These are the goals that fuel my passion and guide my journey—if Allah wills.
+                    {languagePack.subtitle || "These are the goals that fuel my passion and guide my journey—if Allah wills."}
                 </motion.p>
             </div>
 
@@ -154,7 +152,7 @@ export default function DreamCards() {
 
                             <div className="flex items-center justify-center gap-2 mb-3">
                                 <span className="px-2 py-1 text-xs font-medium bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-600 dark:text-blue-300 rounded-full border border-blue-100 dark:border-blue-800">
-                                    Personal Goal
+                                    {languagePack.personalGoalBadge || "Personal Goal"}
                                 </span>
                             </div>
 
@@ -174,4 +172,4 @@ export default function DreamCards() {
             </motion.div>
         </section>
     );
-};
+}

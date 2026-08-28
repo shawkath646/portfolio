@@ -5,30 +5,7 @@ import { FaTelegramPlane, FaLinkedin } from "react-icons/fa";
 import { FaUpwork } from "react-icons/fa6";
 import { SiFiverr } from "react-icons/si";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-
-type OrderNowLanguagePack = {
-  title: string;
-  whyMe: string;
-  reasonsAriaLabel: string;
-  reasons: string[];
-  platformsAriaLabel: string;
-  directConnectTitle: string;
-  fastestBadge: string;
-  fastestBadgeAriaLabel: string;
-  directConnectDescription: string;
-  telegramLabel: string;
-  linkedInLabel: string;
-  contactTelegramAriaLabel: string;
-  contactLinkedInAriaLabel: string;
-  platformsTitle: string;
-  trustedBadge: string;
-  trustedBadgeAriaLabel: string;
-  platformsDescription: string;
-  fiverrLabel: string;
-  upworkLabel: string;
-  hireFiverrAriaLabel: string;
-  hireUpworkAriaLabel: string;
-};
+import type { Dictionary } from "@/types/dictionary.types";
 
 // Animation Variants
 const containerVariants: Variants = {
@@ -61,7 +38,7 @@ const listItemVariants: Variants = {
   }),
 };
 
-export default function OrderNowComponent({ languagePack }: { languagePack: OrderNowLanguagePack }) {
+export default function OrderNowComponent({ languagePack }: { languagePack: Dictionary<"homepage-order-now-component"> }) {
   // Initialize animation controls
   const controls = useAnimation();
   
