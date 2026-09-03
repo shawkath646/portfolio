@@ -1,9 +1,9 @@
 "use client";
 import React, { memo, useEffect, useRef } from "react";
 import { motion, Variants, useAnimation, useInView } from "framer-motion";
-import { FaCode, FaAndroid, FaChartBar, FaVuejs, FaJava, FaChartLine } from "react-icons/fa";
-import { SiReact, SiNextdotjs, SiBootstrap, SiTailwindcss, SiNodedotjs, SiExpress, SiFirebase, SiMongodb, SiPython, SiPandas, SiNumpy, SiJupyter, SiScikitlearn } from "react-icons/si";
-import { TbBrandReactNative } from "react-icons/tb";
+import { FaCode, FaAndroid, FaChartBar, FaVuejs, FaJava, FaChartLine, FaDesktop, FaCloud, FaAws, FaBookOpen } from "react-icons/fa";
+import { SiReact, SiNextdotjs, SiBootstrap, SiTailwindcss, SiNodedotjs, SiExpress, SiFirebase, SiMongodb, SiPython, SiPandas, SiNumpy, SiJupyter, SiScikitlearn, SiElectron, SiC, SiCplusplus, SiGo } from "react-icons/si";
+import { TbBrandReactNative, TbBrandAzure } from "react-icons/tb";
 import useReducedMotion from "@/hooks/useReducedMotion";
 import type { Dictionary } from "@/types/dictionary.types";
 
@@ -44,7 +44,7 @@ const SkillBranchComponent = memo(({ branch, skillsInPrefix, skillAriaPrefix }: 
   return (
     <motion.li
       variants={fadeInUp}
-      className="bg-white/70 dark:bg-[#16213e]/70 rounded-2xl shadow-xl px-6 py-5 flex flex-col focus-within:ring-2 focus-within:ring-blue-400 focus-within:outline-none transition-all duration-300"
+      className="bg-white/70 dark:bg-[#16213e]/70 rounded-2xl shadow-xl px-6 py-5 flex flex-col focus-within:ring-2 focus-within:ring-blue-400 focus-within:outline-none transition-all duration-300 break-inside-avoid mb-6"
       tabIndex={0}
     >
       <h3 className="flex items-center text-lg sm:text-xl font-bold gap-3 mb-2">
@@ -138,14 +138,13 @@ const SkillsComponent = memo(function SkillsComponent({ languagePack }: { langua
   const controls = useAnimation();
   const ref = useRef(null);
 
-    const inView = useInView(ref, { 
-        once: true, 
-        amount: 0.2,
-        margin: "50px 0px",
-    });
+  const inView = useInView(ref, {
+    once: true,
+    amount: 0.2,
+    margin: "50px 0px",
+  });
 
   const prefersReducedMotion = useReducedMotion(controls);
-
 
   useEffect(() => {
     if (inView && !prefersReducedMotion) {
@@ -169,7 +168,6 @@ const SkillsComponent = memo(function SkillsComponent({ languagePack }: { langua
         { label: languagePack.webTailwind, icon: <SiTailwindcss className="text-cyan-400" aria-hidden="true" /> },
         { label: languagePack.webNode, icon: <SiNodedotjs className="text-green-600" aria-hidden="true" /> },
         { label: languagePack.webExpress, icon: <SiExpress className="text-gray-800 dark:text-gray-200" aria-hidden="true" /> },
-        { label: languagePack.webFirebase, icon: <SiFirebase className="text-yellow-500" aria-hidden="true" /> },
         { label: languagePack.webMongo, icon: <SiMongodb className="text-green-700" aria-hidden="true" /> },
       ],
     },
@@ -180,7 +178,25 @@ const SkillsComponent = memo(function SkillsComponent({ languagePack }: { langua
         { label: languagePack.androidReactNative, icon: <TbBrandReactNative className="text-cyan-500" aria-hidden="true" /> },
         { label: languagePack.androidJava, icon: <FaJava className="text-red-500" aria-hidden="true" /> },
         { label: languagePack.androidExpo, icon: <TbBrandReactNative className="text-purple-500" aria-hidden="true" /> },
-        { label: languagePack.androidFirebase, icon: <SiFirebase className="text-yellow-500" aria-hidden="true" /> },
+      ],
+    },
+    {
+      label: languagePack.branchDesktop,
+      icon: <FaDesktop className="text-indigo-600" aria-hidden="true" />,
+      children: [
+        { label: languagePack.desktopElectron, icon: <SiElectron className="text-cyan-400" aria-hidden="true" /> },
+        { label: languagePack.desktopC, icon: <SiC className="text-blue-500" aria-hidden="true" /> },
+        { label: languagePack.desktopCpp, icon: <SiCplusplus className="text-blue-600" aria-hidden="true" /> },
+        { label: languagePack.desktopGo, icon: <SiGo className="text-cyan-500" aria-hidden="true" /> },
+      ],
+    },
+    {
+      label: languagePack.branchCloud,
+      icon: <FaCloud className="text-sky-500" aria-hidden="true" />,
+      children: [
+        { label: languagePack.cloudFirebase, icon: <SiFirebase className="text-yellow-500" aria-hidden="true" /> },
+        { label: languagePack.cloudAzure, icon: <TbBrandAzure className="text-blue-500" aria-hidden="true" /> },
+        { label: languagePack.cloudAws, icon: <FaAws className="text-orange-500" aria-hidden="true" /> },
       ],
     },
     {
@@ -234,7 +250,7 @@ const SkillsComponent = memo(function SkillsComponent({ languagePack }: { langua
         </header>
 
         <ul
-          className="grid gap-6 w-full max-w-6xl mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+          className="columns-1 md:columns-2 lg:columns-3 gap-6 w-full max-w-6xl mx-auto"
           role="list"
           aria-label={languagePack.categoriesAriaLabel}
         >
@@ -248,6 +264,44 @@ const SkillsComponent = memo(function SkillsComponent({ languagePack }: { langua
           ))}
         </ul>
 
+        <motion.div
+          variants={fadeInUp}
+          className="relative mx-auto mt-10 flex w-full max-w-2xl flex-col gap-4 overflow-hidden rounded-2xl border border-gray-200/60 bg-white/60 px-5 py-4 shadow-lg shadow-gray-200/20 backdrop-blur-md transition-all duration-300 dark:border-gray-800/70 dark:bg-[#16213e]/60 dark:shadow-black/20 sm:px-6 sm:py-5 md:flex-row md:items-center md:gap-8"
+        >
+          {/* Subtle accent */}
+          <div
+            className="pointer-events-none absolute -left-12 -top-12 h-24 w-24 rounded-full bg-purple-500/10 blur-3xl"
+            aria-hidden="true"
+          />
+
+          <h3 className="relative flex shrink-0 items-center gap-2.5 text-base font-semibold text-gray-900 dark:text-white sm:text-lg">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 text-purple-500 dark:bg-purple-500/10">
+              <FaBookOpen className="text-sm" aria-hidden="true" />
+            </span>
+            <span>{languagePack.workingOnTitle}</span>
+          </h3>
+
+          <ul
+            className="relative flex flex-col gap-2 text-sm font-medium text-gray-600 dark:text-gray-300 sm:text-base"
+            role="list"
+          >
+            <li className="flex items-center gap-2.5">
+              <span
+                className="h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500 ring-3 ring-blue-500/10"
+                aria-hidden="true"
+              />
+              <span>{languagePack.workingOnItem1}</span>
+            </li>
+
+            <li className="flex items-center gap-2.5">
+              <span
+                className="h-1.5 w-1.5 shrink-0 rounded-full bg-purple-500 ring-3 ring-purple-500/10"
+                aria-hidden="true"
+              />
+              <span>{languagePack.workingOnItem2}</span>
+            </li>
+          </ul>
+        </motion.div>
         <motion.p
           className="mt-10 text-sm text-gray-500 dark:text-gray-300 text-center"
           variants={fadeInUp}

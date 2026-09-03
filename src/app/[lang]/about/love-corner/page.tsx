@@ -9,27 +9,9 @@ import { locales, resolveLocale, getLanguagePack, defaultLocale } from "@/lib/lo
 import CharacterTimeline from "./CharacterTimeline";
 import LoveCornerHeader from "./LoveCornerHeader";
 import SideCharacters from "./SideCharacters";
-
-const relationships = [
-    {
-        id: 1,
-        name: "Nadia Islam Mim",
-        start: "2015-01-1",
-        end: "2015-12-31",
-    },
-    {
-        id: 2,
-        name: "Prapti Saha",
-        start: "2017-03-1",
-        end: "2020-02-28",
-    },
-    {
-        id: 3,
-        name: "Sanjida Jahan Mridula",
-        start: "2020-04-01",
-        end: "2025-12-31",
-    },
-];
+import RandomThought from "./RandomThought";
+import HealingHeart from "./HealingHeart";
+import { getAllPersons } from "@/actions/person/getPersonData";
 
 export async function generateMetadata({
     params,
@@ -74,10 +56,11 @@ export default async function LoveCornerPage({
 }) {
     const lang = await params.then((p) => p.lang);
     const resolvedLocale = resolveLocale(lang);
-    const [headerDict, timelineDict, sideCharDict] = await Promise.all([
+    const [headerDict, timelineDict, sideCharDict, pageDict] = await Promise.all([
         getLanguagePack(resolvedLocale, "about-love-corner-header-component"),
         getLanguagePack(resolvedLocale, "about-character-timeline-component"),
         getLanguagePack(resolvedLocale, "about-side-characters-component"),
+        getLanguagePack(resolvedLocale, "about-love-corner-page"),
     ]);
 
     const [adminSession, genericSession] = await Promise.all([
@@ -94,9 +77,22 @@ export default async function LoveCornerPage({
                 icon={<FiHeart className="text-2xl text-white" />}
             />
         );
-    };
+    }
 
-    const adminData = await getAdminData();
+    const [adminData, loveCornerPersons] = await Promise.all([
+        getAdminData(),
+        getAllPersons("love corner"),
+    ]);
+
+    const relationships = loveCornerPersons
+        .filter((person) => person.addToTimeline)
+        .map((person) => ({
+            id: person.id,
+            name: person.name,
+            start: person.startOn ? person.startOn.toISOString().split("T")[0] : "",
+            end: person.endOn ? person.endOn.toISOString().split("T")[0] : null,
+            secondary: !person.priority,
+        }));
 
     return (
         <main
@@ -133,6 +129,8 @@ export default async function LoveCornerPage({
                     languagePack={timelineDict}
                 />
                 <SideCharacters languagePack={sideCharDict} />
+                <RandomThought title={pageDict.randomThoughtsTitle} thoughts={pageDict.randomThoughts || []} />
+                <HealingHeart title={pageDict.healingHeartTitle} text={pageDict.healingHeartText} />
             </div>
         </main>
     );

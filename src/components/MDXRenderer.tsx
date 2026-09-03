@@ -132,8 +132,38 @@ const components = {
   ),
 };
 
+function isValidMdxUrl(urlStr: string): boolean {
+  try {
+    const url = new URL(urlStr);
+    if (url.protocol !== "https:") return false;
+    
+    const allowedHosts = [
+      "storage.googleapis.com",
+      "firebasestorage.googleapis.com",
+    ];
+
+    if (!allowedHosts.includes(url.hostname)) return false;
+    if (!url.pathname.includes("persons-mdx/")) return false;
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export default async function MDXRenderer({ mdxSource, lang }: MdxRendererProps) {
   const languagePack = await getLanguagePack<"mdx-renderer-component">(lang, "mdx-renderer-component");
+
+  if (!isValidMdxUrl(mdxSource)) {
+    return (
+      <div className="rounded-2xl border border-amber-400/35 bg-amber-500/10 p-5 text-amber-900 dark:text-amber-200">
+        <h2 className="text-lg font-semibold">{languagePack.storyUnavailable}</h2>
+        <p className="mt-2 text-sm opacity-90">
+          Invalid story URL.
+        </p>
+      </div>
+    );
+  }
 
   const response = await fetch(mdxSource, {
     next: { revalidate: 60 * 60 },

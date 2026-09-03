@@ -241,11 +241,11 @@ export const getImageById = cache(
 );
 
 export const getLatestGalleryImages = cache(
-    async (): Promise<(GalleryImageType & { albumSlug: string })[]> => {
+    async (limit:number = IMAGES_PAGE_LIMIT): Promise<(GalleryImageType & { albumSlug: string })[]> => {
         const latestImagesSnapshot = await db
             .collection("gallery-images")
             .orderBy("timestamp", "desc")
-            .limit(IMAGES_PAGE_LIMIT)
+            .limit(limit)
             .get();
 
         const latestImages = latestImagesSnapshot.docs.map(normalizeImageData);

@@ -47,15 +47,6 @@ const nextConfig: NextConfig = {
     ],
     qualities: [70, 75, 85],
   },
-  async redirects() {
-    return [
-      {
-        source: "/index",
-        destination: "/",
-        permanent: true,
-      },
-    ];
-  },
   async headers() {
     return [
       {

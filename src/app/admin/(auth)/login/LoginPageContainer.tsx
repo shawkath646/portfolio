@@ -93,7 +93,10 @@ export default function LoginPageContainer() {
   const [error, setError] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get('redirect') || '/admin';
+  const rawRedirect = searchParams.get('redirect');
+  const redirectUrl = (rawRedirect && rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') && !rawRedirect.includes('\\')) 
+    ? rawRedirect 
+    : '/admin';
 
   const handlePasswordSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();

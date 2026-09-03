@@ -110,8 +110,8 @@ export default function GallerySnapshot({ images, languagePack }: GallerySnapsho
                   <Image
                     src={image.images[0].src}
                     alt={image.alt || image.title}
-                    width={image.images[0].width || 800}   // Use your DB width, fallback to a sensible default
-                    height={image.images[0].height || 800} // Use your DB height, fallback to a sensible default
+                    width={image.images[0].width || 800}
+                    height={image.images[0].height || 800}
                     sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />

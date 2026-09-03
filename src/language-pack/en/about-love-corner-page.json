@@ -2,6 +2,23 @@
     "header": "Love Corner",
     "timelineLabel": "Timeline",
     "sideCharacterLabel": "Side Characters",
+    "randomThoughtsTitle": "Random Thoughts",
+    "randomThoughts": [
+        {
+            "id": 1,
+            "text": "Brief encounters can leave the deepest signatures on our personal growth."
+        },
+        {
+            "id": 2,
+            "text": "Every person we meet teaches us what we value, how we love, and who we hope to become."
+        },
+        {
+            "id": 3,
+            "text": "Chronological timelines only show the duration, not the depth of a connection."
+        }
+    ],
+    "healingHeartTitle": "Current State of Heart",
+    "healingHeartText": "Truth be told, the echoes of past storms—and one devastating tempest in particular—left my heart deeply wounded, and it is only now beginning to heal. It is not ready to fall into the same beautiful traps again, though at times it still longs for something silent and soft, unbeknownst to me.\n\nIt refuses to ache once more; it remembers too well the tears, the heavy silence, and the depths of sorrow endured just to make my favorite person mine. Yet in the end, I was left with nothing.\n\nWhile my mind constantly warns me to stay far from these shores, showing me the impossibility of it all, my heart always chased a faint glimmer of hope. But now, it has surrendered to the quiet work of mending, and my mind stands guard to protect what remains. No more traps, no more illusions—not until the final goal is reached.",
     "metadata": {
         "title": "Love Corner",
         "description": "My love corner",

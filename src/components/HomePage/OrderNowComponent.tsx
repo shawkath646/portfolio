@@ -120,7 +120,7 @@ export default function OrderNowComponent({ languagePack }: { languagePack: Dict
           </p>
           <div className="flex gap-6 mt-2">
             <a
-              href="https://t.me/yourusername"
+              href="https://tg.shawkath646.dev"
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center group"
@@ -130,7 +130,7 @@ export default function OrderNowComponent({ languagePack }: { languagePack: Dict
               <span className="text-xs text-blue-700 dark:text-blue-200 mt-1 font-medium">{languagePack.telegramLabel}</span>
             </a>
             <a
-              href="https://www.linkedin.com/in/yourusername"
+              href="https://li.shawkath646.dev"
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center group"

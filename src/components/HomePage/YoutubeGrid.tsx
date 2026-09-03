@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, Variants } from "framer-motion";
 import { formatDateTime } from "@/utils/dateTime";
+import { FaYoutube } from "react-icons/fa";
 
 const fadeUp: Variants = {
     hidden: { opacity: 0, y: 40 },
@@ -91,9 +92,10 @@ export default function YoutubeGrid({ channel, videos, languagePack }: YoutubeGr
                         href="https://www.youtube.com/@shawkath646?sub_confirmation=1"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block bg-red-600 text-white px-5 py-2 rounded-full hover:bg-red-700 transition"
+                        className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-5 py-2 text-sm font-medium text-gray-900 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-red-200 hover:text-red-600 hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:border-gray-600 dark:hover:bg-gray-800"
                         aria-label={languagePack.subscribeAriaLabel}
                     >
+                        <FaYoutube className="text-base text-red-600 mt-0.5" aria-hidden="true" />
                         {languagePack.subscribeButtonText}
                     </Link>
                 </motion.aside>
@@ -135,7 +137,7 @@ export default function YoutubeGrid({ channel, videos, languagePack }: YoutubeGr
                                         <h4 className="text-sm font-semibold text-gray-800 dark:text-white line-clamp-2">
                                             {video.title}
                                         </h4>
-                                        <time 
+                                        <time
                                             className="text-xs text-gray-500 dark:text-gray-400 mt-2 block"
                                             dateTime={video.publishedAt}
                                         >

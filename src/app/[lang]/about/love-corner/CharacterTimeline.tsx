@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useCallback, memo } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion, useMotionValue, MotionValue } from "motion/react";
 import { FiClock, FiHeart } from "react-icons/fi";
 import { formatDateTime } from "@/utils/dateTime";
 
@@ -25,6 +25,7 @@ type RelationshipSegment = {
     name: string;
     start: string;
     end?: string | null;
+    secondary?: boolean;
 };
 
 type RelationshipMetrics = RelationshipSegment & {
@@ -44,12 +45,6 @@ interface CharacterTimelineProps {
     languagePack?: Partial<Dictionary<"about-character-timeline-component">>;
 }
 
-interface TooltipState {
-    relationship: RelationshipMetrics;
-    x: number;
-    y: number;
-}
-
 interface TimelineContainerProps {
     dateOfBirth: Date;
     currentDate: Date;
@@ -57,7 +52,9 @@ interface TimelineContainerProps {
     markerYears: number[];
     isDenseScale: boolean;
     shouldReduceMotion: boolean;
-    tooltip: TooltipState | null;
+    activeRelationship: RelationshipMetrics | null;
+    tooltipX: MotionValue<number>;
+    tooltipY: MotionValue<number>;
     onOpenTooltip: (relationship: RelationshipMetrics, x: number, y: number) => void;
     onMoveTooltip: (x: number, y: number) => void;
     onCloseTooltip: () => void;
@@ -84,7 +81,9 @@ interface RelationshipBarProps {
 }
 
 interface FloatingTooltipProps {
-    tooltip: TooltipState;
+    relationship: RelationshipMetrics;
+    x: MotionValue<number>;
+    y: MotionValue<number>;
     languagePack?: Partial<Dictionary<"about-character-timeline-component">>;
 }
 
@@ -214,39 +213,45 @@ const MemoTimelineAxis = memo(TimelineAxis);
 
 const RelationshipBar = ({ relationship, index, shouldReduceMotion, rowTop, onOpenTooltip, onMoveTooltip, onCloseTooltip }: RelationshipBarProps) => {
     return (
-        <motion.button
-            type="button"
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: `${relationship.width}%`, opacity: 1 }}
-            transition={{
-                width: { duration: shouldReduceMotion ? 0.2 : 1.1, delay: shouldReduceMotion ? 0 : index * 0.08, ease: "easeOut" },
-                opacity: { duration: 0.35, delay: index * 0.08 },
-            }}
-            whileHover={shouldReduceMotion ? undefined : { scale: 1.03, y: -3, filter: "brightness(1.08)" }}
-            className="absolute z-20 h-6 sm:h-7 rounded-2xl shadow-[0_8px_26px_rgba(8,10,26,0.32)] backdrop-blur-sm cursor-pointer overflow-hidden"
+        <div
+            className="absolute z-20 flex flex-col"
             style={{
                 left: `${relationship.left}%`,
                 top: rowTop,
-                background: `linear-gradient(115deg, ${relationship.barColor[0]}, ${relationship.barColor[1]})`,
+                width: `${relationship.width}%`,
             }}
-            onMouseEnter={(event) => onOpenTooltip(relationship, event.clientX, event.clientY)}
-            onMouseMove={(event) => onMoveTooltip(event.clientX, event.clientY)}
-            onMouseLeave={onCloseTooltip}
-            onFocus={(event) => {
-                const rect = event.currentTarget.getBoundingClientRect();
-                onOpenTooltip(relationship, rect.left + rect.width / 2, rect.top - 12);
-            }}
-            onBlur={onCloseTooltip}
-            onClick={(event) => {
-                const rect = event.currentTarget.getBoundingClientRect();
-                onOpenTooltip(relationship, rect.left + rect.width / 2, rect.top - 12);
-            }}
-            aria-label={`${relationship.name}: ${formatDateTime(relationship.startDate, DATE_FORMAT_OPTIONS)} to ${formatDateTime(relationship.endDate, DATE_FORMAT_OPTIONS)}`}
         >
-            <span className="relative z-10 block truncate px-2 sm:px-2.5 text-[11px] sm:text-xs font-semibold text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">
+            <motion.button
+                type="button"
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: "100%", opacity: relationship.secondary ? 0.18 : 1 }}
+                transition={{
+                    width: { duration: shouldReduceMotion ? 0.2 : 1.1, delay: shouldReduceMotion ? 0 : index * 0.08, ease: "easeOut" },
+                    opacity: { duration: 0.35, delay: index * 0.08 },
+                }}
+                whileHover={shouldReduceMotion ? undefined : { scale: 1.03, y: -2, filter: "brightness(1.08)", opacity: relationship.secondary ? 0.6 : 1 }}
+                className="w-full h-3 sm:h-3.5 rounded-full shadow-[0_4px_12px_rgba(8,10,26,0.2)] backdrop-blur-sm cursor-pointer overflow-hidden"
+                style={{
+                    background: `linear-gradient(115deg, ${relationship.barColor[0]}, ${relationship.barColor[1]})`,
+                }}
+                onMouseEnter={(event) => onOpenTooltip(relationship, event.clientX, event.clientY)}
+                onMouseMove={(event) => onMoveTooltip(event.clientX, event.clientY)}
+                onMouseLeave={onCloseTooltip}
+                onFocus={(event) => {
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    onOpenTooltip(relationship, rect.left + rect.width / 2, rect.top - 12);
+                }}
+                onBlur={onCloseTooltip}
+                onClick={(event) => {
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    onOpenTooltip(relationship, rect.left + rect.width / 2, rect.top - 12);
+                }}
+                aria-label={`${relationship.name}: ${formatDateTime(relationship.startDate, DATE_FORMAT_OPTIONS)} to ${formatDateTime(relationship.endDate, DATE_FORMAT_OPTIONS)}`}
+            />
+            <span className={`absolute top-full left-0 whitespace-nowrap mt-1 text-[10px] sm:text-[11px] leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] pointer-events-none select-none ${relationship.secondary ? "font-normal text-white/40" : "font-semibold text-white/80"}`}>
                 {relationship.name}
             </span>
-        </motion.button>
+        </div>
     );
 };
 
@@ -254,8 +259,8 @@ RelationshipBar.displayName = "RelationshipBar";
 const MemoRelationshipBar = memo(RelationshipBar);
 
 
-const FloatingTooltip = ({ tooltip, languagePack }: FloatingTooltipProps) => {
-    const durationText = formatDuration(tooltip.relationship.startDate, tooltip.relationship.endDate, languagePack);
+const FloatingTooltip = ({ relationship, x, y, languagePack }: FloatingTooltipProps) => {
+    const durationText = formatDuration(relationship.startDate, relationship.endDate, languagePack);
 
     return (
         <motion.div
@@ -263,17 +268,17 @@ const FloatingTooltip = ({ tooltip, languagePack }: FloatingTooltipProps) => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 360, damping: 30, mass: 0.7 }}
-            className="pointer-events-none fixed z-50 w-64 rounded-2xl border border-white/20 bg-white/14 dark:bg-slate-900/48 px-4 py-3 shadow-[0_10px_45px_rgba(0,0,0,0.28)] backdrop-blur-md"
-            style={{ left: tooltip.x, top: tooltip.y }}
+            className="pointer-events-none fixed top-0 left-0 z-50 w-64 rounded-2xl border border-white/20 bg-white/14 dark:bg-slate-900/48 px-4 py-3 shadow-[0_10px_45px_rgba(0,0,0,0.28)] backdrop-blur-md"
+            style={{ x, y }}
         >
             <div className="flex items-start gap-2.5">
                 <span className="mt-0.5 rounded-full bg-white/18 p-1.5 text-rose-100">
                     <FiHeart className="h-3.5 w-3.5" />
                 </span>
                 <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-white">{tooltip.relationship.name}</p>
+                    <p className="truncate text-sm font-semibold text-white">{relationship.name}</p>
                     <p className="mt-1 text-xs text-white/78">
-                        {formatDateTime(tooltip.relationship.startDate, DATE_FORMAT_OPTIONS)} - {formatDateTime(tooltip.relationship.endDate, DATE_FORMAT_OPTIONS)}
+                        {formatDateTime(relationship.startDate, DATE_FORMAT_OPTIONS)} - {relationship.end ? formatDateTime(relationship.endDate, DATE_FORMAT_OPTIONS) : (languagePack?.present || "Present")}
                     </p>
                     <p className="mt-1 flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/66">
                         <FiClock className="h-3 w-3" />
@@ -293,7 +298,9 @@ const TimelineContainer = ({
     markerYears,
     isDenseScale,
     shouldReduceMotion,
-    tooltip,
+    activeRelationship,
+    tooltipX,
+    tooltipY,
     onOpenTooltip,
     onMoveTooltip,
     onCloseTooltip,
@@ -345,7 +352,14 @@ const TimelineContainer = ({
             </div>
 
             <AnimatePresence>
-                {tooltip && <FloatingTooltip tooltip={tooltip} languagePack={languagePack} />}
+                {activeRelationship && (
+                    <FloatingTooltip
+                        relationship={activeRelationship}
+                        x={tooltipX}
+                        y={tooltipY}
+                        languagePack={languagePack}
+                    />
+                )}
             </AnimatePresence>
         </section>
     );
@@ -353,7 +367,9 @@ const TimelineContainer = ({
 
 
 export default function CharacterTimeline({ dateOfBirth, relationships, languagePack }: CharacterTimelineProps) {
-    const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+    const [activeRelationship, setActiveRelationship] = useState<RelationshipMetrics | null>(null);
+    const tooltipX = useMotionValue(0);
+    const tooltipY = useMotionValue(0);
     const shouldReduceMotion = useReducedMotion();
 
     const currentDate = useMemo(() => toStartOfDay(new Date()), []);
@@ -400,16 +416,19 @@ export default function CharacterTimeline({ dateOfBirth, relationships, language
 
     const handleOpenTooltip = useCallback((relationship: RelationshipMetrics, x: number, y: number) => {
         const nextPosition = getClampedTooltipPosition(x, y);
-        setTooltip({ relationship, x: nextPosition.x, y: nextPosition.y });
-    }, []);
+        tooltipX.set(nextPosition.x);
+        tooltipY.set(nextPosition.y);
+        setActiveRelationship(relationship);
+    }, [tooltipX, tooltipY]);
 
     const handleMoveTooltip = useCallback((x: number, y: number) => {
         const nextPosition = getClampedTooltipPosition(x, y);
-        setTooltip((current) => (current ? { ...current, x: nextPosition.x, y: nextPosition.y } : current));
-    }, []);
+        tooltipX.set(nextPosition.x);
+        tooltipY.set(nextPosition.y);
+    }, [tooltipX, tooltipY]);
 
     const handleCloseTooltip = useCallback(() => {
-        setTooltip(null);
+        setActiveRelationship(null);
     }, []);
 
     return (
@@ -420,7 +439,9 @@ export default function CharacterTimeline({ dateOfBirth, relationships, language
             markerYears={markerYears}
             isDenseScale={isDenseScale}
             shouldReduceMotion={shouldReduceMotion === true}
-            tooltip={tooltip}
+            activeRelationship={activeRelationship}
+            tooltipX={tooltipX}
+            tooltipY={tooltipY}
             onOpenTooltip={handleOpenTooltip}
             onMoveTooltip={handleMoveTooltip}
             onCloseTooltip={handleCloseTooltip}

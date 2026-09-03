@@ -88,7 +88,7 @@ export async function getSharedFileDownloadURL(fileId: string): Promise<APIRespo
 
     const storagePath = `shared-files/${fileId}`;
 
-    if (!verifyFileExists(storagePath)) {
+    if (!(await verifyFileExists(storagePath))) {
         return {
             success: false,
             message: "Error: File not exist in server."

@@ -217,19 +217,26 @@ export default function RestrictedPageLogin({
                             <Link href="/contact#contact-me" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1">
                                 {languagePack?.requestPassword || "Request password"}
                             </Link>
-                            <a href="https://cloudburstlab.vercel.app" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-gray-600 dark:hover:text-slate-300 transition-colors opacity-70">
+                            <Link href="https://clouburstlab.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-gray-600 dark:hover:text-slate-300 transition-colors opacity-70">
                                 <span className="scale-75 origin-right">
                                     <FiShield />
                                 </span>
                                 {languagePack?.securedBy || "Secured by"}
                                 <Image
-                                    src="https://cloudburstlab.vercel.app/api/branding/logo?variant=transparent"
+                                    src="https://assets.clouburstlab.com/branding/icon_light.png"
                                     alt={languagePack?.logoAlt || "Logo"}
-                                    height={25}
-                                    width={48}
-                                    className="w-12 h-6.25"
+                                    height={14}
+                                    width={112}
+                                    className="w-25 h-3.5 block dark:hidden"
                                 />
-                            </a>
+                                <Image
+                                    src="https://assets.clouburstlab.com/branding/icon_dark.png"
+                                    alt={languagePack?.logoAlt || "Logo"}
+                                    height={14}
+                                    width={112}
+                                    className="w-25 h-3.5 hidden dark:block"
+                                />
+                            </Link>
                         </div>
                     </form>
                 </div>

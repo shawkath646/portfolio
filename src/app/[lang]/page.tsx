@@ -71,7 +71,7 @@ export default async function Home({
     lifeTimelineLanguagePack,
   ] = await Promise.all([
     fetchYouTubeVideos(),
-    getLatestGalleryImages(),
+    getLatestGalleryImages(14),
     getLifeMilestones(),
     getLanguagePack(lang, "homepage-landing-component"),
     getLanguagePack(lang, "homepage-skills-component"),

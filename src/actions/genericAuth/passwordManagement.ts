@@ -137,7 +137,7 @@ export async function generatePassword(
         };
 
         await docRef.set(record);
-        revalidatePath("/admin/secure");
+        revalidatePath("/admin/security");
 
         return {
             success: true,
@@ -208,7 +208,6 @@ export async function deletePassword(passwordId: string): Promise<APIResponseTyp
 
     await db.collection("generic-passwords").doc(passwordId).delete();
 
-    revalidatePath("/admin/secure");
     revalidatePath("/admin/security");
 
     return {
@@ -255,7 +254,7 @@ export async function cleanupExpirePassword(): Promise<APIResponseType> {
             )
         );
 
-        revalidatePath("/admin/secure");
+        revalidatePath("/admin/security");
 
         return {
             success: true,

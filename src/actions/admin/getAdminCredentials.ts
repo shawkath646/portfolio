@@ -1,4 +1,3 @@
-"use server";
 import { db } from "@/lib/firebase";
 import { AdminCredentialsRecord } from "@/types/auth.types";
 import { timestampToDate } from "@/utils/dateTime";
@@ -13,6 +12,7 @@ export default async function getAdminCredentials(): Promise<AdminCredentialsRec
     const docRef = await db.collection("site-config").doc("admin-pass").get();
     const data = docRef.data() as AdminCredentialsRecord;
 
+    data.password = "";
     data.lastChangedOn = timestampToDate(data.lastChangedOn);
     if (data.totpCreatedOn) {
         data.totpCreatedOn = timestampToDate(data.totpCreatedOn);

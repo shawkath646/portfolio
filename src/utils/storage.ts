@@ -61,3 +61,23 @@ export async function verifyFileExists(storagePath: string): Promise<boolean> {
     const [exists] = await file.exists();
     return exists;
 }
+
+export async function deleteStorageFileByUrl(url: string): Promise<boolean> {
+    try {
+        const prefix = `https://storage.googleapis.com/${bucket.name}/`;
+        if (!url.startsWith(prefix)) {
+            return false;
+        }
+        const storagePath = url.substring(prefix.length);
+        const file = bucket.file(storagePath);
+        const [exists] = await file.exists();
+        if (exists) {
+            await file.delete();
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error("Failed to delete storage file by URL:", error);
+        return false;
+    }
+}

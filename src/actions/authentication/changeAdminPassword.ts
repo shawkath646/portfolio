@@ -1,5 +1,6 @@
 "use server";
 
+import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { verifySync } from "otplib";
 import { db } from "@/lib/firebase";
@@ -72,9 +73,24 @@ const changeAdminPassword = async (
             lastChangedOn: new Date()
         });
 
+        // Invalidate all active sessions in the database
+        const sessionsSnapshot = await db.collection("auth-sessions").get();
+        if (!sessionsSnapshot.empty) {
+            const batch = db.batch();
+            for (const doc of sessionsSnapshot.docs) {
+                batch.delete(doc.ref);
+            }
+            await batch.commit();
+        }
+
+        // Clear session cookies to force re-login
+        const cookieStore = await cookies();
+        cookieStore.delete("access_token");
+        cookieStore.delete("refresh_token");
+
         return {
             success: true,
-            message: "Admin password updated successfully."
+            message: "Admin password updated successfully. All active sessions have been invalidated. Please log in again."
         };
     } catch (error) {
         console.error("Password change error:", error);

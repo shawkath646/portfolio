@@ -118,7 +118,7 @@ export async function clearGenericAuthSession(authToken: string): Promise<boolea
         return false;
     }
 
-    await db.collection("geneic-sessions").doc(sessionId).delete();
+    await db.collection("generic-sessions").doc(sessionId).delete();
     return true;
 }
 

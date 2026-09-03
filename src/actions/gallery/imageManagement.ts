@@ -52,7 +52,6 @@ export async function requestImageUploadURL(
         "image/png",
         "image/gif",
         "image/webp",
-        "image/svg+xml",
     ];
 
     if (!validTypes.includes(props.fileType)) {

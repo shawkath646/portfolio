@@ -15,17 +15,21 @@ const PRIVATE_IP_RANGES = [
     /^fc00:/,
 ];
 
-const IP_HEADERS = [
-    "x-client-ip",
+// Cloudflare proxy headers (authoritative when behind Cloudflare proxy)
+const CLOUDFLARE_IP_HEADERS = [
     "cf-connecting-ip",
-    "fastly-client-ip",
     "true-client-ip",
+];
+
+// Fallback headers for non-Cloudflare environments, custom proxies, and direct local access
+const FALLBACK_IP_HEADERS = [
     "x-real-ip",
-    "x-cluster-client-ip",
-    "x-forwarded",
-    "forwarded-for",
-    "fowarded",
     "x-forwarded-for",
+    "x-client-ip",
+    "fastly-client-ip",
+    "x-cluster-client-ip",
+    "forwarded-for",
+    "x-forwarded",
 ];
 
 
@@ -43,27 +47,34 @@ function isValidIP(ip: string): boolean {
     return IPV6_REGEX.test(ip);
 }
 
+function extractValidIP(headerValue: string | null, isDev: boolean): string | null {
+    if (!headerValue) return null;
+
+    const parts = headerValue.split(",");
+    for (const part of parts) {
+        const ip = part.trim();
+        if (isValidIP(ip)) {
+            if (isDev) return ip;
+            if (!isPrivateIP(ip)) return ip;
+        }
+    }
+
+    return null;
+}
+
 export function getClientIP(headers: Headers): string | null {
     const isDev = process.env.NODE_ENV === "development";
 
-    const validatedIP = headers.get("x-validated-ip");
-    if (validatedIP) return validatedIP;
+    // 1. Authoritative: Fetch from Cloudflare proxy headers first
+    for (const header of CLOUDFLARE_IP_HEADERS) {
+        const ip = extractValidIP(headers.get(header), isDev);
+        if (ip) return ip;
+    }
 
-    for (const header of IP_HEADERS) {
-        const value = headers.get(header);
-        if (!value) continue;
-
-        const parts = value.split(",");
-
-        for (const part of parts) {
-            const ip = part.trim();
-
-            if (isValidIP(ip)) {
-                if (isDev) return ip;
-
-                if (!isPrivateIP(ip)) return ip;
-            }
-        }
+    // 2. Fallback: Check remaining proxy and forwarding headers
+    for (const header of FALLBACK_IP_HEADERS) {
+        const ip = extractValidIP(headers.get(header), isDev);
+        if (ip) return ip;
     }
 
     if (isDev) {
