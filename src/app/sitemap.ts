@@ -3,6 +3,7 @@ import { locales, type Locale } from "@/lib/locale";
 import { getGallerySnapshot } from "@/actions/gallery/getGalleryData";
 import { GalleryImageType } from "@/types/gallery.types";
 import appBaseUrl from "@/data/appBaseUrl";
+import { SKILLS_LIST } from "@/data/skillsData";
 
 export const revalidate = 3600;
 
@@ -72,6 +73,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 lastModified: route.lastModified,
                 changeFrequency: route.changeFrequency,
                 priority: route.priority,
+            })
+        );
+    }
+
+    // Dynamic Skill Routes
+    for (const skill of SKILLS_LIST) {
+        sitemapEntries.push(
+            ...createLocalizedEntries(`/about/skills/${skill.slug}`, {
+                changeFrequency: "monthly",
+                priority: 0.7,
             })
         );
     }

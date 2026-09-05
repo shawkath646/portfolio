@@ -1,5 +1,3 @@
-"use server";
-
 import { cache } from "react";
 import { GitHubRepoResponse, ProjectType } from "@/types/creations.types";
 import { formatRelativeTime } from "@/utils/dateTime";

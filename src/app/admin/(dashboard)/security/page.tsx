@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import getAdminCredentials from '@/actions/admin/getAdminCredentials';
 import {
     getActiveSessions, getLoginAttempts,
-} from '@/actions/authentication/adminSecurityManagement';
-import { getAllPasswords } from '@/actions/genericAuth/passwordManagement';
+} from '@/actions/authentication/adminSecurityData';
+import { getAllPasswords, getDynamicRouteScopes } from '@/actions/genericAuth/passwordManagement';
 import ErrorFallback from '@/components/ErrorFallback';
 import TwoFAManagement from './2FAManagement';
 import ActiveSessions from './ActiveSessions';
@@ -25,11 +25,13 @@ export default async function Page() {
         sessionsData,
         attemptsData,
         passwordsData,
+        availableRoutes,
     ] = await Promise.all([
         getAdminCredentials(),
         getActiveSessions(),
         getLoginAttempts(),
         getAllPasswords(),
+        getDynamicRouteScopes(),
     ]);
 
     return (
@@ -47,6 +49,7 @@ export default async function Page() {
                     <PasswordManagement
                         passwordList={passwordsData.passwordList}
                         expiredCount={passwordsData.expiredCount}
+                        availableRoutes={availableRoutes}
                     />
                 ) : (
                     <ErrorFallback message={passwordsData.message} />

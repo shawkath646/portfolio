@@ -1,11 +1,10 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { generateSecret, generateURI, verifySync } from "otplib";
-import { getAuthSession } from "@/actions/authentication/authActions";
 import { db } from "@/lib/firebase";
 import { AdminCredentialsRecord } from "@/types/auth.types";
 import { APIResponseType } from "@/types/common.types";
-
+import { getAuthSession } from "./authSession";
 
 interface Setup2FAResponse extends APIResponseType {
     secret?: string;
@@ -37,7 +36,6 @@ export async function generate2FASecret(): Promise<Setup2FAResponse> {
     };
 }
 
-
 export async function confirm2FASetup(
     secret: string,
     verificationCode: string
@@ -64,7 +62,6 @@ export async function confirm2FASetup(
     revalidatePath("/admin/security");
     return { success: true, message: "Two-factor authentication has been enabled successfully." };
 }
-
 
 export async function disable2FA(): Promise<APIResponseType> {
     const session = await getAuthSession();

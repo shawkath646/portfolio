@@ -9,8 +9,8 @@ import {
 import {
     revokeSession, revokeAllOtherSessions,
     revokeAllSessions,
-} from "@/actions/authentication/adminSecurityManagement";
-import type { AuthSessionResType } from "@/actions/authentication/adminSecurityManagement";
+} from "@/actions/authentication/adminSecurity.actions";
+import type { AuthSessionResType } from "@/actions/authentication/adminSecurityData";
 import { useToast } from "@/components/Toast";
 import { getPlatformIcon } from "@/utils/clientPlatform";
 import { formatRelativeTime, formatDateTime } from "@/utils/dateTime";

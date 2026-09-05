@@ -13,7 +13,7 @@ import TasksBoard from "@/components/HomePage/TaskBoard";
 import YoutubeGrid from "@/components/HomePage/YoutubeGrid";
 import SimplePagination from "@/components/navigation/SimplePagination";
 import appBaseUrl from '@/data/appBaseUrl';
-import { locales, resolveLocale, getLanguagePack, defaultLocale } from "@/lib/locale";
+import { locales, resolveLocale, getLanguagePack, defaultLocale, Locale } from "@/lib/locale";
 
 export async function generateMetadata({
   params,
@@ -186,7 +186,7 @@ export default async function Home({
         </div>
 
         <div className="relative z-10">
-          <SkillsComponent languagePack={skillsLanguagePack} />
+          <SkillsComponent languagePack={skillsLanguagePack} locale={lang as Locale} />
           <OrderNowComponent languagePack={orderNowLanguagePack} />
 
           {/* Company Info and Tasks Layout Container */}

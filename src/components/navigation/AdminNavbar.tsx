@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FiHome, FiLogOut } from "react-icons/fi";
-import { performLogout } from "@/actions/authentication/authActions";
+import { performLogout } from "@/actions/authentication/auth.actions";
 import { LogoutModal } from "@/modals/LogoutModal";
 
 export default function AdminNavbar() {

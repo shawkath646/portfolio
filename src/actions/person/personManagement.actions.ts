@@ -2,13 +2,13 @@
 
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
+import { getAuthSession } from "@/actions/authentication/authSession";
 import { db, bucket } from "@/lib/firebase";
 import { APIResponseType } from "@/types/common.types";
 import { PersonObject, PersonCategory, GenderType } from "@/types/person.types";
-import { generateSlug } from "@/utils/string";
-import { getAuthSession } from "../authentication/authActions";
-import { generateSignedUploadURL, deleteStorageFileByUrl } from "@/utils/storage";
 import getErrorMessage from "@/utils/getErrorMessage";
+import { generateSignedUploadURL, deleteStorageFileByUrl } from "@/utils/storage";
+import { generateSlug } from "@/utils/string";
 
 // --- Types ---
 interface RequestProfilePicResponse extends APIResponseType {
@@ -188,12 +188,12 @@ export async function savePersonAction(
         const slug = generateSlug(personData.name);
         const now = new Date();
         
-        // 💡 DRY: Extract derived conditions
+        // Extract derived conditions
         const isLoveCorner = personData.category === "love corner";
         const addToTimeline = isLoveCorner ? personData.addToTimeline : false;
         const priority = isLoveCorner && addToTimeline ? (personData.priority ?? null) : null;
 
-        // 💡 DRY: Base object for both Create and Update
+        // Base object for both Create and Update
         const basePersonData = {
             name: personData.name,
             slug,
@@ -221,7 +221,7 @@ export async function savePersonAction(
 
             const existingData = docSnap.data() as PersonObject;
 
-            // 💡 Bug Fix: Allow explicit removal of profilePic (if null is passed)
+            // Allow explicit removal of profilePic (if null is passed)
             const updatedProfilePic = personData.profilePic !== undefined 
                 ? personData.profilePic 
                 : (existingData.profilePic || null);
@@ -230,7 +230,7 @@ export async function savePersonAction(
                 ? personData.mdxUrl
                 : (existingData.mdxUrl || null);
 
-            // 💡 Clean up old files from storage asynchronously to keep storage clean
+            // Clean up old files from storage asynchronously to keep storage clean
             if (personData.profilePic !== undefined && existingData.profilePic && existingData.profilePic !== personData.profilePic) {
                 deleteStorageFileByUrl(existingData.profilePic).catch((err) =>
                     console.error("Failed to delete old profile pic:", err)

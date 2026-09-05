@@ -1,10 +1,10 @@
 import { AddressType } from "./common.types";
 
-export type AccessScopeLabel = "personal_life" | "friends_corner" | "love_corner";
+export type AccessScopeLabel = string;
 
 export interface AccessScopeType {
     passwordId: string;
-    scopeLabel: AccessScopeLabel;
+    route: string;
     createdAt: Date;
     expiresAt: Date;
 }
@@ -14,19 +14,18 @@ export interface GenericAuthSessionRecordType {
     ip: string;
     userAgent: string;
     address: AddressType | null;
+    allowedRoutes: string[];
     accessScope: AccessScopeType[];
 }
 
 export interface GenericAuthPasswordRecordType {
     id: string;
-    accessScope: AccessScopeLabel[];
-    password: string;
-    passwordHint: string;
-    usableTimes: number | 'unlimited';
+    name: string;
+    allowedRoutes: string[];
+    usableTimes: number | "unlimited";
+    usedTimes: number;
     createdAt: Date;
     expiresAt: Date;
-    length: number;
-    usedTimes: number;
 }
 
 export interface GenericSessionTokenType {

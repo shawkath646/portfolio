@@ -7,7 +7,7 @@ import {
 } from "react-icons/fi";
 import {
     clearLoginAttempt, clearAllLoginAttempts,
-} from "@/actions/authentication/adminSecurityManagement";
+} from "@/actions/authentication/adminSecurity.actions";
 import { useToast } from "@/components/Toast";
 import { LoginAttemptRecord } from "@/types/auth.types";
 import { formatRelativeTime } from "@/utils/dateTime";

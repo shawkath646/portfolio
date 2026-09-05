@@ -1,0 +1,16 @@
+{
+    "backToSkills": "기술 목록으로 돌아가기",
+    "backToHome": "홈",
+    "skillsBreadcrumb": "보유 기술",
+    "learnedInLabel": "학습 연도",
+    "categoryLabel": "카테고리",
+    "journeyTitle": "기술 여정과 실전 경험",
+    "otherSkillsTitle": "다른 기술 스택 살펴보기",
+    "metaTitleSuffix": "보유 기술",
+    "metaDescriptionPrefix": "쇼캇 호세인 마루프의 기술 여정과 실전 프로젝트 경험 살펴보기:",
+    "notFoundTitle": "기술을 찾을 수 없습니다",
+    "notFoundDesc": "요청하신 기술 정보가 존재하지 않거나 목록에서 제외되었습니다.",
+    "returnHome": "홈으로 돌아가기",
+    "experienceSince": "시작 연도",
+    "viewProjectShowcase": "프로젝트 둘러보기"
+}

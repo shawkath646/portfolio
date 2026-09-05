@@ -4,7 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import { FileObject, useEasyDragDrop } from "easy-file-dragdrop";
 import { motion } from "framer-motion";
 import { FaImage } from "react-icons/fa";
-import { requestImageUploadURL, saveGalleryImage } from "@/actions/gallery/imageManagement";
+import { requestImageUploadURL, saveGalleryImage } from "@/actions/gallery/imageManagement.actions";
 import { useToast } from "@/components/Toast";
 import { GalleryAlbumType, GalleryImageItemType } from "@/types/gallery.types";
 import runWithConcurrency from "@/utils/runWithConcurrency";

@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { performLogin } from "@/actions/authentication/authActions";
+import { performLogin } from "@/actions/authentication/auth.actions";
 import getErrorMessage from "@/utils/getErrorMessage";
 
 export async function POST(req: NextRequest) {

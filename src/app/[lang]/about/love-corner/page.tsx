@@ -1,8 +1,9 @@
 import { Metadata } from "next";
+import { unauthorized } from "next/navigation";
 import { FiHeart } from "react-icons/fi";
 import getAdminData from "@/actions/admin/getAdminData";
-import { getAuthSession } from "@/actions/authentication/authActions";
-import { getGenericAuthSession } from "@/actions/genericAuth/authActions";
+import { getAuthSession } from "@/actions/authentication/authSession";
+import { getGenericAuthSession } from "@/actions/genericAuth/authSession";
 import RestrictedPageLogin from "@/components/RestrictedPageLogin";
 import appBaseUrl from "@/data/appBaseUrl";
 import { locales, resolveLocale, getLanguagePack, defaultLocale } from "@/lib/locale";
@@ -65,18 +66,24 @@ export default async function LoveCornerPage({
 
     const [adminSession, genericSession] = await Promise.all([
         getAuthSession(),
-        getGenericAuthSession("love_corner")
+        getGenericAuthSession()
     ]);
 
-    if (!adminSession && !genericSession) {
-        return (
-            <RestrictedPageLogin
-                accessScope="love_corner"
-                title="Love Corner"
-                description="Enter the password to view my love life"
-                icon={<FiHeart className="text-2xl text-white" />}
-            />
-        );
+    if (!adminSession) {
+        if (!genericSession) {
+            return (
+                <RestrictedPageLogin
+                    accessScope="/about/love-corner"
+                    title="Love Corner"
+                    description="Enter the password to view my love life"
+                    icon={<FiHeart className="text-2xl text-white" />}
+                />
+            );
+        }
+
+        if (!genericSession.allowedRoutes.includes("/about/love-corner")) {
+            unauthorized();
+        }
     }
 
     const [adminData, loveCornerPersons] = await Promise.all([

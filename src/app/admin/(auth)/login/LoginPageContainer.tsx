@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiLock, FiShield, FiCheck } from "react-icons/fi";
-import { performLogin, verify2FA } from "@/actions/authentication/authActions";
+import { performLogin, verify2FA } from "@/actions/authentication/auth.actions";
 import PasswordForm from "./PasswordForm";
 import VerificationForm from "./VerificationForm";
 

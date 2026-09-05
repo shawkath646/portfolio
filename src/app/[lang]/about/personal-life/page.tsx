@@ -1,7 +1,8 @@
 import { Metadata } from "next";
+import { unauthorized } from "next/navigation";
 import { FiBook } from "react-icons/fi";
-import { getAuthSession } from "@/actions/authentication/authActions";
-import { getGenericAuthSession } from "@/actions/genericAuth/authActions";
+import { getAuthSession } from "@/actions/authentication/authSession";
+import { getGenericAuthSession } from "@/actions/genericAuth/authSession";
 import RestrictedPageLogin from "@/components/RestrictedPageLogin";
 import appBaseUrl from "@/data/appBaseUrl";
 import { locales, resolveLocale, getLanguagePack, defaultLocale } from '@/lib/locale';
@@ -45,18 +46,24 @@ export default async function PersonalLifePage({ params }: PageProps<'/[lang]/ab
 
     const [adminSession, genericSession] = await Promise.all([
         getAuthSession(),
-        getGenericAuthSession("personal_life")
+        getGenericAuthSession()
     ]);
 
-    if (!adminSession && !genericSession) {
-        return (
-            <RestrictedPageLogin
-                accessScope="personal_life"
-                title={dict.heading}
-                description="Enter the password to view my personal information"
-                icon={<FiBook className="text-2xl text-white" />}
-            />
-        );
+    if (!adminSession) {
+        if (!genericSession) {
+            return (
+                <RestrictedPageLogin
+                    accessScope="/about/personal-life"
+                    title={dict.heading}
+                    description="Enter the password to view my personal information"
+                    icon={<FiBook className="text-2xl text-white" />}
+                />
+            );
+        }
+
+        if (!genericSession.allowedRoutes.includes("/about/personal-life")) {
+            unauthorized();
+        }
     }
 
     return (

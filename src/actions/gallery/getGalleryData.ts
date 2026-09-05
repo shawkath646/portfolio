@@ -1,4 +1,3 @@
-"use server";
 import { cache } from "react";
 import { FieldPath, DocumentSnapshot } from "firebase-admin/firestore";
 import { db } from "@/lib/firebase";

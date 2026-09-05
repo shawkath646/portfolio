@@ -1,51 +1,107 @@
 "use server";
+import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import bcrypt from "bcryptjs";
+import { verifySync } from "otplib";
 import { Query } from "firebase-admin/firestore";
-import { getAuthSession } from "@/actions/authentication/authActions";
+import { getAuthSession } from "./authSession";
 import { db } from "@/lib/firebase";
-import { AuthSessionRecord, AdminCredentialsRecord, LoginAttemptRecord } from "@/types/auth.types";
-import { APIResponseType, PartialBy } from "@/types/common.types";
-import { timestampToDate } from "@/utils/dateTime";
+import { AdminCredentialsRecord, LoginAttemptRecord } from "@/types/auth.types";
+import { APIResponseType } from "@/types/common.types";
 
-export interface AuthSessionResType extends PartialBy<AuthSessionRecord, "tokens"> {
-    isCurrent: boolean;
-    accessTokenExpiresAt: Date;
-}
 
-export async function getActiveSessions(): Promise<AuthSessionResType[]> {
-    const currentSession = await getAuthSession();
-    if (!currentSession) {
-        throw new Error("Error: Permission denied! Session not found.");
-    }
+export async function changeAdminPassword(
+    oldPassword: string,
+    newPassword: string,
+    apcOtp: string
+): Promise<APIResponseType> {
+    try {
+        const loginSession = await getAuthSession();
 
-    const snapshot = await db.collection("auth-sessions").get();
-    const now = Date.now();
+        if (!loginSession) {
+            return {
+                success: false,
+                message: "Error: Permission denied! Session not found."
+            };
+        }
 
-    const sessions: AuthSessionResType[] = [];
+        const adminDoc = await db
+            .collection("site-config")
+            .doc("admin-pass")
+            .get();
 
-    for (const doc of snapshot.docs) {
-        const data = doc.data() as AuthSessionRecord;
+        if (!adminDoc.exists) {
+            return {
+                success: false,
+                message: "Admin password configuration not found."
+            };
+        }
 
-        const accessExpiry = timestampToDate(data.tokens.accessTokenExpireAt);
-        if (accessExpiry.getTime() < now) continue;
+        const adminCredentials = adminDoc.data() as AdminCredentialsRecord;
 
-        data.createdAt = timestampToDate(data.createdAt);
-        data.updatedAt = timestampToDate(data.updatedAt);
+        const isOldPasswordValid = await bcrypt.compare(
+            oldPassword,
+            adminCredentials.password
+        );
 
-        const sessionRes: AuthSessionResType = {
-            ...data,
-            isCurrent: doc.id === currentSession.id,
-            accessTokenExpiresAt: accessExpiry,
+        if (!isOldPasswordValid) {
+            return {
+                success: false,
+                message: "Error: Old password is incorrect."
+            };
+        }
+
+        const isSameAsOld = await bcrypt.compare(
+            newPassword,
+            adminCredentials.password
+        );
+
+        if (isSameAsOld) {
+            return {
+                success: false,
+                message: "Error: New password must be different from the old password."
+            };
+        }
+
+        const result = verifySync({ token: apcOtp, secret: adminCredentials.totpSecret });
+        if (!result.valid) {
+            return { success: false, message: "Error: Invalid OTP code." };
+        }
+
+        const newHashedPassword = await bcrypt.hash(newPassword, 12);
+
+        await db.collection("site-config").doc("admin-pass").update({
+            password: newHashedPassword,
+            lastChangedOn: new Date()
+        });
+
+        // Invalidate all active sessions in the database
+        const sessionsSnapshot = await db.collection("auth-sessions").get();
+        if (!sessionsSnapshot.empty) {
+            const batch = db.batch();
+            for (const doc of sessionsSnapshot.docs) {
+                batch.delete(doc.ref);
+            }
+            await batch.commit();
+        }
+
+        const cookieStore = await cookies();
+        cookieStore.delete("access_token");
+        cookieStore.delete("refresh_token");
+
+        return {
+            success: true,
+            message: "Admin password updated successfully. All active sessions have been invalidated. Please log in again."
         };
-        delete sessionRes.tokens;
+    } catch (error) {
+        console.error("Password change error:", error);
 
-        sessions.push(sessionRes);
+        return {
+            success: false,
+            message: "Failed to update admin password. Please try again."
+        };
     }
-
-    sessions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-    return sessions;
-}
+};
 
 export async function revokeSession(sessionId: string): Promise<APIResponseType> {
     const currentSession = await getAuthSession();
@@ -115,36 +171,6 @@ export async function revokeAllSessions(): Promise<APIResponseType> {
     return { success: true, message: `All ${snapshot.size} session(s) terminated. You will be logged out.` };
 }
 
-type GetLoginAttemptsResponse = (LoginAttemptRecord & { isExpired: boolean })[];
-
-
-export async function getLoginAttempts(): Promise<GetLoginAttemptsResponse> {
-    const session = await getAuthSession();
-    if (!session) {
-        throw new Error("Error: Session not found.");
-    }
-
-    const snapshot = await db.collection("login-attempts").get();
-    const now = Date.now();
-    const EXPIRY_MS = 5 * 60 * 1000;
-
-    const attempts: GetLoginAttemptsResponse =
-        snapshot.docs.map((doc) => {
-            const data = doc.data() as LoginAttemptRecord;
-            const timestamp = timestampToDate(data.timestamp);
-
-            const isExpired = timestamp.getTime() + EXPIRY_MS < now;
-
-            return {
-                ...data,
-                timestamp,
-                isExpired,
-            };
-        });
-
-    return attempts;
-}
-
 export async function clearLoginAttempt(attemptId: string): Promise<APIResponseType> {
     const session = await getAuthSession();
     if (!session) {
@@ -193,11 +219,9 @@ export async function clearAllLoginAttempts(
 
     return {
         success: true,
-        message: `${snapshot.size} attempt(s) cleared${category ? ` (status: ${category})` : ""
-            }`,
+        message: `${snapshot.size} attempt(s) cleared${category ? ` (status: ${category})` : ""}`,
     };
 }
-
 
 export async function addBlockedIP(ip: string): Promise<APIResponseType> {
     const session = await getAuthSession();

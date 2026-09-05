@@ -5,19 +5,17 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { FieldValue } from "firebase-admin/firestore";
 import { verifySync } from "otplib";
-import { clearAuthSession, createAuthSession, resolveSession } from "@/actions/authentication/authSession";
+import { clearAuthSession, createAuthSession } from "@/actions/authentication/authSession";
 import { db } from "@/lib/firebase";
-import { AdminCredentialsRecord, AuthSessionRecord, LoginAttemptRecord } from "@/types/auth.types";
+import { AdminCredentialsRecord, LoginAttemptRecord } from "@/types/auth.types";
 import { APIResponseType } from "@/types/common.types";
 import { getClientPlatform } from "@/utils/clientPlatform";
 import { timestampToDate } from "@/utils/dateTime";
 import { getAddressFromIP, getClientIP } from "@/utils/ipAddress";
 import { isLoginAllowed } from "./loginRateLimit";
 
-
 const LOGIN_ATTEMPT_TTL_MINUTES = 5;
 const MAX_2FA_ATTEMPTS = 3;
-
 
 interface PasswordCheckResponse extends APIResponseType {
     attemptId?: string;
@@ -86,7 +84,6 @@ export const performLogin = async (
         attemptId,
     };
 };
-
 
 export const verify2FA = async (
     attemptId: string,
@@ -176,7 +173,6 @@ export const verify2FA = async (
     return { success: true, message: "Verification successful" };
 };
 
-
 export async function performLogout(): Promise<APIResponseType> {
     const requestHeaders = await headers();
     const responseCookies = await cookies();
@@ -208,15 +204,4 @@ export async function performLogout(): Promise<APIResponseType> {
         success: true,
         message: "Logged out successfully",
     };
-}
-
-
-export const getAuthSession = async (): Promise<AuthSessionRecord | null> => {
-    const responseCookies = await cookies();
-    const accessToken = responseCookies.get("access_token");
-
-    if (!accessToken || !accessToken.value) return null;
-    const session = await resolveSession(accessToken.value);
-
-    return session;
 }

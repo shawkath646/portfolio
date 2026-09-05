@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { FaMapMarkerAlt, FaCalendar, FaSpinner, FaTrash } from "react-icons/fa";
-import { deleteImage } from "@/actions/gallery/imageManagement";
+import { deleteImage } from "@/actions/gallery/imageManagement.actions";
 import { useToast } from "@/components/Toast";
 import blurImagePlaceholder from "@/data/blurImagePlaceholder";
 import { GalleryImageType } from "@/types/gallery.types";

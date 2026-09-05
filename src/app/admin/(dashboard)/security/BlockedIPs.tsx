@@ -8,7 +8,7 @@ import {
 } from "react-icons/fi";
 import {
     addBlockedIP, removeBlockedIP, clearAllBlockedIPs,
-} from "@/actions/authentication/adminSecurityManagement";
+} from "@/actions/authentication/adminSecurity.actions";
 
 interface BlockedIPsProps {
     ipList: string[];

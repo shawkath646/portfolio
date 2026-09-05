@@ -1,4 +1,3 @@
-"use server";
 import { cache } from "react";
 import { db } from "@/lib/firebase";
 

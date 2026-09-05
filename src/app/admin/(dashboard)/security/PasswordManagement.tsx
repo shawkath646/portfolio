@@ -1,38 +1,45 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useState, useTransition, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { FiKey, FiPlus, FiTrash2 } from "react-icons/fi";
-import { deletePassword } from "@/actions/genericAuth/passwordManagement";
+import { FiKey, FiPlus, FiTrash2, FiLoader } from "react-icons/fi";
+import { deletePassword } from "@/actions/genericAuth/passwordManagement.actions";
 import { useToast } from "@/components/Toast";
 import CleanupPasswordModal from "@/modals/CleanupPasswordModal";
-import GeneratePasswordModal from "@/modals/GeneratePasswordModal";
 import RevokePasswordModal from "@/modals/RevokePasswordModal";
+import { RouteScope } from "@/data/site_scopes";
 import { GenericAuthPasswordRecordType } from "@/types/genericAuth.types";
 import PasswordCard from "./PasswordCard";
 
 interface PasswordManagementProps {
     passwordList: GenericAuthPasswordRecordType[];
     expiredCount: number;
+    availableRoutes?: RouteScope[];
 }
 
-const formatScopeLabel = (accessScope: GenericAuthPasswordRecordType["accessScope"]) =>
-    accessScope
-        .map((scope) => scope.replace(/_/g, " "))
-        .map((scope) => scope.charAt(0).toUpperCase() + scope.slice(1))
-        .join(", ");
+const GeneratePasswordModal = dynamic(
+    () => import("@/modals/GeneratePasswordModal"),
+    {
+        loading: () => (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+                <FiLoader className="w-8 h-8 text-indigo-600 animate-spin" />
+            </div>
+        ),
+        ssr: false, 
+    }
+);
 
 export default function PasswordManagement({
     passwordList,
-    expiredCount
+    expiredCount,
+    availableRoutes,
 }: PasswordManagementProps) {
-
     const toast = useToast();
     const [isGenerateOpen, setIsGenerateOpen] = useState(false);
     const [isCleanupOpen, setIsCleanupOpen] = useState(false);
     const [revokeTarget, setRevokeTarget] = useState<{ id: string; label: string } | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
-
 
     const handleDelete = useCallback((id: string) => {
         if (deletingId) return;
@@ -47,7 +54,7 @@ export default function PasswordManagement({
     }, [deletingId, toast]);
 
     const handleRevokeRequest = useCallback((password: GenericAuthPasswordRecordType) => {
-        setRevokeTarget({ id: password.id, label: formatScopeLabel(password.accessScope) });
+        setRevokeTarget({ id: password.id, label: password.name || "Access Key" });
     }, []);
 
     const handleConfirmRevoke = useCallback(() => {
@@ -60,7 +67,6 @@ export default function PasswordManagement({
         if (deletingId) return;
         setRevokeTarget(null);
     }, [deletingId]);
-
 
     return (
         <motion.section
@@ -83,7 +89,7 @@ export default function PasswordManagement({
                             Restricted Passwords
                         </h2>
                         <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
-                            Generate and manage access passwords for restricted areas.
+                            Generate and manage hashed access passwords for restricted routes.
                         </p>
                     </div>
                 </div>
@@ -94,14 +100,12 @@ export default function PasswordManagement({
                         disabled={isGenerateOpen}
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
-                        className="relative overflow-hidden bg-purple-100/50 dark:bg-white/20 backdrop-blur-sm border border-purple-200 dark:border-white/30 text-purple-700 dark:text-white font-semibold px-3 py-1.5 rounded-lg hover:bg-purple-200/60 dark:hover:bg-white/30 disabled:opacity-50 transition-all duration-300 flex items-center gap-2 shadow-md text-sm"
+                        className="relative overflow-hidden bg-purple-100/50 dark:bg-white/20 backdrop-blur-sm border border-purple-200 dark:border-white/30 text-purple-700 dark:text-white font-semibold px-3 py-1.5 rounded-lg hover:bg-purple-200/60 dark:hover:bg-white/30 disabled:opacity-50 transition-all duration-300 flex items-center gap-2 shadow-md text-sm cursor-pointer"
                     >
                         <div className="relative z-10 flex items-center gap-2">
                             <FiPlus className="text-sm" />
                             <span>Generate New</span>
                         </div>
-
-                        {/* Animated background */}
                         <div className="absolute inset-0 bg-linear-to-r from-purple-400/10 to-pink-400/10 dark:from-purple-400/20 dark:to-pink-400/20 opacity-0 hover:opacity-100 transition-opacity duration-300" />
                     </motion.button>
                     <motion.button
@@ -109,7 +113,7 @@ export default function PasswordManagement({
                         disabled={isCleanupOpen}
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
-                        className="relative overflow-hidden bg-white/20 dark:bg-white/20 backdrop-blur-sm border border-gray-300 dark:border-white/30 text-gray-800 dark:text-white font-semibold px-3 py-1.5 rounded-lg hover:bg-white/30 dark:hover:bg-white/30 disabled:opacity-50 transition-all duration-300 flex items-center gap-2 shadow-md text-sm"
+                        className="relative overflow-hidden bg-white/20 dark:bg-white/20 backdrop-blur-sm border border-gray-300 dark:border-white/30 text-gray-800 dark:text-white font-semibold px-3 py-1.5 rounded-lg hover:bg-white/30 dark:hover:bg-white/30 disabled:opacity-50 transition-all duration-300 flex items-center gap-2 shadow-md text-sm cursor-pointer"
                         aria-label="Clean up expired passwords"
                     >
                         <div className="relative z-10 flex items-center gap-2">
@@ -121,8 +125,6 @@ export default function PasswordManagement({
                                 </span>
                             )}
                         </div>
-
-                        {/* Animated background */}
                         <div className="absolute inset-0 bg-linear-to-r from-orange-400/10 to-red-400/10 dark:from-orange-400/20 dark:to-red-400/20 opacity-0 hover:opacity-100 transition-opacity duration-300" />
                     </motion.button>
                 </div>
@@ -161,6 +163,7 @@ export default function PasswordManagement({
                     <GeneratePasswordModal
                         open={isGenerateOpen}
                         onClose={() => setIsGenerateOpen(false)}
+                        availableRoutes={availableRoutes}
                     />
                 )}
 

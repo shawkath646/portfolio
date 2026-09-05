@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaFolder, FaPlus, FaTimes, FaCheck, FaEdit, FaTrash } from "react-icons/fa";
-import { createAlbum, updateAlbum, deleteAlbum } from "@/actions/gallery/albumManagement";
+import { createAlbum, updateAlbum, deleteAlbum } from "@/actions/gallery/albumManagement.actions";
 import { GalleryAlbumType } from "@/types/gallery.types";
 
 export default function AlbumsEditor({ albumList }: { albumList: GalleryAlbumType[] }) {

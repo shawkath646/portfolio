@@ -1,7 +1,12 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { FiLock } from "react-icons/fi";
+import { getAuthSession } from "@/actions/authentication/authSession";
+import { getGenericAuthSession } from "@/actions/genericAuth/authSession";
 import { getPersonBySlug } from "@/actions/person/getPersonData";
 import MDXRenderer from "@/components/MDXRenderer";
+import RestrictedPageLogin from "@/components/RestrictedPageLogin";
+import { isRouteAllowed } from "@/data/site_scopes";
 import appBaseUrl from "@/data/appBaseUrl";
 import { locales, resolveLocale, getLanguagePack, defaultLocale } from "@/lib/locale";
 import { PersonObj } from "@/types/common.types";
@@ -31,14 +36,14 @@ function mapDbToPersonObj(person: PersonObject): PersonObj {
 export async function generateMetadata(props: PageProps<"/[lang]/person/[slug]">): Promise<Metadata> {
     const params = await props.params;
     const resolvedLang = resolveLocale(params.lang);
-    const dict = await getLanguagePack(resolvedLang, "person-page");
     const dbPerson = await getPersonBySlug(params.slug);
 
     if (!dbPerson) {
         return {};
     }
 
-    const personData = mapDbToPersonObj(dbPerson);
+    const title = dbPerson.name;
+    const description = `Read ${dbPerson.name} according to Shawkat Hossain Maruf's perspective, how he know, work relation etc.`;
 
     const languages: Record<string, string> = {};
     for (const l of locales) {
@@ -47,12 +52,22 @@ export async function generateMetadata(props: PageProps<"/[lang]/person/[slug]">
     languages["x-default"] = new URL(`/${defaultLocale}/person/${params.slug}`, appBaseUrl).toString();
 
     return {
-        title: `${personData.name} | ${dict.metadataTitleSuffix}`,
-        description: personData.shortBio ?? dict.metadataDescription,
+        title,
+        description,
         alternates: {
             canonical: new URL(`/${resolvedLang}/person/${params.slug}`, appBaseUrl),
             languages,
-        }
+        },
+        openGraph: {
+            title,
+            description,
+            type: "profile",
+        },
+        twitter: {
+            card: "summary",
+            title,
+            description,
+        },
     };
 }
 
@@ -60,13 +75,42 @@ export default async function PersonPage(props: PageProps<"/[lang]/person/[slug]
     const params = await props.params;
     const resolvedLang = resolveLocale(params.lang);
 
-    const [dbPerson, dict] = await Promise.all([
+    const [dbPerson, dict, adminSession, genericSession] = await Promise.all([
         getPersonBySlug(params.slug),
-        getLanguagePack(resolvedLang, "person-page")
+        getLanguagePack(resolvedLang, "person-page"),
+        getAuthSession(),
+        getGenericAuthSession(),
     ]);
 
     if (!dbPerson) {
         return notFound();
+    }
+
+    const parentPath = dbPerson.category === "friends" ? "/about/friends-corner" : "/about/love-corner";
+    const specificRoute = `${parentPath}/${params.slug}`;
+
+    const isAuthorized = !!adminSession || (
+        !!genericSession && (
+            isRouteAllowed(genericSession.allowedRoutes, specificRoute) ||
+            isRouteAllowed(genericSession.allowedRoutes, `/person/${params.slug}`)
+        )
+    );
+
+    if (!isAuthorized) {
+        // Intentionally revealed path and index for search engines with strict PII limitation:
+        // Exposes only name and generic description; blocks all sensitive PII and MDX behind password authentication
+        const genericDescription = `Read ${dbPerson.name} according to Shawkat Hossain Maruf's perspective, how he know, work relation etc.`;
+        const restrictedDict = await getLanguagePack(resolvedLang, "restricted-page-login-component");
+
+        return (
+            <RestrictedPageLogin
+                accessScope={specificRoute}
+                title={dbPerson.name}
+                description={genericDescription}
+                icon={<FiLock className="text-2xl text-white" />}
+                languagePack={restrictedDict}
+            />
+        );
     }
 
     const personData = mapDbToPersonObj(dbPerson);

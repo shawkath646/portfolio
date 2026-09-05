@@ -1,7 +1,7 @@
 import { db } from "@/lib/firebase";
 import { AdminCredentialsRecord } from "@/types/auth.types";
 import { timestampToDate } from "@/utils/dateTime";
-import { getAuthSession } from "../authentication/authActions";
+import { getAuthSession } from "../authentication/authSession";
 
 export default async function getAdminCredentials(): Promise<AdminCredentialsRecord> {
     const adminSession = await getAuthSession();

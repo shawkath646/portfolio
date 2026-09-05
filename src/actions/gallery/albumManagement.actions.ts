@@ -1,11 +1,11 @@
 "use server";
+
 import { revalidatePath } from "next/cache";
+import { getAuthSession } from "@/actions/authentication/authSession";
 import { db } from "@/lib/firebase";
 import { APIResponseType } from "@/types/common.types";
 import { GalleryAlbumType } from "@/types/gallery.types";
 import { generateSlug } from "@/utils/string";
-import { getAuthSession } from "../authentication/authActions";
-
 
 export const createAlbum = async (
     albumName: string

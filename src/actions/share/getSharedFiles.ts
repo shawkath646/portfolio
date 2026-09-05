@@ -1,23 +1,18 @@
-"use server";
-
 import { cache } from "react";
-import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { Query } from "firebase-admin/firestore";
 import { jwtDecrypt } from "jose";
+import { getAuthSession } from "@/actions/authentication/authSession";
 import { db } from "@/lib/firebase";
-import { APIResponseType, CursorPaginationOptions } from "@/types/common.types";
+import { CursorPaginationOptions } from "@/types/common.types";
 import { SharedFileType } from "@/types/share.types";
 import { timestampToDate } from "@/utils/dateTime";
 import { getEnv } from "@/utils/getEnv";
-import { generateSignedDownloadURL, verifyFileExists } from "@/utils/storage";
-import { getAuthSession } from "../authentication/authActions";
 
 const secret = new TextEncoder().encode(getEnv("SHARED_FILE_COOKIE_SECRET"));
 
 export const getAllSharedFiles = cache(
     async ({ limit = 20, startAfter }: CursorPaginationOptions = {}): Promise<SharedFileType[]> => {
-
         const adminSession = await getAuthSession();
         if (!adminSession) {
             throw new Error("Error: Permission denied! Session not found.");
@@ -76,34 +71,3 @@ export const getSelfSharedFiles = cache(async (): Promise<SharedFileType[]> => {
         return [];
     }
 });
-
-export async function getSharedFileDownloadURL(fileId: string): Promise<APIResponseType & { signedUrl?: string }> {
-    const adminSession = await getAuthSession();
-    if (!adminSession) {
-        return {
-            success: false,
-            message: "Error: Permission denied! Session not found."
-        };
-    };
-
-    const storagePath = `shared-files/${fileId}`;
-
-    if (!(await verifyFileExists(storagePath))) {
-        return {
-            success: false,
-            message: "Error: File not exist in server."
-        }
-    }
-
-    const signedUrl = await generateSignedDownloadURL(storagePath, { expireIn: 30 * 60 * 1000 });
-
-    await db.collection("shared-files").doc(fileId).update({ reviewed: true });
-
-    revalidatePath("/admin/shared-files");
-
-    return {
-        success: true,
-        message: "Signed URL generated.",
-        signedUrl
-    }
-}

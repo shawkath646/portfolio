@@ -2,7 +2,7 @@
 import { useState, useTransition, useMemo } from "react";
 import { motion } from "motion/react";
 import { FiKey, FiEye, FiEyeOff, FiCheck, FiAlertTriangle, FiShield } from "react-icons/fi";
-import changeSitePassword from "@/actions/authentication/changeAdminPassword";
+import { changeAdminPassword } from "@/actions/authentication/adminSecurity.actions";
 
 export default function AdminPassword() {
     const [isPending, startTransition] = useTransition();
@@ -41,7 +41,7 @@ export default function AdminPassword() {
 
         startTransition(async () => {
             try {
-                const result = await changeSitePassword(oldPassword, newPassword, apcOtp);
+                const result = await changeAdminPassword(oldPassword, newPassword, apcOtp);
 
                 if (result.success) {
                     setStatus({

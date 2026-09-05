@@ -1,5 +1,3 @@
-"use server";
-
 import { getMessaging, Message } from "firebase-admin/messaging";
 import { admin } from "@/lib/firebase";
 

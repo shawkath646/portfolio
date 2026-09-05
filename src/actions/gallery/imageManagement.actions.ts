@@ -1,13 +1,14 @@
 "use server";
+
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
+import { getAuthSession } from "@/actions/authentication/authSession";
 import { bucket, db, FieldValue } from "@/lib/firebase";
 import { APIResponseType } from "@/types/common.types";
 import { GalleryImageType, GalleryImageItemType } from "@/types/gallery.types";
 import { generatePublicUrl, generateSignedUploadURL, verifyFileExists } from "@/utils/storage";
 import { generateSlug } from "@/utils/string";
 import { getAlbumById, getImageBySlug } from "./getGalleryData";
-import { getAuthSession } from "../authentication/authActions";
 
 const IMAGE_MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -37,14 +38,13 @@ async function generateUniqueImageSlug(title: string): Promise<string> {
 export async function requestImageUploadURL(
     props: RequestImageUploadURLProps
 ): Promise<RequestImageUploadURLResponse> {
-
     const adminSession = await getAuthSession();
     if (!adminSession) {
         return {
             success: false,
             message: "Error: Permission denied! Session not found."
         };
-    };
+    }
 
     const validTypes = [
         "image/jpeg",
@@ -89,7 +89,6 @@ export async function saveGalleryImage(
     metadata: Omit<GalleryImageType, "id" | "slug" | "images" | "timestamp">,
     images: Omit<GalleryImageItemType, "src">[]
 ): Promise<APIResponseType> {
-
     const adminSession = await getAuthSession();
     if (!adminSession) {
         return {
@@ -181,7 +180,6 @@ export async function saveGalleryImage(
 export async function deleteImage(
     imageRecordId: string
 ): Promise<APIResponseType> {
-
     const adminSession = await getAuthSession();
     if (!adminSession) {
         return {
@@ -266,7 +264,7 @@ export async function updateImageAlbum(
         const imageDoc = await tx.get(imageRef);
 
         if (!imageDoc.exists) {
-            return { success: false, message: "Error: Image with provided id did\'nt exist!" };
+            return { success: false, message: "Error: Image with provided id didn't exist!" };
         }
 
         const imageData = imageDoc.data() as GalleryImageType;
@@ -297,4 +295,3 @@ export async function updateImageAlbum(
         message: "Image album updated successfully."
     };
 }
-

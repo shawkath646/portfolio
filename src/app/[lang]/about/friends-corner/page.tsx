@@ -1,7 +1,8 @@
 import { Metadata } from "next";
+import { unauthorized } from "next/navigation";
 import { FiUsers } from "react-icons/fi";
-import { getAuthSession } from "@/actions/authentication/authActions";
-import { getGenericAuthSession } from "@/actions/genericAuth/authActions";
+import { getAuthSession } from "@/actions/authentication/authSession";
+import { getGenericAuthSession } from "@/actions/genericAuth/authSession";
 import RestrictedPageLogin from "@/components/RestrictedPageLogin";
 import appBaseUrl from "@/data/appBaseUrl";
 import { locales, resolveLocale, getLanguagePack, defaultLocale } from "@/lib/locale";
@@ -41,27 +42,27 @@ export async function generateMetadata({
     };
 }
 
-export default async function FriendsCornerPage({
-    params,
-}: {
-    params: Promise<{ lang: string }>;
-}) {
-    const lang = await params.then((p) => p.lang);
-    const resolvedLocale = resolveLocale(lang);
+export default async function FriendsCornerPage() {
     const [adminSession, genericSession] = await Promise.all([
         getAuthSession(),
-        getGenericAuthSession("friends_corner")
-    ])
+        getGenericAuthSession()
+    ]);
 
-    if (!adminSession && !genericSession) {
-        return (
-            <RestrictedPageLogin
-                accessScope="friends_corner"
-                title="Friends Corner"
-                description="Enter the password to view my friendship stories"
-                icon={<FiUsers className="text-2xl text-white" />}
-            />
-        );
+    if (!adminSession) {
+        if (!genericSession) {
+            return (
+                <RestrictedPageLogin
+                    accessScope="/about/friends-corner"
+                    title="Friends Corner"
+                    description="Enter the password to view my friendship stories"
+                    icon={<FiUsers className="text-2xl text-white" />}
+                />
+            );
+        }
+
+        if (!genericSession.allowedRoutes.includes("/about/friends-corner")) {
+            unauthorized();
+        }
     }
 
     return (

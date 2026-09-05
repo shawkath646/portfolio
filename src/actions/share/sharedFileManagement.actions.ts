@@ -1,15 +1,16 @@
 "use server";
+
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { EncryptJWT, jwtDecrypt, JWTPayload } from "jose";
+import { getAuthSession } from "@/actions/authentication/authSession";
 import { bucket, db } from "@/lib/firebase";
 import { APIResponseType } from "@/types/common.types";
 import { SharedFileType } from "@/types/share.types";
 import { getEnv } from "@/utils/getEnv";
 import getErrorMessage from "@/utils/getErrorMessage";
 import { generateSignedUploadURL, verifyFileExists } from "@/utils/storage";
-import { getAuthSession } from "../authentication/authActions";
 
 const secret = new TextEncoder().encode(getEnv("SHARED_FILE_COOKIE_SECRET"));
 
@@ -28,12 +29,11 @@ const MAX_FILE_SIZE = 500 * 1024 * 1024;
 export async function requestSharedFileUploadURL(
     { fileType, fileSize }: RequestFileUploadURLParams
 ): Promise<RequestUploadURLResult> {
-
     if (fileSize <= 0 || fileSize > MAX_FILE_SIZE) {
         return { success: false, message: "Error: File size exceeds 500MB limit" };
     }
 
-    const fileId = crypto.randomUUID()
+    const fileId = crypto.randomUUID();
     const storagePath = `shared-files/${fileId}`;
 
     const uploadURL = await generateSignedUploadURL({
@@ -55,7 +55,6 @@ type SaveSharedFilesProps = Omit<SharedFileType, "timestamp" | "reviewed">;
 export async function saveSharedFile(
     props: SaveSharedFilesProps
 ): Promise<APIResponseType> {
-
     const storagePath = `shared-files/${props.id}`;
 
     const fileExist = await verifyFileExists(storagePath);
@@ -124,7 +123,7 @@ export async function deleteSharedFile(fileId: string): Promise<APIResponseType>
             success: false,
             message: "Error: Permission denied! Session not found."
         };
-    };
+    }
 
     try {
         const storagePath = `shared-files/${fileId}`;
@@ -135,7 +134,7 @@ export async function deleteSharedFile(fileId: string): Promise<APIResponseType>
         return {
             success: false,
             message: getErrorMessage(error) || "Error: Failed to delete file."
-        }
+        };
     }
 
     revalidatePath("/contact/share-files");
@@ -144,5 +143,5 @@ export async function deleteSharedFile(fileId: string): Promise<APIResponseType>
     return {
         success: true,
         message: "File deleted successfully."
-    }
-};
+    };
+}

@@ -3,7 +3,7 @@ import { Fragment, useState, useTransition } from 'react';
 import { Dialog, DialogTitle, Description, Transition } from '@headlessui/react';
 import { motion, useReducedMotion } from "motion/react";
 import { FiTrash2, FiX, FiCheck, FiAlertTriangle, FiLoader } from 'react-icons/fi';
-import { cleanupExpirePassword } from '@/actions/genericAuth/passwordManagement';
+import { cleanupExpirePassword } from '@/actions/genericAuth/passwordManagement.actions';
 import { useToast } from '@/components/Toast';
 import useLockBodyScroll from '@/hooks/useLockBodyScroll';
 import { APIResponseType } from '@/types/common.types';

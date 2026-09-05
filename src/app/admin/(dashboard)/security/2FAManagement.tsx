@@ -3,7 +3,7 @@ import { useState, useRef, useTransition, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { QRCodeSVG } from "qrcode.react";
 import { FiShield, FiCheck, FiCopy, FiAlertTriangle } from "react-icons/fi";
-import { generate2FASecret, confirm2FASetup, disable2FA } from "@/actions/authentication/manage2FA";
+import { generate2FASecret, confirm2FASetup, disable2FA } from "@/actions/authentication/manage2FA.actions";
 
 type SetupStep = "idle" | "scanning" | "verifying";
 

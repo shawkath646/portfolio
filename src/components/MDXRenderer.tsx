@@ -124,7 +124,7 @@ const components = {
     );
   },
   img: (props: ComponentPropsWithoutRef<"img">) => (
-    // eslint-disable-next-line @next/next/no-img-element
+    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
     <img
       className="max-w-full h-auto rounded-md box-content border dark:border-[#30363d]"
       {...props}

@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaUserPlus, FaUser, FaCheck, FaPhone, FaMapMarkerAlt, FaCalendarAlt, FaFileAlt, FaGlobe } from "react-icons/fa";
 import { useToast } from "@/components/Toast";
 import { PersonCategory, PersonObject, GenderType } from "@/types/person.types";
-import { requestProfilePicUploadURL, requestMdxUploadURL, savePersonAction } from "@/actions/person/personManagement";
+import { requestProfilePicUploadURL, requestMdxUploadURL, savePersonAction } from "@/actions/person/personManagement.actions";
 
 const formatDateToInput = (date?: Date | null): string => {
     if (!date) return "";

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FileObject, useEasyDragDrop } from "easy-file-dragdrop";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiCheck, FiAlertCircle, FiLoader, FiClock, FiSend } from "react-icons/fi";
-import { requestSharedFileUploadURL, saveSharedFile } from "@/actions/share/sharedFileManagement";
+import { requestSharedFileUploadURL, saveSharedFile } from "@/actions/share/sharedFileManagement.actions";
 import { useToast } from "@/components/Toast";
 import getErrorMessage from "@/utils/getErrorMessage";
 import runWithConcurrency from "@/utils/runWithConcurrency";

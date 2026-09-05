@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verify2FA } from "@/actions/authentication/authActions";
+import { verify2FA } from "@/actions/authentication/auth.actions";
 import getErrorMessage from "@/utils/getErrorMessage";
 
 export async function POST(req: NextRequest) {

@@ -1,4 +1,3 @@
-"use server";
 import { bucket } from "@/lib/firebase";
 
 const DEFAULT_DOWNLOAD_URL_EXPIRY_MS = 1 * 60 * 60 * 1000; // 1hour

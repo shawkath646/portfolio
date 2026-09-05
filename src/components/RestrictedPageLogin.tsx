@@ -6,21 +6,23 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { FiLock, FiEye, FiEyeOff, FiShield, FiArrowRight } from "react-icons/fi";
 import { IoIosWarning } from "react-icons/io";
-import { handleGenericLogin } from "@/actions/genericAuth/authActions";
+import { handleGenericLogin } from "@/actions/genericAuth/genericAuth.actions";
 import restrictedLoginPageMessages from "@/data/restrictedLoginPageMessages.json";
 import { useCooldown } from "@/hooks/useCooldown";
-import { AccessScopeLabel } from "@/types/genericAuth.types";
 import type { Dictionary } from "@/types/dictionary.types";
 import RecaptchaV3Client, { RecaptchaV3Handle } from "../lib/GoogleRecaptchaV3/RecaptchaV3Client";
 
-const accessScopeMessageMap: Record<AccessScopeLabel, keyof typeof restrictedLoginPageMessages> = {
+const accessScopeMessageMap: Record<string, keyof typeof restrictedLoginPageMessages> = {
+    "/about/personal-life": "personalLife",
+    "/about/friends-corner": "friendsCorner",
+    "/about/love-corner": "loveCorner",
     personal_life: "personalLife",
     friends_corner: "friendsCorner",
     love_corner: "loveCorner"
 };
 
 interface RestrictedPageLoginProps {
-    accessScope: AccessScopeLabel;
+    accessScope: string;
     title?: string;
     description?: string;
     icon?: React.ReactNode;
@@ -45,7 +47,8 @@ export default function RestrictedPageLogin({
     const { cooldown, isCoolingDown, startCooldown } = useCooldown(5);
 
     const getRandomFailureMessage = () => {
-        const messages = restrictedLoginPageMessages[accessScopeMessageMap[accessScope]];
+        const msgKey = accessScopeMessageMap[accessScope] || "personalLife";
+        const messages = restrictedLoginPageMessages[msgKey] || restrictedLoginPageMessages.personalLife;
         return messages[Math.floor(Math.random() * messages.length)];
     };
 

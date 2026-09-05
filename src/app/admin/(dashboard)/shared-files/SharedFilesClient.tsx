@@ -2,8 +2,8 @@
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiFile, FiDownload, FiTrash2, FiClock, FiFileText } from "react-icons/fi";
-import { getSharedFileDownloadURL } from "@/actions/share/getSharedFiles";
-import { deleteSharedFile } from "@/actions/share/sharedFileManagement";
+import { getSharedFileDownloadURL } from "@/actions/share/getSharedFiles.actions";
+import { deleteSharedFile } from "@/actions/share/sharedFileManagement.actions";
 import { useToast } from "@/components/Toast";
 import { SharedFileType } from "@/types/share.types";
 import { formatRelativeTime } from "@/utils/dateTime";

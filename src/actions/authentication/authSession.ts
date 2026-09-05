@@ -1,5 +1,5 @@
-"use server";
 import crypto from "node:crypto";
+import { cookies } from "next/headers";
 import { db } from "@/lib/firebase";
 import { AuthSessionRecord, AuthTokensType } from "@/types/auth.types"
 import { AddressType, PlatformType } from "@/types/common.types";
@@ -150,6 +150,16 @@ export const resolveSession = async (
     await clearAuthSession(accessToken);
     return null;
   }
+
+  return session;
+};
+
+export const getAuthSession = async (): Promise<AuthSessionRecord | null> => {
+  const responseCookies = await cookies();
+  const accessToken = responseCookies.get("access_token");
+
+  if (!accessToken || !accessToken.value) return null;
+  const session = await resolveSession(accessToken.value);
 
   return session;
 };

@@ -1,5 +1,3 @@
-"use server";
-
 import appBaseUrl from "@/data/appBaseUrl";
 import { APIResponseType } from "@/types/common.types";
 import { RecaptchaEnterpriseAssessment } from "@/types/recaptcha.types";

@@ -1,4 +1,3 @@
-"use server";
 import { cache } from "react";
 import { getEnv } from "@/utils/getEnv";
 

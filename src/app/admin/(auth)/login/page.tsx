@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getAuthSession } from "@/actions/authentication/authActions";
+import { getAuthSession } from "@/actions/authentication/authSession";
 import LoginPageContainer from "./LoginPageContainer";
 
 

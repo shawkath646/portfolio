@@ -56,6 +56,7 @@ import type projectsClientComponent from '@/language-pack/en/projects-client-com
 import type projectsPage from '@/language-pack/en/projects-page.json';
 import type restrictedLoginComponent from '@/language-pack/en/restricted-login-component.json';
 import type restrictedPageLoginComponent from '@/language-pack/en/restricted-page-login-component.json';
+import type skillsPage from '@/language-pack/en/skills-page.json';
 
 // ─── Namespace Registry ───
 // Keys MUST match the JSON file basenames (kebab-case) so that
@@ -115,6 +116,7 @@ export type DictionaryMap = {
   "projects-page": typeof projectsPage;
   "restricted-login-component": typeof restrictedLoginComponent;
   "restricted-page-login-component": typeof restrictedPageLoginComponent;
+  "skills-page": typeof skillsPage;
 };
 
 export type Dictionary<T extends keyof DictionaryMap> = DictionaryMap[T];
