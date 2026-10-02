@@ -66,6 +66,15 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        source: "/.well-known/discord",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "text/plain; charset=utf-8",
+          },
+        ],
+      },
     ];
   },
 };
